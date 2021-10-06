@@ -4,7 +4,7 @@
 <link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><link rel="icon" href="icons/favicon16.png" type="image/png">
 <link rel="stylesheet" type="text/css" href="../oxdoc.css">
 <link rel="stylesheet" type="text/css" media="print" href="../print.css">
-<script type="text/javascript" async  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
 <title>Algorithms.ox - FiveO</title>
 </head>
 <body>
@@ -35,7 +35,7 @@ Base class for optimization and system-solving algorithms.
 <DD>Declare a class for your <a href="Objective.ox.html#Objective">Objective</a> (e.g. a <a href="Objective.ox.html#BlackBox">BlackBox</a> or <a href="Objective.ox.html#System">System</a>).</dd>
 <DD>Create an object of your objective class.</DD>
 <DD>Create an object of the algorithm class you want to use, sending your objective to the creator.</DD>
-<DD>If desired, call the algorithm's Algorithm::Tune() method to tweak parameters and/or change the volume setting.</DD>
+<DD>If desired, call the algorithm's <a href="Algorithms.ox.html#Algorithm___Tune">Tune</a>() method to tweak parameters and/or change the volume setting.</DD>
 <DD>Call the <code>Iterate()</code> method of the algorithm.</DD>
 
 <table class="method_table">
@@ -132,7 +132,7 @@ Base class for optimization and system-solving algorithms.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Base class for non-linear programming algorithms.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a></td>
@@ -142,7 +142,7 @@ Base class for optimization and system-solving algorithms.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___ItEnd">ItEnd</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Finish up iteration.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___Iterate">Iterate</a></td>
@@ -152,7 +152,7 @@ Base class for optimization and system-solving algorithms.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">This routine is called at the start if Iterate().</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___out">out</a></td>
@@ -167,7 +167,7 @@ Base class for optimization and system-solving algorithms.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Algorithm___Tune">Tune</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Tune Parameters of the Algorithm.</td>
 </tr>
 </table>
 
@@ -182,7 +182,7 @@ See <a href="javascript:window.open('http://en.wikipedia.org/wiki/Broyden%E2%80%
 <DD>Declare a class for your <a href="Objective.ox.html#Objective">Objective</a> (e.g. a <a href="Objective.ox.html#BlackBox">BlackBox</a> or <a href="Objective.ox.html#System">System</a>).</dd>
 <DD>Create an object of your objective class.</DD>
 <DD>Create a <a href="Algorithms.ox.html#BFGS">BFGS</a> object, sending your objective to the creator.</DD>
-<DD>If desired, call  GradientBased::Tune() method to tweak parameters and/or change the volume setting.</DD>
+<DD>If desired, call  <a href="Algorithms.ox.html#GradientBased___Tune">Tune</a>() method to tweak parameters and/or change the volume setting.</DD>
 <DD>Call BFGS::Iterate().</DD>
 <P/>
 <DD>
@@ -199,18 +199,18 @@ decl b = new BFGS(myobj);
 b->Iterate();
 </pre></dd>
 <DT>See <a href="./GetStarted.html">GetStarted</a> for an example of using BFGS</DT>
-<DT>Tune the parameters of the algorithm with GradientBased::Tune();</DT>
+<DT>Tune the parameters of the algorithm with <a href="Algorithms.ox.html#GradientBased___Tune">Tune</a>();</DT>
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#BFGS___BFGS">BFGS</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create an object of the BFGS algorithm.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#BFGS___Hupdate">Hupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Apply BFGS updating on the Hessian.</td>
 </tr>
 </table>
 
@@ -235,12 +235,12 @@ Berndt Hall Hall Hausman Updating.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#BHHH___BHHH">BHHH</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create an object of the BHHH algorithm.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#BHHH___Hupdate">Hupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">UPdate the Hessian for the BHHH algorithm.</td>
 </tr>
 </table>
 
@@ -265,12 +265,12 @@ Broyden approximation to the Jacobian.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Broyden___Broyden">Broyden</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a new Broyden solution for a system of equations.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Broyden___Jupdate">Jupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Apply Broyden's formula to update the Jacobian.</td>
 </tr>
 </table>
 
@@ -295,18 +295,13 @@ Constrained line maximization.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#CLineMax___CLineMax">CLineMax</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#CLineMax___Try">Try</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a Constrained Line Maximization object.</td>
 </tr>
 </table>
 
 <dl class="inherited">
 <dt>Inherited methods from <a href="Algorithms.ox.html#LineMax">LineMax</a>:</dt><dd><a href="Algorithms.ox.html#LineMax___LineMax">LineMax</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#LineMethod">LineMethod</a>:</dt><dd><a href="Algorithms.ox.html#LineMethod___Bracket">Bracket</a>, <a href="Algorithms.ox.html#LineMethod___Golden">Golden</a>, <a href="Algorithms.ox.html#LineMethod___Iterate">Iterate</a>, <a href="Algorithms.ox.html#LineMethod___LineMethod">LineMethod</a>, <a href="Algorithms.ox.html#LineMethod___PTry">PTry</a>, <a href="Algorithms.ox.html#LineMethod___~LineMethod">~LineMethod</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#LineMethod">LineMethod</a>:</dt><dd><a href="Algorithms.ox.html#LineMethod___Bracket">Bracket</a>, <a href="Algorithms.ox.html#LineMethod___Golden">Golden</a>, <a href="Algorithms.ox.html#LineMethod___Iterate">Iterate</a>, <a href="Algorithms.ox.html#LineMethod___LineMethod">LineMethod</a>, <a href="Algorithms.ox.html#LineMethod___PTry">PTry</a></dd>
 <dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___ItEnd">ItEnd</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a>, <a href="Algorithms.ox.html#Algorithm___Tune">Tune</a></dd>
 </dl>
 
@@ -324,7 +319,7 @@ Constrained line maximization.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#DFP___DFP">DFP</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create an object of the DFP algorithm.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#DFP___Hupdate">Hupdate</a></td>
@@ -405,47 +400,47 @@ Algorithms of this class use the gradient, <span class="expressions">\(\nabla f(
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#GradientBased___CheckPoint">CheckPoint</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Handle gradient based checkpoint files.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#GradientBased___Direction">Direction</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Compute the direction for the current line search.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#GradientBased___GradientBased">GradientBased</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Initialize a Gradient-Based algorithm.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#GradientBased___Gupdate">Gupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Update the gradient &nabla; f(&psi;).</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#GradientBased___HHupdate">HHupdate</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Update the Hessian Hf.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#GradientBased___Hupdate">Hupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Default Hessian Update: Steepest Descent, so <var>H f(&psi;)</var> does not change.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#GradientBased___Iterate">Iterate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Iterate on a gradient-based algorithm.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#GradientBased___ItStartCheck">ItStartCheck</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">This routine is called at the start if Iterate().</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#GradientBased___Tune">Tune</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Tune Parameters of the Algorithm.</td>
 </tr>
 </table>
 
@@ -468,7 +463,7 @@ the same as creating <a href="Algorithms.ox.html#GradientBased">GradientBased</a
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#HillClimbing___HillClimbing">HillClimbing</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Base for Hill Climbing objects.</td>
 </tr>
 </table>
 
@@ -495,12 +490,12 @@ This method is called by <a href="Algorithms.ox.html#GradientBased">GradientBase
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#LineMax___LineMax">LineMax</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">A method to optimize along a line.</td>
 </tr>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Algorithms.ox.html#LineMethod">LineMethod</a>:</dt><dd><a href="Algorithms.ox.html#LineMethod___Bracket">Bracket</a>, <a href="Algorithms.ox.html#LineMethod___Golden">Golden</a>, <a href="Algorithms.ox.html#LineMethod___Iterate">Iterate</a>, <a href="Algorithms.ox.html#LineMethod___LineMethod">LineMethod</a>, <a href="Algorithms.ox.html#LineMethod___PTry">PTry</a>, <a href="Algorithms.ox.html#LineMethod___Try">Try</a>, <a href="Algorithms.ox.html#LineMethod___~LineMethod">~LineMethod</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#LineMethod">LineMethod</a>:</dt><dd><a href="Algorithms.ox.html#LineMethod___Bracket">Bracket</a>, <a href="Algorithms.ox.html#LineMethod___Golden">Golden</a>, <a href="Algorithms.ox.html#LineMethod___Iterate">Iterate</a>, <a href="Algorithms.ox.html#LineMethod___LineMethod">LineMethod</a>, <a href="Algorithms.ox.html#LineMethod___PTry">PTry</a></dd>
 <dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___ItEnd">ItEnd</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a>, <a href="Algorithms.ox.html#Algorithm___Tune">Tune</a></dd>
 </dl>
 
@@ -535,17 +530,17 @@ These methods are embedded into other algorithms and in some cases can be used o
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#LineMethod___Bracket">Bracket</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Bracket a local maximum along the line.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#LineMethod___Golden">Golden</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Golden ratio line search.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#LineMethod___Iterate">Iterate</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Optimize on a line optimization.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#LineMethod___LineMethod">LineMethod</a></td>
@@ -555,16 +550,6 @@ These methods are embedded into other algorithms and in some cases can be used o
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#LineMethod___PTry">PTry</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#LineMethod___Try">Try</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#LineMethod___~LineMethod">~LineMethod</a></td>
-<td class="modifiers"></td>
 <td class="description"></td>
 </tr>
 </table>
@@ -590,8 +575,8 @@ at <a href="javascript:window.open('http://en.wikipedia.org/wiki/Nelder-Mead_Met
 <DD>Declare a class for your <a href="Objective.ox.html#Objective">Objective</a> (e.g. a <a href="Objective.ox.html#BlackBox">BlackBox</a> or <a href="Objective.ox.html#System">System</a>).</dd>
 <DD>Create an object of your objective class.</DD>
 <DD>Create a <a href="Algorithms.ox.html#NelderMead">NelderMead</a> object, sending your objective to the creator.</DD>
-<DD>If desired, call  NelderMead::Tune() method to tweak parameters and/or change the volume setting.</DD>
-<DD>Call NelderMead::Iterate().</DD>
+<DD>If desired, call  <a href="Algorithms.ox.html#NelderMead___Tune">Tune</a>() method to tweak parameters and/or change the volume setting.</DD>
+<DD>Call <a href="Algorithms.ox.html#NelderMead___Iterate">Iterate</a>().</DD>
 <P/>
 <DD>
 <pre>
@@ -670,49 +655,39 @@ nm -> Iterate();
 <td class="description">current step size to create simplex  </td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___Amoeba">Amoeba</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___CheckPoint">CheckPoint</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___Iterate">Iterate</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Iterate on the Amoeba algorithm.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___ItStartCheck">ItStartCheck</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___NelderMead">NelderMead</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___Reflect">Reflect</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Initialize a Nelder-Mead Simplex Maximization.</td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___SimplexSize">SimplexSize</a></td>
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___Reflect">Reflect</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Reflect through simplex.</td>
 </tr>
 <tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___Sort">Sort</a></td>
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___SimplexSize">SimplexSize</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Compute size of the current simplex.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___Tune">Tune</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Tune NelderMead Parameters .</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Algorithms.ox.html#NelderMead___TryResults">TryResults</a></td>
@@ -740,7 +715,7 @@ Evaluate Hessian at each iteration.
 <DD>Declare a class for your <a href="Objective.ox.html#Objective">Objective</a> (e.g. a <a href="Objective.ox.html#BlackBox">BlackBox</a> or <a href="Objective.ox.html#System">System</a>).</dd>
 <DD>Create an object of your objective class.</DD>
 <DD>Create a <a href="Algorithms.ox.html#Newton">Newton</a> object, sending your objective to the creator.</DD>
-<DD>If desired, call  GradientBased::Tune() method to tweak parameters and/or change the volume setting.</DD>
+<DD>If desired, call  <a href="Algorithms.ox.html#GradientBased___Tune">Tune</a>() method to tweak parameters and/or change the volume setting.</DD>
 <DD>Call Newton::Iterate().</DD>
 <P/>
 <DD>
@@ -761,12 +736,12 @@ newt -> Iterate();
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Newton___Hupdate">Hupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Compute the objective's Hessian and the current parameter vector.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#Newton___Newton">Newton</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create an object of the Newton optimization algorithm.</td>
 </tr>
 </table>
 
@@ -790,12 +765,12 @@ Update the Jacobian on each iteration.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NewtonRaphson___Jupdate">Jupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Compute the objective's Jacobian.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#NewtonRaphson___NewtonRaphson">NewtonRaphson</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a Newton-Raphson object to solve a system of equations.</td>
 </tr>
 </table>
 
@@ -848,7 +823,7 @@ Solve for the root of a <a href="Objective.ox.html#OneDimSystem">OneDimSystem</a
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#OneDimRoot___Bracket">Bracket</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Bracket a root of the equation.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#OneDimRoot___EndOneDim">EndOneDim</a></td>
@@ -858,18 +833,18 @@ Solve for the root of a <a href="Objective.ox.html#OneDimSystem">OneDimSystem</a
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#OneDimRoot___Iterate">Iterate</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Find a 1-dimensional root.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#OneDimRoot___OneDimRoot">OneDimRoot</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Object to iterate to find the root a non-linear equation (<a href="Objective.ox.html#OneDimSystem">OneDimSystem</a>).</td>
 </tr>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Algorithms.ox.html#SysMax">SysMax</a>:</dt><dd><a href="Algorithms.ox.html#SysMax___SysMax">SysMax</a>, <a href="Algorithms.ox.html#SysMax___Try">Try</a></dd>
-<dt>Inherited methods from <a href="Algorithms.ox.html#LineMethod">LineMethod</a>:</dt><dd><a href="Algorithms.ox.html#LineMethod___Golden">Golden</a>, <a href="Algorithms.ox.html#LineMethod___LineMethod">LineMethod</a>, <a href="Algorithms.ox.html#LineMethod___PTry">PTry</a>, <a href="Algorithms.ox.html#LineMethod___~LineMethod">~LineMethod</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#SysMax">SysMax</a>:</dt><dd><a href="Algorithms.ox.html#SysMax___SysMax">SysMax</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#LineMethod">LineMethod</a>:</dt><dd><a href="Algorithms.ox.html#LineMethod___Golden">Golden</a>, <a href="Algorithms.ox.html#LineMethod___LineMethod">LineMethod</a>, <a href="Algorithms.ox.html#LineMethod___PTry">PTry</a></dd>
 <dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___ItEnd">ItEnd</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a>, <a href="Algorithms.ox.html#Algorithm___Tune">Tune</a></dd>
 </dl>
 
@@ -907,7 +882,7 @@ A special case of annealing in which the temperature stays the same and only imp
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#RandomSearch___RandomSearch">RandomSearch</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Random search without annealing.</td>
 </tr>
 </table>
 
@@ -940,37 +915,37 @@ Solve system of equations using Jacobian information.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#RootFinding___Direction">Direction</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Compute the direction.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#RootFinding___Gupdate">Gupdate</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Upate Jacobian when using line search aggregation of the system.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#RootFinding___Iterate">Iterate</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Iterate to solve a non-linear system.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#RootFinding___ItStartCheck">ItStartCheck</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">This routine is called at the start if Iterate().</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#RootFinding___JJupdate">JJupdate</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Wrapper for updating the Jacobian of the system.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#RootFinding___Jupdate">Jupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Compute the objective's Jacobian.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#RootFinding___RootFinding">RootFinding</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Solve a non-linear system of equations.</td>
 </tr>
 </table>
 
@@ -995,8 +970,8 @@ Metropolis Simulated Annealing algorithm .
 <DD>Declare a class for your <a href="Objective.ox.html#Objective">Objective</a> (e.g. a <a href="Objective.ox.html#BlackBox">BlackBox</a> or <a href="Objective.ox.html#System">System</a>).</dd>
 <DD>Create an object of your objective class.</DD>
 <DD>Create a <a href="Algorithms.ox.html#SimulatedAnnealing">SimulatedAnnealing</a> object, sending your objective to the creator.</DD>
-<DD>If desired, call  SimulatedAnnealing::Tune() method to tweak parameters and/or change the volume setting.</DD>
-<DD>Call SimulatedAnnealing::Iterate().</DD>
+<DD>If desired, call  <a href="Algorithms.ox.html#SimulatedAnnealing___Tune">Tune</a>() method to tweak parameters and/or change the volume setting.</DD>
+<DD>Call <a href="Algorithms.ox.html#SimulatedAnnealing___Iterate">Iterate</a>().</DD>
 <P/>
 <DD>
 <pre>
@@ -1012,7 +987,7 @@ decl sa = sa SimulatedAnnealing(myobj);
 sa -> Iterate();
 </pre></dd>
 <DT>See <a href="./??">??</a> for an example</DT>
-<DT>Tune the parameters of the algorithm with SimulatedAnnealing::Tune();</DT>
+<DT>Tune the parameters of the algorithm with <a href="Algorithms.ox.html#SimulatedAnnealing___Tune">Tune</a>();</DT>
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -1069,22 +1044,22 @@ sa -> Iterate();
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#SimulatedAnnealing___Iterate">Iterate</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Carry out annealing.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#SimulatedAnnealing___Metropolis">Metropolis</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">accept or reject.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#SimulatedAnnealing___SimulatedAnnealing">SimulatedAnnealing</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Initialize Simulated Annealing.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#SimulatedAnnealing___Tune">Tune</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Tune annealing parameters.</td>
 </tr>
 </table>
 
@@ -1120,27 +1095,27 @@ Sequential Quadratic Programming for constrained optimization.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#SQP___Gupdate">Gupdate</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#SQP___HHupdate">HHupdate</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#SQP___Hupdate">Hupdate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#SQP___Iterate">Iterate</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Iterate.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#SQP___SQP">SQP</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a new Sequential Quadratic Programming object.</td>
 </tr>
 </table>
 
@@ -1216,17 +1191,12 @@ A special case is <a href="Algorithms.ox.html#OneDimRoot">OneDimRoot</a> which b
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#SysMax___SysMax">SysMax</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Algorithms.ox.html#SysMax___Try">Try</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">A method to optimize along a line.</td>
 </tr>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Algorithms.ox.html#LineMethod">LineMethod</a>:</dt><dd><a href="Algorithms.ox.html#LineMethod___Bracket">Bracket</a>, <a href="Algorithms.ox.html#LineMethod___Golden">Golden</a>, <a href="Algorithms.ox.html#LineMethod___Iterate">Iterate</a>, <a href="Algorithms.ox.html#LineMethod___LineMethod">LineMethod</a>, <a href="Algorithms.ox.html#LineMethod___PTry">PTry</a>, <a href="Algorithms.ox.html#LineMethod___~LineMethod">~LineMethod</a></dd>
+<dt>Inherited methods from <a href="Algorithms.ox.html#LineMethod">LineMethod</a>:</dt><dd><a href="Algorithms.ox.html#LineMethod___Bracket">Bracket</a>, <a href="Algorithms.ox.html#LineMethod___Golden">Golden</a>, <a href="Algorithms.ox.html#LineMethod___Iterate">Iterate</a>, <a href="Algorithms.ox.html#LineMethod___LineMethod">LineMethod</a>, <a href="Algorithms.ox.html#LineMethod___PTry">PTry</a></dd>
 <dt>Inherited methods from <a href="Algorithms.ox.html#Algorithm">Algorithm</a>:</dt><dd><a href="Algorithms.ox.html#Algorithm___Algorithm">Algorithm</a>, <a href="Algorithms.ox.html#Algorithm___CheckPoint">CheckPoint</a>, <a href="Algorithms.ox.html#Algorithm___ItEnd">ItEnd</a>, <a href="Algorithms.ox.html#Algorithm___ItStartCheck">ItStartCheck</a>, <a href="Algorithms.ox.html#Algorithm___out">out</a>, <a href="Algorithms.ox.html#Algorithm___Paths">Paths</a>, <a href="Algorithms.ox.html#Algorithm___Tune">Tune</a></dd>
 </dl>
 
@@ -1240,8 +1210,22 @@ A special case is <a href="Algorithms.ox.html#OneDimRoot">OneDimRoot</a> which b
 <a name="Algorithm___Algorithm"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Algorithm</span></h3>
 
+<span class="declaration">Algorithm :: Algorithm ( O )</span>
 <dl><dd>
+Base class for non-linear programming algorithms.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">O</td>
+<td class="description" valign="baseline"><a href="Objective.ox.html#Objective">Objective</a> to work on.
+<P/>
+A timestamped log file is created for the algorithm when it is created.  You can control the output level
+by setting <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a> to the desired <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a>.  The default volume level is SILENT.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1305,7 +1289,12 @@ Running in parallel.
 <a name="Algorithm___ItEnd"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ItEnd</span></h3>
 
+<span class="declaration">virtual Algorithm :: ItEnd ( )</span>
 <dl><dd>
+Finish up iteration.
+The current free parameter vector is decoded into structural parameters.
+If running in parallel then the client node will tell servers to stop and then announce the new structural
+parameter vector.  The servers will drop out of the server loop and all nodes will get past <code>Iterate()</code>
 
 </dd></dl>
 
@@ -1341,8 +1330,22 @@ Default top level convergence tolerance.
 <a name="Algorithm___ItStartCheck"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ItStartCheck</span></h3>
 
+<span class="declaration">virtual Algorithm :: ItStartCheck ( ReadCheckPoint )</span>
 <dl><dd>
+This routine is called at the start if Iterate().
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">ReadCheckPoint</td>
+<td class="description" valign="baseline">TRUE means starting point coming from the checkpoint file.
+<P/>
+If running in parallel it is this routine that server nodes go into the server loop.  The client node
+will enter into the main iteration loop.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1419,6 +1422,7 @@ User's objective.
 <a name="Algorithm___out"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">out</span></h3>
 
+<span class="declaration">virtual Algorithm :: out ( fn )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1437,6 +1441,7 @@ sequence of structural parameters .
 <a name="Algorithm___Paths"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Paths</span></h3>
 
+<span class="declaration">virtual Algorithm :: Paths ( starts )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1465,8 +1470,30 @@ top level convergence tolerance
 <a name="Algorithm___Tune"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Tune</span></h3>
 
+<span class="declaration">virtual Algorithm :: Tune ( maxiter , toler , nfuncmax )</span>
 <dl><dd>
+Tune Parameters of the Algorithm.
+This is the base version.  Some derived algorithms replace this with their own Tune methods.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">maxiter</td>
+<td class="description" valign="baseline">integer max. number of iterations <br>0 use current/default value
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">toler</td>
+<td class="description" valign="baseline">double, simplex tolerance for convergence<br>0 use current/default value
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">nfuncmax</td>
+<td class="description" valign="baseline">integer, number of function evaluations before resetting the simplex<br>0 use current/default value</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1483,72 +1510,195 @@ output level, <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a>
 <a name="BFGS___BFGS"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">BFGS</span></h3>
 
+<span class="declaration">BFGS :: BFGS ( O )</span>
 <dl><dd>
+Create an object of the BFGS algorithm.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">O</td>
+<td class="description" valign="baseline">the <a href="Objective.ox.html#Objective">Objective</a> object to apply this algorithm to.
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+decl myobj = new MyObjective();
+decl bfgs = new BFGS(myobj);
+bfgs->Iterate();
+</pre></dd>
+<P/>
+<DT>See <a href="./GetStarted.html">GetStarted</a></DT>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="BFGS___Hupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Hupdate</span></h3>
 
+<span class="declaration">virtual BFGS :: Hupdate ( )</span>
 <dl><dd>
+Apply BFGS updating on the Hessian.
+<P/>
+<DD>Active Ox code in this routine:
+<pre>
+decl
+  dg = (OC.G - oldG),
+  A = double(dx*dg'),
+  B = double(outer(dx,OC.H));
+  if (fabs(A) < SQRT_EPS*norm(dg,2)*deltaX ) return FAIL;
+  OC.H += outer(dg,<>,'o')/A - outer(dx*OC.H,<>,'o')/B;
+  return NONE;
+</pre>
 
+<dl><dt class="returns">Returns:</dt><dd class="returns"><code>FAIL</CODE> if the updating tolerances are not met.<br>Otherwise <code>NONE</code>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#ConvergenceResults">ConvergenceResults</a>, <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a></dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">BHHH</span></h2>
 
 <a name="BHHH___BHHH"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">BHHH</span></h3>
 
+<span class="declaration">BHHH :: BHHH ( O )</span>
 <dl><dd>
+Create an object of the BHHH algorithm.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">O</td>
+<td class="description" valign="baseline">the <a href="Objective.ox.html#Objective">Objective</a> object to apply this algorithm to.
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+decl myobj = new MyObjective();
+decl bhhh = new BHHH(myobj);
+bhhh->Iterate();
+</pre></dd>
+<P/>
+<DT>See <a href="./GetStarted.html">GetStarted</a></DT>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="BHHH___Hupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Hupdate</span></h3>
 
+<span class="declaration">virtual BHHH :: Hupdate ( )</span>
 <dl><dd>
+UPdate the Hessian for the BHHH algorithm.
 
+<dl><dt class="returns">Returns:</dt><dd class="returns">NONE
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Broyden</span></h2>
 
 <a name="Broyden___Broyden"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Broyden</span></h3>
 
+<span class="declaration">Broyden :: Broyden ( O , USELM )</span>
 <dl><dd>
+Create a new Broyden solution for a system of equations.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">O,</td>
+<td class="description" valign="baseline">the <a href="Objective.ox.html#System">System</a>-derived object to solve.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">USELM</td>
+<td class="description" valign="baseline">FALSE [default] do not do a line search each iteration.<br/>TRUE
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+obj = new MyObjective();
+broy = new Broyden(obj);
+broy -> Iterate();
+</pre></dd>
+<P/>
+<DT>Also see <a href="GetStarted.html#B">GetStarted</a></DT>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="Broyden___Jupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Jupdate</span></h3>
 
+<span class="declaration">virtual Broyden :: Jupdate ( dx )</span>
 <dl><dd>
+Apply Broyden's formula to update the Jacobian.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">dx</td>
+<td class="description" valign="baseline">x<sub>t+1</sub> - x<sub>t</sub></td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CLineMax</span></h2>
 
 <a name="CLineMax___CLineMax"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CLineMax</span></h3>
 
+<span class="declaration">CLineMax :: CLineMax ( O )</span>
 <dl><dd>
+Create a Constrained Line Maximization object.
 
-</dd></dl>
-
-<hr>
-<a name="CLineMax___Try"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Try</span></h3>
-
-<dl><dd>
-
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">O</td>
+<td class="description" valign="baseline"><a href="Objective.ox.html#Objective">Objective</a></td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">DFP</span></h2>
 
 <a name="DFP___DFP"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">DFP</span></h3>
 
+<span class="declaration">DFP :: DFP ( O )</span>
 <dl><dd>
+Create an object of the DFP algorithm.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">O</td>
+<td class="description" valign="baseline">the <a href="Objective.ox.html#Objective">Objective</a> object to apply this algorithm to.
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+decl myobj = new MyObjective();
+decl dfp = new DFP(myobj);
+bfgs->Iterate();
+</pre></dd>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1563,8 +1713,19 @@ output level, <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a>
 <a name="GradientBased___CheckPoint"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CheckPoint</span></h3>
 
+<span class="declaration">virtual GradientBased :: CheckPoint ( WriteOut )</span>
 <dl><dd>
+Handle gradient based checkpoint files.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">WriteOut</td>
+<td class="description" valign="baseline">TRUE - write mode</br>FALSE read from file mode</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1600,15 +1761,23 @@ output level, <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a>
 <a name="GradientBased___Direction"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Direction</span></h3>
 
+<span class="declaration">virtual GradientBased :: Direction ( )</span>
 <dl><dd>
+Compute the direction for the current line search.
+If inversion of H fails, reset to I
 
+<dl><dt class="returns">Returns:</dt><dd class="returns">direction vector.
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="GradientBased___GradientBased"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">GradientBased</span></h3>
 
+<span class="declaration">GradientBased :: GradientBased ( O )</span>
 <dl><dd>
+Initialize a Gradient-Based algorithm.
 
 </dd></dl>
 
@@ -1626,16 +1795,52 @@ tolerance for strong convergence.
 <a name="GradientBased___Gupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gupdate</span></h3>
 
+<span class="declaration">virtual GradientBased :: Gupdate ( )</span>
 <dl><dd>
+Update the gradient &nabla; f(&psi;).
+<P/>
+<DT>This routine is called inside <a href="Algorithms.ox.html#GradientBased___Iterate">Iterate</a>().</DT>
+<DD>Creates a copy of the current gradient.</DD>
+<DD>Calls <a href="Objective.ox.html#Objective___Gradient">Gradient</a>() routine to compute <em>&nabla f(&psi;)</em>, which is (stored internally in <a href="Shared.ox.html#Point___G">G</a>).</DD>
+<DD>Then computes the size of &nabla; using the built-in Ox <code>norm(m,2)</code> routine.</DD>
+<DD>If <a href="Algorithms.ox.html#Algorithm___Volume">Volume</a> is louder than <code>QUIET</code> <em>&nabla; f()</em> is printed to the screen.</DD>
 
+<dl><dt class="returns">Returns:</dt><dd class="returns">TRUE if &nabla;f(&psi;) &lt; <a href="Algorithms.ox.html#GradientBased___gradtoler">gradtoler</a> <br>FALSE otherwise
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="GradientBased___HHupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">HHupdate</span></h3>
 
+<span class="declaration">GradientBased :: HHupdate ( FORCE )</span>
 <dl><dd>
+Update the Hessian Hf.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">FORCE</td>
+<td class="description" valign="baseline">see below.
+<P/>
+<DT>This is a wrapper for the virtual <a href="Algorithms.ox.html#GradientBased___Hupdate">Hupdate</a>() routine and is called
+on each iteration (except possibly the first if convergence is already achieved).</DT>
+<P/>
+<DD>Computes the difference in parameter values from this iteration and the last as well
+is the norm (both used by <a href="Algorithms.ox.html#QuasiNewton">QuasiNewton</a> algorithms).</DD>
+<DD>If <code>FORCE</code> is TRUE, call <a href="Algorithms.ox.html#GradientBased___Gupdate">Gupdate</a>() and check both
+<code>STRONG</code> and <code>WEAK</code> convergence criteria.</DD>
+<DD>Then call the algorithm-specific <code>Hupdate()</code> routine.</DD>
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">the output of <code>Hupdate()</code>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#ConvergenceResults">ConvergenceResults</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1652,8 +1857,17 @@ tolerance for strong convergence.
 <a name="GradientBased___Hupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Hupdate</span></h3>
 
+<span class="declaration">virtual GradientBased :: Hupdate ( )</span>
 <dl><dd>
+Default Hessian Update: Steepest Descent, so <var>H f(&psi;)</var> does not change.
+<P/>
+Since the default gradient-based algorithm is steepest descent, and since this
+algorithm does not use the Hessian, this return does nothing and returns
 
+<dl><dt class="returns">Returns:</dt><dd class="returns"><code>NONE</code>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#ConvergenceResults">ConvergenceResults</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1679,16 +1893,49 @@ Newton version .
 <a name="GradientBased___Iterate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Iterate</span></h3>
 
+<span class="declaration">virtual GradientBased :: Iterate ( H )</span>
 <dl><dd>
+Iterate on a gradient-based algorithm.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">H</td>
+<td class="description" valign="baseline">matrix, initial Hessian<br>integer, use the identity <var>I</Var> as the initial value, or compute H if Newton.
+<P/>
+This routine works the <a href="../CFMPI/default.html">CFMPI</a> to execute the parallel task
+of computing the gradient.
+<P/>
+Gradient-based algorithms conduct a <a href="Algorithms.ox.html#LineMax">LineMax</a>imization on each iteration.
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#ConvergenceResults">ConvergenceResults</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="GradientBased___ItStartCheck"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ItStartCheck</span></h3>
 
+<span class="declaration">virtual GradientBased :: ItStartCheck ( H )</span>
 <dl><dd>
+This routine is called at the start if Iterate().
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">ReadCheckPoint</td>
+<td class="description" valign="baseline">TRUE means starting point coming from the checkpoint file.
+<P/>
+If running in parallel it is this routine that server nodes go into the server loop.  The client node
+will enter into the main iteration loop.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1708,7 +1955,7 @@ Newton version .
 <dl><dd>
 max iterations on line search.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso">GradientBased::Tune</dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Algorithms.ox.html#GradientBased___Tune">Tune</a></dd>
 </dl>
 </dd></dl>
 
@@ -1726,15 +1973,48 @@ maximum step size in line search.
 <a name="GradientBased___Tune"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Tune</span></h3>
 
+<span class="declaration">virtual GradientBased :: Tune ( maxiter , toler , nfuncmax , LMitmax , LMmaxstep )</span>
 <dl><dd>
+Tune Parameters of the Algorithm.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">maxiter</td>
+<td class="description" valign="baseline">integer max. number of iterations <br/>0 use current/default value
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">toler</td>
+<td class="description" valign="baseline">double, simplex tolerance for convergence<br/>0 use current/default value
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">nfuncmax</td>
+<td class="description" valign="baseline">integer, number of function evaluations before resetting the simplex<br/>0 use current/default value
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">LMitmax</td>
+<td class="description" valign="baseline">integer, max number of line maximization iterions<br/>0 use current/default value
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">LMmaxstep</td>
+<td class="description" valign="baseline">double, maximum change in line maximization</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">HillClimbing</span></h2>
 
 <a name="HillClimbing___HillClimbing"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">HillClimbing</span></h3>
 
+<span class="declaration">HillClimbing :: HillClimbing ( O )</span>
 <dl><dd>
+Base for Hill Climbing objects.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">LineMax</span></h2>
@@ -1742,15 +2022,28 @@ maximum step size in line search.
 <a name="LineMax___LineMax"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">LineMax</span></h3>
 
+<span class="declaration">LineMax :: LineMax ( O )</span>
 <dl><dd>
+A method to optimize along a line.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">O</td>
+<td class="description" valign="baseline"><a href="Objective.ox.html#Objective">Objective</a></td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">LineMethod</span></h2>
 
 <a name="LineMethod___Bracket"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Bracket</span></h3>
 
+<span class="declaration">LineMethod :: Bracket ( )</span>
 <dl><dd>
+Bracket a local maximum along the line.
 
 </dd></dl>
 
@@ -1768,7 +2061,9 @@ Direction vector.
 <a name="LineMethod___Golden"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Golden</span></h3>
 
+<span class="declaration">LineMethod :: Golden ( )</span>
 <dl><dd>
+Golden ratio line search.
 
 </dd></dl>
 
@@ -1786,14 +2081,36 @@ Direction vector.
 <a name="LineMethod___Iterate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Iterate</span></h3>
 
+<span class="declaration">LineMethod :: Iterate ( Delta , maxiter , maxstp )</span>
 <dl><dd>
+Optimize on a line optimization.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Delta</td>
+<td class="description" valign="baseline">vector of directions to define the line
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">maxiter</td>
+<td class="description" valign="baseline">&gt; 0 max. number iterations<br>0 set to 1000
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">maxstp</td>
+<td class="description" valign="baseline">&gt; 0, maximum step size in parameters.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="LineMethod___LineMethod"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">LineMethod</span></h3>
 
+<span class="declaration">LineMethod :: LineMethod ( O )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1812,22 +2129,7 @@ Direction vector.
 <a name="LineMethod___PTry"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PTry</span></h3>
 
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="LineMethod___Try"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Try</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="LineMethod___~LineMethod"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">~LineMethod</span></h3>
-
+<span class="declaration">virtual LineMethod :: PTry ( pt , left , right )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1852,14 +2154,6 @@ Direction vector.
 </dd></dl>
 
 <hr>
-<a name="NelderMead___Amoeba"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Amoeba</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="NelderMead___beta"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">beta</span></h3>
 
@@ -1873,6 +2167,7 @@ Direction vector.
 <a name="NelderMead___CheckPoint"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CheckPoint</span></h3>
 
+<span class="declaration">NelderMead :: CheckPoint ( WriteOut )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1911,8 +2206,27 @@ default initial step size.
 <a name="NelderMead___Iterate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Iterate</span></h3>
 
+<span class="declaration">NelderMead :: Iterate ( iplex )</span>
 <dl><dd>
+Iterate on the Amoeba algorithm.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">iplex</td>
+<td class="description" valign="baseline"> N&times;N+1 matrix of initial steps.
+</br>double, initial step size (iplex is set to 0~unit(N))
+</br>integer &gt; 0, max starts of the algorithm
+</br>0 (default), use current mxstarts.
+</br>= -1 (UseGradient), compute gradient and use its normed value as initial simplex
+</br>= -2 (UseCheckPoint), read in checkpoint file to return to last state.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example">See <a href="GetStarted.html">GetStarted</a>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1929,6 +2243,7 @@ default Plexsize tolerance.
 <a name="NelderMead___ItStartCheck"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ItStartCheck</span></h3>
 
+<span class="declaration">NelderMead :: ItStartCheck ( iplex )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1957,8 +2272,19 @@ function evaluations.
 <a name="NelderMead___NelderMead"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">NelderMead</span></h3>
 
+<span class="declaration">NelderMead :: NelderMead ( O )</span>
 <dl><dd>
+Initialize a Nelder-Mead Simplex Maximization.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">O</td>
+<td class="description" valign="baseline"><a href="Objective.ox.html#Objective">Objective</a> to work on.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1995,24 +2321,32 @@ current area of plex.
 <a name="NelderMead___Reflect"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Reflect</span></h3>
 
+<span class="declaration">NelderMead :: Reflect ( fac )</span>
 <dl><dd>
+Reflect through simplex.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">fac</td>
+<td class="description" valign="baseline">factor</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="NelderMead___SimplexSize"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SimplexSize</span></h3>
 
+<span class="declaration">NelderMead :: SimplexSize ( )</span>
 <dl><dd>
+Compute size of the current simplex.
 
-</dd></dl>
-
-<hr>
-<a name="NelderMead___Sort"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Sort</span></h3>
-
-<dl><dd>
-
+<dl><dt class="returns">Returns:</dt><dd class="returns">&sum;<sub>j</sub> |X-&mu;|
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2029,31 +2363,86 @@ current step size to create simplex
 <a name="NelderMead___Tune"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Tune</span></h3>
 
+<span class="declaration">NelderMead :: Tune ( mxstarts , toler , nfuncmax , maxiter )</span>
 <dl><dd>
+Tune NelderMead Parameters .
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">mxstarts</td>
+<td class="description" valign="baseline">integer number of simplex restarts<br>0 use current/default value
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">toler</td>
+<td class="description" valign="baseline">double, simplex tolerance for convergence<br>0 use current/default value
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">nfuncmax</td>
+<td class="description" valign="baseline">integer, number of function evaluations before resetting the simplex<br>0 use current/default value
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">maxiter</td>
+<td class="description" valign="baseline">integer max. number of iterations <br>0 use current/default value</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Newton</span></h2>
 
 <a name="Newton___Hupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Hupdate</span></h3>
 
+<span class="declaration">virtual Newton :: Hupdate ( )</span>
 <dl><dd>
+Compute the objective's Hessian and the current parameter vector.
 
+<dl><dt class="returns">Returns:</dt><dd class="returns"><code>NONE</CODE>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#ConvergenceResults">ConvergenceResults</a>, <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="Newton___Newton"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Newton</span></h3>
 
+<span class="declaration">Newton :: Newton ( O )</span>
 <dl><dd>
+Create an object of the Newton optimization algorithm.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">O</td>
+<td class="description" valign="baseline">the <a href="Objective.ox.html#Objective">Objective</a> object to apply this algorithm to.
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+decl myobj = new MyObjective();
+decl newt = new Newtown(myobj);
+newt->Iterate();
+</pre></dd>
+<P/>
+See <a href="./GetStarted.html">GetStarted</a>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">NewtonRaphson</span></h2>
 
 <a name="NewtonRaphson___Jupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Jupdate</span></h3>
 
+<span class="declaration">virtual NewtonRaphson :: Jupdate ( dx )</span>
 <dl><dd>
+Compute the objective's Jacobian.
 
 </dd></dl>
 
@@ -2061,15 +2450,43 @@ current step size to create simplex
 <a name="NewtonRaphson___NewtonRaphson"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">NewtonRaphson</span></h3>
 
+<span class="declaration">NewtonRaphson :: NewtonRaphson ( O , USELM )</span>
 <dl><dd>
+Create a Newton-Raphson object to solve a system of equations.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">O,</td>
+<td class="description" valign="baseline">the <a href="Objective.ox.html#System">System</a>-derived object to solve.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">USELM</td>
+<td class="description" valign="baseline">FALSE [default] do not do a line search each iteration.<br/>TRUE
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+obj = new MyObjective();
+nr = new NewtonRaphson(obj);
+hr -> Iterate();
+</pre></dd>
+<P/>
+<DT>Also see <a href="GetStarted.html#B">GetStarted</a></DT>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">OneDimRoot</span></h2>
 
 <a name="OneDimRoot___Bracket"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Bracket</span></h3>
 
+<span class="declaration">OneDimRoot :: Bracket ( )</span>
 <dl><dd>
+Bracket a root of the equation.
 
 </dd></dl>
 
@@ -2104,8 +2521,30 @@ minimum initial step size.
 <a name="OneDimRoot___Iterate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Iterate</span></h3>
 
+<span class="declaration">OneDimRoot :: Iterate ( istep , maxiter , toler )</span>
 <dl><dd>
+Find a 1-dimensional root.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">istep</td>
+<td class="description" valign="baseline">initial step, can be positive or negative [default=1.0]
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">maxiter</td>
+<td class="description" valign="baseline">&gt; 0 max. number iterations &gt; 0 [default=50]
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">toler</td>
+<td class="description" valign="baseline">&gt; 0 tolerance<br/>0 [default=SSQ_TOLER]
+This uses the fact that vcur.v contains the norm of the equation, not the negative,</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2121,7 +2560,9 @@ minimum initial step size.
 <a name="OneDimRoot___OneDimRoot"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">OneDimRoot</span></h3>
 
+<span class="declaration">OneDimRoot :: OneDimRoot ( O )</span>
 <dl><dd>
+Object to iterate to find the root a non-linear equation (<a href="Objective.ox.html#OneDimSystem">OneDimSystem</a>).
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RandomSearch</span></h2>
@@ -2129,7 +2570,9 @@ minimum initial step size.
 <a name="RandomSearch___RandomSearch"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RandomSearch</span></h3>
 
+<span class="declaration">RandomSearch :: RandomSearch ( O )</span>
 <dl><dd>
+Random search without annealing.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RootFinding</span></h2>
@@ -2146,15 +2589,23 @@ minimum initial step size.
 <a name="RootFinding___Direction"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Direction</span></h3>
 
+<span class="declaration">RootFinding :: Direction ( )</span>
 <dl><dd>
+Compute the direction.
+If inversion of J fails, reset to I
 
+<dl><dt class="returns">Returns:</dt><dd class="returns">direction
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="RootFinding___Gupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gupdate</span></h3>
 
+<span class="declaration">RootFinding :: Gupdate ( )</span>
 <dl><dd>
+Upate Jacobian when using line search aggregation of the system.
 
 </dd></dl>
 
@@ -2162,40 +2613,103 @@ minimum initial step size.
 <a name="RootFinding___Iterate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Iterate</span></h3>
 
+<span class="declaration">RootFinding :: Iterate ( J )</span>
 <dl><dd>
+Iterate to solve a non-linear system.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">J</td>
+<td class="description" valign="baseline">matrix, initial Jacobian for Broyden.<br>integer, set to identity
+<P/>
+This routine is shared (inherited) by derived algorithms.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="RootFinding___ItStartCheck"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ItStartCheck</span></h3>
 
+<span class="declaration">virtual RootFinding :: ItStartCheck ( J )</span>
 <dl><dd>
+This routine is called at the start if Iterate().
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">ReadCheckPoint</td>
+<td class="description" valign="baseline">TRUE means starting point coming from the checkpoint file.
+<P/>
+If running in parallel it is this routine that server nodes go into the server loop.  The client node
+will enter into the main iteration loop.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="RootFinding___JJupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">JJupdate</span></h3>
 
+<span class="declaration">RootFinding :: JJupdate ( )</span>
 <dl><dd>
+Wrapper for updating the Jacobian of the system.
+<P/>
+<DT>This is a wrapper for the virtual <a href="Algorithms.ox.html#RootFinding___Jupdate">Jupdate</a>() routine.</DT>
 
+<dl><dt class="returns">Returns:</dt><dd class="returns"><code>FAIL</code> if change in parameter values is too small.
+Otherwise, return <code>NONE</code>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso">GradientBased::HHudpate</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="RootFinding___Jupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Jupdate</span></h3>
 
+<span class="declaration">virtual RootFinding :: Jupdate ( dx )</span>
 <dl><dd>
+Compute the objective's Jacobian.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">dx</td>
+<td class="description" valign="baseline">argument is ignored (default=0)</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="RootFinding___RootFinding"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">RootFinding</span></h3>
 
+<span class="declaration">RootFinding :: RootFinding ( O , USELM )</span>
 <dl><dd>
+Solve a non-linear system of equations.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">O</td>
+<td class="description" valign="baseline"><a href="Objective.ox.html#System">System</a> object
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">USELM</td>
+<td class="description" valign="baseline">FALSE [default] do not do a line search each iteration.<br/>TRUE</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2261,8 +2775,20 @@ current heat default intial =1.0
 <a name="SimulatedAnnealing___Iterate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Iterate</span></h3>
 
+<span class="declaration">SimulatedAnnealing :: Iterate ( chol )</span>
 <dl><dd>
+Carry out annealing.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">chol</td>
+<td class="description" valign="baseline">Determines the Choleski matrix for random draws, <var>C</var><br>
+0 [default] <span class="expressions">\(C = I\)</span>, the identity matrix<br>matrix, <span class="expressions">\(C = \)</span> chol.<br>double, common standard deviation, <span class="expressions">\(C = chol I\)</span>.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2278,7 +2804,9 @@ current heat default intial =1.0
 <a name="SimulatedAnnealing___Metropolis"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Metropolis</span></h3>
 
+<span class="declaration">SimulatedAnnealing :: Metropolis ( )</span>
 <dl><dd>
+accept or reject.
 
 </dd></dl>
 
@@ -2296,8 +2824,19 @@ rate to shrink variance.default=0.5
 <a name="SimulatedAnnealing___SimulatedAnnealing"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SimulatedAnnealing</span></h3>
 
+<span class="declaration">SimulatedAnnealing :: SimulatedAnnealing ( O )</span>
 <dl><dd>
+Initialize Simulated Annealing.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">O</td>
+<td class="description" valign="baseline"><a href="Objective.ox.html#Objective">Objective</a> to work on.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2313,8 +2852,34 @@ rate to shrink variance.default=0.5
 <a name="SimulatedAnnealing___Tune"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Tune</span></h3>
 
+<span class="declaration">SimulatedAnnealing :: Tune ( maxiter , heat , cooling , shrinkage )</span>
 <dl><dd>
+Tune annealing parameters.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">maxiter</td>
+<td class="description" valign="baseline">&gt; 0, number of iterations<br>0 do not change
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">heat</td>
+<td class="description" valign="baseline">&gt; 0, temperature parameter <br>0 do not change
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">cooling</td>
+<td class="description" valign="baseline">&in; (0,1], rate to cool, <br>0 do not change
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">shrinkage</td>
+<td class="description" valign="baseline">&in; (0,1], rate to shrink, <br>0 do not change</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2348,7 +2913,9 @@ rate to shrink variance.default=0.5
 <a name="SQP___Gupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Gupdate</span></h3>
 
+<span class="declaration">SQP :: Gupdate ( )</span>
 <dl><dd>
+.
 
 </dd></dl>
 
@@ -2356,7 +2923,9 @@ rate to shrink variance.default=0.5
 <a name="SQP___HHupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">HHupdate</span></h3>
 
+<span class="declaration">SQP :: HHupdate ( FORCE )</span>
 <dl><dd>
+.
 
 </dd></dl>
 
@@ -2364,7 +2933,9 @@ rate to shrink variance.default=0.5
 <a name="SQP___Hupdate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Hupdate</span></h3>
 
+<span class="declaration">virtual SQP :: Hupdate ( )</span>
 <dl><dd>
+.
 
 </dd></dl>
 
@@ -2372,8 +2943,19 @@ rate to shrink variance.default=0.5
 <a name="SQP___Iterate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Iterate</span></h3>
 
+<span class="declaration">SQP :: Iterate ( H )</span>
 <dl><dd>
+Iterate.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">H</td>
+<td class="description" valign="baseline">initial Hessian<br>integer, use I</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2398,14 +2980,26 @@ rate to shrink variance.default=0.5
 <a name="SQP___SQP"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SQP</span></h3>
 
+<span class="declaration">SQP :: SQP ( O )</span>
 <dl><dd>
+Create a new Sequential Quadratic Programming object.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">O</td>
+<td class="description" valign="baseline"><a href="Objective.ox.html#Constrained">Constrained</a> objective</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SQPBFGS</span></h2>
 
 <a name="SQPBFGS___SQPBFGS"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SQPBFGS</span></h3>
 
+<span class="declaration">SQPBFGS :: SQPBFGS ( O )</span>
 <dl><dd>
 
 </dd></dl>
@@ -2422,18 +3016,21 @@ rate to shrink variance.default=0.5
 <a name="SysMax___SysMax"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SysMax</span></h3>
 
+<span class="declaration">SysMax :: SysMax ( O )</span>
 <dl><dd>
+A method to optimize along a line.
 
-</dd></dl>
-
-<hr>
-<a name="SysMax___Try"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Try</span></h3>
-
-<dl><dd>
-
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">O</td>
+<td class="description" valign="baseline"><a href="Objective.ox.html#Objective">Objective</a></td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 <div class="footer">
-Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
 Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
 </div>
