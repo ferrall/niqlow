@@ -22,6 +22,7 @@ Explore(model,Ncalls,Chol,...) {
     }
 MultiNomialChoice::Estimate() {
 	decl j,se,bhhh = new BHHH(this);
+    bhhh.Volume = LOUD;
 	bhhh->Iterate(0);
 	for (j=1;j<J;++j)  {
 		se = vcur.SE[(j-1)*nX:j*nX-1]';

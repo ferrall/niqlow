@@ -915,14 +915,15 @@ Yname can contain any integers.  MNP will translate the unique sorted values int
 MultiNomialChoice::MultiNomialChoice(L,fn,Yname,Xnames)	{
 	decl j,data, sample;
 	BlackBox::BlackBox(L);
-    SetAggregation(LOGLINEAR);
+    //SetAggregation(LOGLINEAR);
 	namearray = varlist(Xnames);
 	data = new Database();
 	data.Load(fn);
 	sample = deleter(data.GetVar({Yname}|namearray));
 	delete data;
 	Y =sample[][0];
-	X = sample[][1:]~1;
+	X = sample[][1:];
+    X ~= 1.0;
 	namearray |= "Cons";
 	Jvals = unique(Y);
 	J = columns(Jvals);
@@ -931,15 +932,14 @@ MultiNomialChoice::MultiNomialChoice(L,fn,Yname,Xnames)	{
 	nX = columns(X);
 	indY = maxcindex( (Y.==Jvals)' )' ;
 	betas = new array[J];
-    betas[0]=new FixedBlock("Y="+sprint(Jvals[0]),zeros(nX));
-	for (j=1;j<J;++j){
-		//indY ~= (j-1 .<indY[][0]) .? j-1 .: j;
-		betas |= new Coefficients("Y="+sprint(Jvals[j]),nX,namearray);
-		}
+    betas[0]=new FixedBlock("Y="+sprint(Jvals[0]),zeros(nX,1));
+	for (j=1;j<J;++j)
+		betas[j] = new Coefficients("Y="+sprint(Jvals[j]),0,namearray);
 	Parameters(betas);
     D = zeros(NvfuncTerms,J);
 	println("Default value of Y = ","%2.0f",Jvals[0]);
 	MyMoments(Y~X,{Yname}|namearray);
+    MyMoments(indY,{"Y indices"});
    }
 
 MultiNomialChoice::SetD() {  D[][] = X*CV(betas);  }
@@ -951,7 +951,7 @@ MLogit::MLogit(L,fn,Yname,Xnames) {
 
 MLogit::vfunc() {
     SetD();
-	return ColLogit(D)[NN][indY];
+	return log(selectrc(ColLogit(D),NN,indY))';
     }
 
 

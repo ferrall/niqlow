@@ -5,6 +5,7 @@
 #import "DynamicWstar"
 #import "StataMNP"
 #import "TestGHK"
+#import "RunMLogitTest"
 //#import "MortTest"
 //#include "TestSystemSolve.ox"
 //#import "WstarTest"

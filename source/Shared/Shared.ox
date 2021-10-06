@@ -158,7 +158,7 @@ RowLogit(x,rho){ decl v=exp(rho*x); return v ./ sumc(v); }
 /** The Multinomial logit smoothing function (over columns).
 @param x  m&times;n matrix.
 @param rho double [default=1.0] smoothing factor
-@return $exp(\rho x)$./sumr($exp(\rho x)$)
+@return $\exp(\rho x)$./sumr($\exp(\rho x)$)
 **/
 ColLogit(x,rho){ decl v=exp(rho*x); return v ./ sumr(v); }
 

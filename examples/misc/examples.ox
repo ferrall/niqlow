@@ -9,7 +9,8 @@ misctestmenu() {
 			{"StataMNP",  				StataMNP          },
 			{"MVNormalTest",			MVTest::Replicate },
 			{"Reservation_Wage_Test",   WStarTestRun()    },
-            {"Dynamic Wage Test",       DynWStar::Run     }
+            {"Dynamic Wage Test",       DynWStar::Run     },
+            {"MLogit",                  RunMLogitTest }
             );
     return mm;
     }

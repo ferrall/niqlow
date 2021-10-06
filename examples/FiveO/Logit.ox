@@ -1,4 +1,7 @@
 #import "FiveO"
+/** Simple Logit Example .
+
+**/
 struct Logit : BlackBox {
 	decl y, X, beta;
 	Logit(y,X);
