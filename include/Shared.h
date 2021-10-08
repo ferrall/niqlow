@@ -114,7 +114,8 @@ static const decl
 		/** tolerance level 0: $10^{-1}$. **/     DIFF_EPS 	=	1E-8,
 		/** tolerance level 1: $10^{-6}$. .**/    DIFF_EPS1	=	5E-6,
 		/** tolerance level 2: $10^{-4}$. .**/    DIFF_EPS2	=	1E-4,
-		/** tolerance level 3: $10^{-3}$. .**/    DIFF_EPS3	=	1E-2;
+		/** tolerance level 3: $10^{-3}$. .**/    DIFF_EPS3	=	1E-2,
+        /** IID normal parameter vector. @NormalParams.**/ IIDZpars = <0.0;1.0;0.0>;
 
         /** Used in CV() and AV(). static to reduce overhead. @internal **/
         static decl

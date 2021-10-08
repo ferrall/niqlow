@@ -1019,16 +1019,27 @@ struct Episode : StateBlock {
 /** A one-dimensional correlated discretized normal process using Tauchen's approach.
 @see MVNormal
 **/
-struct Tauchen : Random {
+struct Tauchen : Markov {
 	const decl
             /** @see NormalParams **/   pars,
             /** support.**/           M,
                                       gaps;
-	decl rnge, pts, s, r, Grid;
-	Tauchen(L,N,M,pars=<0.0;1.0;0.0>);
+	decl rnge, pts, cp, Grid;
+	Tauchen(L,N,M,pars=IIDZpars);
 	virtual Transit();
 	virtual Update();
 	}
+
+/** Rouwenhorst approximation to discretized correlated normal value.
+@see Tauchen
+**/
+struct Rouwenhorst : Tauchen {
+    const decl Nrt;
+	decl n,p,pp,cp,M, Grid;
+	Rouwenhorst(L,N,pars=IIDZpars);
+	virtual Update();
+    virtual Transit();
+    }
 
 /** Discretized interest-bearing asset.
     The <code>actual</code> vector should either be set by the user after creation of the state

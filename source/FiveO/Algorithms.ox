@@ -71,7 +71,6 @@ Algorithm::ItStartCheck(ReadCheckPoint) {
     else {
         inparallel = TRUE;
         O.p2p.server->Loop(N," ItStartCheck ",TRUE);
-//        println("");
         return FALSE;    // will skip iteration loop on return
         }
     }

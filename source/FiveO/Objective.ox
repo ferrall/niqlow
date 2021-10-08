@@ -952,7 +952,7 @@ MLogit::MLogit(L,fn,Yname,Xnames) {
 MLogit::vfunc() {
     SetD();
 	return log(selectrc(ColLogit(D),NN,indY))';
-    }
+    }   
 
 
 /** Gauss-Hermite based objective for MNP log likelihood.

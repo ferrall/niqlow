@@ -60,7 +60,7 @@ struct Noisy : AuxiliaryValue {
         /** noise is additive (not multiplicative).**/  Linear;
           decl
         /** implied normal value.**/                    eps;
-    Noisy(truevalue,sigma=1.0,Linear=TRUE);
+    Noisy(truevalue,sigma=1.0,Linear=TRUE,Label="uknown");
     Realize(y=0);
     Likelihood(y=0);
     }

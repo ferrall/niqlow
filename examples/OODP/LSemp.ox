@@ -6,7 +6,7 @@ LSemp::ActualEarn() {
 LSemp::Build() {
     Initialize(1.0,new LSemp());
     LS::Build();
-    obsearn = new Noisy(ActualEarn,1.0,FALSE);
+    obsearn = new Noisy(ActualEarn,1.0,FALSE,"earnings");
     AuxiliaryOutcomes(obsearn);
     CreateSpaces();
     }
@@ -14,13 +14,13 @@ LSemp::Estimate() {
     beta = new Coefficients("B",beta);
     vi = new ValueIteration();
     dta = new OutcomeDataSet("data",vi);
-    dta -> Simulate(100,40);
+    dta -> Simulate(1000,40);
     dta -> ObservedWithLabel(m,M,obsearn);
-    Data::Volume = LOUD;
+//    Data::Volume = LOUD;
     dta -> Print("sim.dta");
     lnlk = new DataObjective("lnklk",dta,beta);
-    lnlk.Volume = LOUD;
+//    lnlk.Volume = LOUD;
     mle  = new BHHH(lnlk);
-    mle.Volume = NOISY;
+    mle.Volume = LOUD;
     mle.Iterate();
     }

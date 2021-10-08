@@ -1559,19 +1559,70 @@ Tauchen::Transit() {
 	
 /** . @internal **/
 Tauchen::Update() {
-	s = AV(pars[Nsigma]);
-	r = AV(pars[Nrho]);
-    if ( (isfeq(s,0.0)||isfeq(r,1.0)) && !Version::MPIserver ) oxwarning("Tauchen st. deviation is near 0 or correlation is near 1.0");
+    cp = CV(pars);
+    if ( (isfeq(cp[Nsigma],0.0)||isfeq(cp[Nrho],1.0)) && !Version::MPIserver ) oxwarning("Tauchen st. deviation is near 0 or correlation is near 1.0");
     if (Volume>SILENT && !Version::MPIserver) println("Tauchen Variable: ",L," parmeter vector: ",AV(pars));
-	rnge = AV(M)*s/sqrt(1-sqr(r)),
-	actual = -rnge +2*rnge*vals/(N-1),
+	rnge = AV(M)*cp[Nsigma]/sqrt(1-sqr(cp[Nrho]));
+	actual = -rnge +2*rnge*vals/(N-1);
 	pts[][] = probn(
 	          ((-.Inf ~ (-rnge+2*rnge*gaps/(N-1)) ~ +.Inf)
-			  - r*actual')/s );
+			  - cp[Nrho]*actual')/cp[Nsigma] );
 	Grid[][] = pts[][1:]-pts[][:N-1];
-	actual += AV(pars[Nmu]);
+	actual += AV(pars[Nmu]);  //  /(1-cp[Nrho]);
     actual = actual';
 	}
+
+
+/** Rouwenhorst discretizization of a correlated normal process.
+@param L label
+@param N Number of discrete points in the approximation
+@param pars 3x1 vector or array of `AV`()-compatible parameters<br/>
+<pre>
+    i: Parameter (default)
+    0: mean (&mu;=0.0)<br/>
+    1: st. dev.    (&sigma;=1.0)
+    2: correlation (&rho;=0.0)
+</pre>
+
+Actual values will take on $N$ equally spaced values in a dynamically determined range
+<DD>Note: If none of the paramters are objects then the actual values will be Updated upon creation. This makes
+    them available while creating spaces.  Otherwise, update is not called on creation in case parameters  will be
+    read in later.</DD>
+
+The udpate code is based on these implementations:
+<pre>
+https://drive.google.com/file/d/0BzbiTUXVnwezQjBmU3p5NFVOYnM/view?resourcekey=0-IgQlYEXCqGMBYBGzd4Y4Zg
+https://quanteconpy.readthedocs.io/en/latest/_modules/quantecon/markov/approximation.html#rouwenhorst
+</pre>
+**/
+Rouwenhorst::Rouwenhorst(L,N,pars) {
+	StateVariable(L,N);
+    Nrt = sqrt(N-1);
+    this.pars = pars;
+    if (!(isclass(pars[Nmu])||isclass(pars[Nrho])||isclass(pars[Nsigma])||
+         isfunction(pars[Nmu])||isfunction(pars[Nrho])||isfunction(pars[Nsigma]))  )
+            Update();
+    }
+Rouwenhorst::Transit() {	return {vals,Grid[v][]};    }
+
+/**Dynamic updating of the transition probabilities.**/
+Rouwenhorst::Update() {
+    cp = CV(pars);
+    M = cp[Nmu] + cp[Nsigma]* Nrt/sqrt(1 - sqr(cp[Nrho]));
+	actual = -M + 2*M*vals';
+
+    p = (1 + cp[Nrho]) / 2;
+    pp = p~(1-p);
+    pp |= 1-pp;
+
+    Grid = pp;
+    for(n=3;n<=N;++n) {
+        Grid =  pp[0][0]*((Grid~0)|0)        + pp[0][1]*insertc(Grid|0,0,1)
+               +pp[1][0]*insertr(Grid~0,0,1) + pp[1][1]*insertc(insertr(Grid,0,1),0,1);
+		Grid[1:][] *= 0.5;
+		}
+	Grid ./= sumr(Grid);
+    }
 
 /**Create a new asset state variable.
 @param L label

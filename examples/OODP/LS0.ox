@@ -21,7 +21,7 @@ LS::Setup() {
         Actions(a);
         EndogenousStates(m);
         ExogenousStates(e);
-        obsearn = new Noisy(ActualEarn,sigma,FALSE);
+        obsearn = new Noisy(ActualEarn,sigma,FALSE,"earnings");
         AuxiliaryOutcomes(obsearn);
     CreateSpaces();
     SetDelta(0.95);
@@ -31,13 +31,13 @@ LS::Setup2() {
     sigma = new Positive("sigma",1.0);
     vi = new ValueIteration();
     dta = new OutcomeDataSet("data",vi);
-    dta -> Simulate(100,40);
+    dta -> Simulate(1000,10);
     dta -> ObservedWithLabel(a,m,obsearn);
     dta -> Print("sim.dta");
-    lnlk = new PanelBB("lnklk",dta,beta);
-    lnlk.Volume = LOUD;
-    mle  = new BFGS(lnlk);
-    mle.Volume = NOISY;
+    lnlk = new DataObjective("lnklk",dta,beta);
+	lnlk.Volume = LOUD;
+    mle  = new BHHH(lnlk);
+    mle.Volume = LOUD;
     mle.Iterate();
     }
 LS::Earn() {
@@ -51,6 +51,6 @@ LS::Utility() {
     }
 main() {
     LS::Setup();
-    VISolve();
+//    VISolve();
     LS::Setup2();
     }
