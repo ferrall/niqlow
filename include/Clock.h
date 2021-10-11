@@ -20,7 +20,16 @@ struct Clock : StateBlock {
 			V iteration to track possible clock values next period. **/		tprime,
 		/** Store Ergodic Distribution. **/ 								IsErgodic;
     static decl
-    /** Volume for clocks (static so don't need to access internal var.**/  Volume;
+    /** Volume for clocks (static so don't need to access internal var.**/  Volume,
+    /** Norm parameter for stationary convergence. Default=2, Eucliean.  See Ox's norm()
+        When A is a vector:
+        0: infinity norm, maximum absolute value,
+        1: sum of absolute values,
+        2: square root of sum of squares,
+        p: p-th root of sum of absolute elements raised to the power p.
+        -1: minimum absolute value.
+    **/                                                                    normparam = Two;
+
     /** Pointer to methods VV function for iteration.                    aVV;  **/
 	Clock(Nt,Ntprime);
     //static Solving();//aVV

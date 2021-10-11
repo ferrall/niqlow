@@ -7,7 +7,9 @@ enum{USEBROYDEN,USENEWTONRAPHSON,SystemAlgorithms}
 /** A container for solution methods.    **/
 struct Method : FETask {
 	   static const decl
-		/** Default convergence tolerance on Bellman Iteration.**/ DefTolerance = DIFF_EPS;
+		/** Default convergence tolerance on Bellman Iteration for stationary
+            environments = `DIFF_EPS` = 1^{-8}. @see Method::Tune , Clock::normparam
+            **/                                                     DefTolerance = DIFF_EPS;
         decl
         /** Either r or AllRan to solve for all random effects.**/  Rgroups,
         /** FALSE(default): iterate on V(&theta;)<br>
@@ -22,6 +24,7 @@ struct Method : FETask {
     ToggleIterate(ToggleOnlyTrans=TRUE);
     virtual Run();
     virtual Solve(Fgroups=AllFixed,Rgroups=AllRand);
+    virtual Tune(Volume=UseCurrent,vtoler=UseCurrent,MaxTrips=UseCurrent,NormType=UseCurrent);
 	}
 
 /**	Loop over random effect values $\gamma_r$, call  GSolve() method for the calling method.

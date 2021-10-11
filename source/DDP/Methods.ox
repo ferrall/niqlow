@@ -21,6 +21,29 @@ Method::Method(myGSolve) {
     qtask = new RandomSolve(isint(myGSolve) ? new GSolve() : myGSolve);
     }
 
+/** Set basic parameters of a solution method.
+@argument Volume  UseCurrent (-2) do not change<br/>
+                  Volume level for output, @see `NoiseLevels'<br/>
+                  vtoler UseCurrent (-2) do not change<br/>
+                         convergence criteria for stationary problems (fixed points)<br/>
+                  MaxTrips UseCurrent (-2) do not change<br/>
+                           integer: set the total number of iterations to perform (stationary problems)<br/>
+                           0 : unlimited trips (stopping determined by tolerance and convergence)<br/>
+                  NormType set the norm() itype argument for Ox's norm(v,itype) function<br/>
+                            only applies to stationary phases of clocks.<br/>
+                            UseCurrent(-2) do not change (default=2,Euclidean)<br/>
+                            0: infinity norm, maximum absolute value,<br/>
+                            1: sum of absolute values,<br/>
+                            2: square root of sum of squares,<br/>
+                            p: p-th root of sum of absolute elements raised to the power p.<br/>
+                            -1: minimum absolute value,<br/>
+**/
+Method::Tune(Volume,vtoler,MaxTrips,NormType) {
+    if (Volume!=UseCurrent) this.Volume = Volume;
+    if (vtoler!=UseCurrent) this.vtoler = vtoler;
+    if (MaxTrips!=UseCurrent) this.MaxTrips = MaxTrips;
+    if (NormType!=UseCurrent) DP::counter.normparam = NormType;
+    }
 
 /** This does common setup tasks but actually doesn't solve.
 @internal

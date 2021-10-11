@@ -38,13 +38,13 @@ Clock::Last() { return t.v==t.N-1; }
 <DT>The base version returns the <code>norm()</code> of the change in the value function for convergence check.</DT>
 <DD>This is the stationary calculation. See `NonStationary::Vupdate`() for an alternative</DD>
 <DD>Other specialized clocks copy part of the value functions into the vector of values for access in earlier time periods.</DD>
-
+@see Method::Tune , Clock::normparam , Method::vtoler
 @return ||V(&theta;)-V'(&theta;&prime;)||
 **/
 Clock::Vupdate() {
     if (isarray(N::VV))
         return norm(  N::VV[NOW]  [ : I::MxEndogInd ]
-                     -N::VV[LATER][ : I::MxEndogInd ]  ,2);
+                     -N::VV[LATER][ : I::MxEndogInd ]  ,normparam);
     return 0.0;
     }
 
