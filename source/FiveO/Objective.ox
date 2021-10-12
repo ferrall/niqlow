@@ -721,7 +721,7 @@ Objective::Hessian() {
        p2p.server->Loop(rows(vcur.F),"hessian"); //Hessian won't get called if already in iteration loop
     else {
        decl h, GradMat, ptmatrix,gg,i,j,and,ind,jnd,b;
-	   Decode(0);					
+	   Decode(0);
 	   hold -> Copy(vcur);	
 	   h = dFiniteDiff1(vcur.F);
 	   ptmatrix = ( vcur.F~(vcur.F+2*diag(h))~(vcur.F-2*diag(h)) );
@@ -952,7 +952,7 @@ MLogit::MLogit(L,fn,Yname,Xnames) {
 MLogit::vfunc() {
     SetD();
 	return log(selectrc(ColLogit(D),NN,indY))';
-    }   
+    }
 
 
 /** Gauss-Hermite based objective for MNP log likelihood.

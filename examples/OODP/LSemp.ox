@@ -16,11 +16,11 @@ LSemp::Estimate() {
     dta = new OutcomeDataSet("data",vi);
     dta -> Simulate(1000,40);
     dta -> ObservedWithLabel(m,M,obsearn);
-//    dta -> Print("sim.dta");			save simulated ata
-//	  dta -> Read("sim.dta");			read in a data set 
+    dta -> Print("sim.dta");			// save simulated ata
+    //	  dta -> Read("sim.dta");			read in a data set
     lnlk = new DataObjective("lnklk",dta,beta);
-    lnlk.Volume = LOUD;
+    Data::Volume = NOISY;
     mle  = new BHHH(lnlk);
-    mle.Volume = LOUD;
+    mle.Volume = lnlk.Volume = LOUD;
     mle.Iterate();
     }

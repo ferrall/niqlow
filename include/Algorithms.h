@@ -266,6 +266,7 @@ struct GradientBased : Algorithm {
        /** |x<sub>m</sub>-x<sub>m-1</sub>.**/					deltaX,
        /**     . @internal                 **/				    dx,
        /** Newton version . **/                                 IamNewt,
+       /** BHHH .**/                                            IamBHHH,
        /** # of time H reset to I  **/                          Hresetcnt;
 
 

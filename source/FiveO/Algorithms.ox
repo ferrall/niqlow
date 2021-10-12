@@ -778,7 +778,7 @@ bhhh->Iterate();
 <DT>See <a href="./GetStarted.html">GetStarted</a></DT>
 
   **/
-BHHH::BHHH(O) {	HillClimbing(O);	}
+BHHH::BHHH(O) {	HillClimbing(O);}
 
 /** Create an object of the DFP algorithm.
 @param O the `Objective` object to apply this algorithm to.
@@ -852,14 +852,21 @@ GradientBased::ItStartCheck(H) {
     Hresetcnt = 0;
     decl iret = Algorithm::ItStartCheck(isint(H)&&(H==UseCheckPoint));
     if (iret) {
-        IamNewt = isclass(this,"Newton");
+        IamBHHH = isclass(this,"BHHH");
+        IamNewt = isclass(this,"Newton") && !IamBHHH;
         holdF = OC.F;
         if (OC.v==.NaN) O->fobj(0,FALSE);
         if (ismatrix(H))
             OC.H = H;
         else if (NormalStart) {  //NormalStart set by Algorithm::ItStartCheck
             if (IamNewt) O->Hessian();
-            else OC.H = -unit(N);
+            else if (IamBHHH) {
+                O->Gradient();
+                this->Hupdate();
+                }
+            else {
+                OC.H = -unit(N);
+                }
             }
         }
     return iret;
@@ -888,7 +895,7 @@ GradientBased::Iterate(H)	{
 	       LM->Iterate(Direction(),LMitmax,LMmaxstep);
            if (StorePath) path ~= LM.path;
 	       convergence = (++iter>maxiter) ? MAXITERATIONS
-                                          : IamNewt ? this->HHupdate(FALSE)
+                                          : IamNewt||IamBHHH ? this->HHupdate(FALSE)
                                                    : (Hresetcnt>1 ? SECONDRESET : this->HHupdate(FALSE)) ;
 	       if (convergence==NONE && Volume>SILENT) {  //Report on Current Iteration unless converging
                 istr = sprint(iter,". f=",OC.v," deltaX: ",deltaX," deltaG: ",deltaG);
@@ -966,7 +973,7 @@ Newton::Hupdate() {
 **/
 BHHH::Hupdate() {
    	OC.H = -outer(OC.J,<>,'o');
-   	if (Volume>LOUD) println("New Hessian","%c",O.Flabels,"%r",O.Flabels,"%lwr",OC.H);
+   	if (Volume>LOUD) println("New OPG Hessian","%c",O.Flabels,"%r",O.Flabels,"%lwr",OC.H);
     return NONE;
     }
 
