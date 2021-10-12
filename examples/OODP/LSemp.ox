@@ -19,7 +19,6 @@ LSemp::Estimate() {
     dta -> Print("sim.dta");			// save simulated ata
     //	  dta -> Read("sim.dta");			read in a data set
     lnlk = new DataObjective("lnklk",dta,beta);
-    Data::Volume = NOISY;
     mle  = new BHHH(lnlk);
     mle.Volume = lnlk.Volume = LOUD;
     mle.Iterate();
