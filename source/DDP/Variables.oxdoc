@@ -220,7 +220,7 @@ P_\epsilon(\epsilon^{\,\prime}) P_\eta(\eta^{\,\prime}) P_\theta\left(\theta^{\,
 That is, the joint probability distribution of all state variables next period is the product of the probabilities of the three state vectors.  So the vectors evolve independently conditional on the current state. Further, the IID nature of $\epsilon$ and $\eta$ mean that their probability is constant across current states and actions.  In turn,
 $$\eqalign{
 P_\epsilon(\epsilon^{\,\prime}) &= \prod_{k=0\dots \epsilon.N-1} P_{e_k}\left(e^{\,\prime}_k\right)\cr
-P_\eta(\eta^{\,\prime}) &= \prod_{k=0\dots \eta.N-1} P_{e_k}\left(e^{\,\prime}_k\right)\cr
+P_\eta(\eta^{\,\prime}) &= \prod_{k=0\dots \eta.N-1} P_{h_k}\left(h^{\,\prime}_k\right)\cr
 P_\theta\left(\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right) &= \prod_{k=0\dots \theta.N-1} P_{q_k}\left(q^{\,\prime}_k\ |\ \alpha,\eta,\theta\right).\cr}$$
 
 <DD>It is important to note that e<sub>k</sub>, h<sub>k</sub> and q<sub>k</sub> represents either an autonomous state variable or a whole state block, which is responsible for returning the joint transition of its coevolving members.</dd>
@@ -537,12 +537,12 @@ It has been emphasized a few times that the user's code does not need to handle 
     <DD>A state block is a type (derived class) of state variable.  But it has additional data and methods to account for state variables that are not autonomous with respect to each other. State blocks are autonomous with other variables and blocks.  In the example, the state variables for weight and height would be placed in a state block.   The block would handle the correlation in the innovations.  There is no method to allow nested blocks.  Only `Coevolving` states can be added to a block and a StateBlock is not derived from the `Coevolving` class.</DD>
 
     <DD>Just like a single autonomous state variable, a state block can be an element of any of the state vectors, $\epsilon$, $\eta$, $\theta$ and $\gamma$. For example, serially uncorrelated but contemporaneously correlated wage offers would be handled as an exogenous state block.  If accepted wages do not enter the state next period then the block could be fully exogenous.  Otherwise it would be placed in the semi-exogenous class. </DD>
-    
+
     <DD>Note that the `Clock` is a State Block, so its transitions cannot depend on states outside the block.  The user can derive their own class of Clock that includes coevolving states. State variables added to the clock must be (derived from) `TimeVariable` objects, which is a 'container' class derived from coevolving.</DD>
 
 <DT>The worst case</DT>
     <DD>The setup can handle a general transition. The worst case is that all innovations are correlated and the endogenous vector would consist of a single state block containing all the state variables.  Thus a user of <span class="n">DDP</span> can code a completely general multivariate process.  </DD>
-    
+
     <DD>This 'black box' state must be derived from `Clock` if it is to handle everything. The advantage of allowing for autonomous state variables, rather than making everything a state block, is the ability to define standard kinds of variables that can be mixed and matched in different models with little to no programming required.</DD>
 
 <LI id="CSB">How to Create a State Block</LI>
@@ -709,12 +709,12 @@ If <code>MyModel</code> does not set the clock explicitly, then a stationary inf
     With anticipation (foresight), $V(\theta)$ can/should be solved backwards in <var>t</var> if time is important in the model beyond just today and tomorrow in an infinite horizon.  </DD>
 
     <DD>The second co-evolving variable in the clock block, <var>t&Prime;</var>, tracks feasible values of <var>t</var> next period during model solution.</DD>
-    
+
     <DD><span class="n">DDP</span> uses t&Prime; to avoid storing the full $V(\theta)$ while iterating. The user typically does nothing with t&Prime;.</DD>
 
 <DT>For example:</DT>
      <DD>With a <code>RandomMortality</code> clock described below, the next time may be either <code>t+1</code> or <code>T-1</code> if death occurs.  </DD>
-     
+
     <DD>The value function for the those two times must be available while computing the value at time <code>t</code>.  However, no other time periods must be stored, so separate coding of the <code>t</code> process and <code>t&Prime;</code> process conserves memory in complex environments. Because it plays no direct role in the mathematics (as opposed to the computations), t&Prime; is never listed as a member of $\theta$, but it will be seen in output with the value 0. In more complex environments the clock may include other state variables whose values coevolve with t and t&Prime;.</DD>
 
 <LI>Current time and the decision horizon</LI>
@@ -764,7 +764,7 @@ Also see `ClockTypes`
 
 <DT><code>NormalAging</code>:  <var>t&prime; = t+1</var>, up to <var>T&oline;</var>; <var>t&Prime;=0</var>.</DT>
     <DD>With ordinary aging Bellman's equation is solved backwards starting at t=T&oline; down to 0. The auxiliary variable t&Prime; is not needed to account for deviations from normal time so it is simply 0 always. A special case is a non-dynamic environment, <code>StaticProgram</code>, with T&line;=0. </DD>
-    
+
     <DD><span class="n">DDP</span> knows that an infinite horizon model is different than a static program, because in the static case it does not iterate on V() until convergence. Since <code>StaticProgram</code> is a tag associated with the class `StaticP`, which is derived from the class `Aging`, <span class="n">DDP</span> cannot confuse this with a `Stationary` environment.</DD>
 
 <DT><code>RandomMortality</code>: the agent either ages normally or dies before the start of the next period</DT>
@@ -772,7 +772,7 @@ Also see `ClockTypes`
     <DD>$(t^{\,\prime},t^{\,\prime\prime}) = (T^{-},1)$  with prob. $\pi(\alpha,\theta)$</DD>
     <DD>$(t^{\,\prime},t^{\,\prime\prime}) = (t+1,0)$ with prob. $1-\pi(\alpha,\theta)$</DD>
     <DD>With premature mortality Bellman's equation is solved backwards but the final period is also tracked at each t as a potential state next period.  The use of the auxiliary state variable t&Prime; now becomes important computationally.  </DD>
-    
+
     <DD>While iterating <span class="n">DDP</span> does not store the value function for all t, only the final and next.  So when indexing these values it does not use t&prime; but t&Prime;.  It ensures that as <code>t</code> is decremented the just-solved for values are placed where <code>t&Prime; = 0</code> will reach it. This means that <code>t&Prime;=0</code> is typically associated with "ordinary" time evolution while other values are perturbations such as premature death of the agent. The mortality probability $\pi()$ can constant or depend on the current state and current actions.</DD>
 
 <DT><code>RandomAging</code>: the agent spends a random amount of time in each age bracket</DT>
@@ -794,11 +794,11 @@ Also see `ClockTypes`
 <LI>Interacting With Value Function Iteration</LI>
 
     <DT>Clocks have three virtual methods associated with them which are called by `ValueIteration` and related solution methods.</DT>
-    
+
     <DD>`Clock::Vupdate`() makes sure that the scratch space for the value function is updated after each iteration of Bellman's equation.  In stationary models (or stationary time periods within a non-stationary model) this method also computes the norm of the difference between the current value functions and the last value.  This norm is checked by the solution method against the given tolerance for convergence.</DD>
-     
+
      <DD>`Clock::Synch`() is called any time the value of the clock changes (that is, it is called in `Task::SyncStates`()).  The default method simply places the current in `I::t` to b available to the user's code and other parts of <span class="DDP">DDP</span>. Some kinds of clocks do more than this. </DD>
-     
+
      <DD>`Clock::setPstar`() determines whether the next iteration should calculate choice probabilities or not.  If only one iteration is required to compute the value function at this point in the clock (no fixed point problem), then the clock will return <code>TRUE</code>.   This does not itself check for convergence, and other considerations may set `Flags::setPstar` to TRUE.</DD>
 
     <DT>Typically the user does nothing with these methods unless they are creating their own solution method.  And if the create their own clock type they may have to provide replacement methods if the inherited ones are not correct.</DT>
@@ -817,19 +817,19 @@ Time invariants index different DP models (elements of $\gamma$). Time invariant
 <LI>Overview</LI>
 
  The basic DP model concerns a single agent in a single environment.  However, many applications involve related DP problems that differ in parameter values, which in turn alter the primitives $U()$, $P()$, $\delta$. The state vector $\gamma$ holds variables that are fixed for an agent but differ across agents.  </p>
- 
+
  <p>As with other state vectors, anything that can go in $\gamma$ could be placed in $\theta$.  However, since the state does not vary it is inefficient to included invariant states in $\Theta$.</p>
- 
+
  <p>Instead, <span class="n">DDP</span> resuses $\Theta$ for each value of $\gamma$ and stores only a minimum amount of information for previously solved models. Only state variables derived from the `TimeInvariant` class can be added to $\gamma$ Invariants do not have a transition.</p>
 
 <LI>Fixed and Random Effects</LI>
 
     <span class="n">DDP</span> distinguishes between two kinds of invariants.  Each is either a `FixedEffect` or a `RandomEffect`.  This distinction plays the same role as in panel models.  Fixed effects typically correspond to constant observed variables, such as gender.  So if the model is to be solved separately for men and women, with different primitives, then a binary FixedEffect would be added to $\gamma$.  </p>
-    
+
     <p>On the other hand, a `RandomEffect` is designed to account for unobserved variation in the underlying problem.  An example would be a model that allows agents to have different (unobserved and permanent) skill levels.  A single skill variable taking on discrete values could be added to $\gamma$  In estimation DDP will sum over the distribution of skills.</p>
 
     <p>If a TimeInvariant class has a <code>Transit()</code> function defined it is never called because the DP problem presumes the value will never change.  A fixed effect also has no distribution, but a random effect does,  `RandomEffect::Distribution`().   </p>
-    
+
     <p>The distribution is used to integrate out the random effect after solving for behavior conditional on each value.  The distribution can depend on the value of the fixed effects. For example, the distribution of skills can depend on gender.    This is called once for each value of the fixed effects and this updates the `Discrete::pdf`(), a vector of probabilities or weights place on the values of the random effect.</p>
 
     <p>Correlated random effects are created by adding a `RandomEffectBlock` to $\gamma$</p>
@@ -837,7 +837,7 @@ Time invariants index different DP models (elements of $\gamma$). Time invariant
 <LI>The Group Space</LI>
 
  Each combination of random and fixed effects implies a value of $\gamma$, and for each $\gamma$ a `Group` node is created.  The set of all group nodes is the <em>group space</em>, denoted $\Gamma$. </p>
- 
+
  <p>As with allowing state variables to be declared exogenous, moving time invariant variables from $\theta$ to $\gamma$ saves time and especially storage while solving the model. An invariant does not need to be tracked during iteration over $\Theta$.  So group variable <code>Transit()</code> methods are <em>not</em> called for each iteration over <var>t</var> and <var>t&Prime;</var>.</p>
 
  <p>Storage is re-used while solving for different values of $\gamma$. <span class="n">DDP</span> reuses the state space $\Theta$ for each value of $\gamma$. Choice probabilities $P^\star(\alpha | \epsilon, \eta, \theta, \gamma )$ are stored separably for each random value of $\gamma$.  $EV(\theta)$ integrates out the random effects, conditional on the value of the fixed effects in $\gamma$. Both utility and a transitions can depend on the value of fixed effects.  However, only utility can depend on random effects.</p>

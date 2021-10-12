@@ -523,7 +523,10 @@ Panel::Print(fn,Orientation)	{
             println("\n-------------------- End Panel --------------------\n");
             }
         }
-	else if (!savemat(fn,flat,LFlat[Orientation])) oxrunerror("DDP Error 51. FPanel print to "+fn+"failed");
+	else {
+//        println("Summary file to be saved ",MyMoments(flat,LFlat[Orientation]));
+        if (!savemat(fn,flat,LFlat[Orientation])) oxrunerror("DDP Error 51. FPanel print to "+fn+"failed");
+        }
 	}
 
 /** Get tracking probabilities and tomorrow indices consistent with tomorrow's observation .

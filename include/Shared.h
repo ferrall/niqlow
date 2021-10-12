@@ -109,12 +109,12 @@ static const decl
 		/**labels for `MyMoments`**/              mymomlabels = {"sample size","mean","st.dev.","min","max"},
         /** 0 as a vector .**/                    VZero     =   <0>,
         /** used in transitions.**/               ZeroForSure=  { VZero, CondProbOne },
-		/** Euclidean tolerance, $1^{-12}$. **/   SSQ_TOLER =	1E-12,
-		/** $\sqrt{\epsilon_m}$ $1^{-8}$. **/     SQRT_EPS 	=	1E-8,
-		/** tolerance level 0: $1^{-8}$. **/      DIFF_EPS 	=	1E-8,
-		/** tolerance level 1: $5^{-6}$. .**/     DIFF_EPS1	=	5E-6,
-		/** tolerance level 2: $1^{-4}$. .**/     DIFF_EPS2	=	1E-4,
-		/** tolerance level 3: $1^{-2}$. .**/     DIFF_EPS3	=	1E-2,
+		/** Euclidean tolerance, $10^{-12}$. **/   SSQ_TOLER =	1E-12,
+		/** $\sqrt{\epsilon_m}$ $10^{-8}$. **/     SQRT_EPS 	=	1E-8,
+		/** tolerance level 0: $10^{-8}$. **/      DIFF_EPS 	=	1E-8,
+		/** tolerance level 1: $5\times 10^{-6}$. .**/     DIFF_EPS1	=	5E-6,
+		/** tolerance level 2: $10^{-4}$. .**/     DIFF_EPS2	=	1E-4,
+		/** tolerance level 3: $10^{-2}$. .**/     DIFF_EPS3	=	1E-2,
         /** IID normal parameter vector. @NormalParams.**/ IIDZpars = <0.0;1.0;0.0>;
 
         /** Used in CV() and AV(). static to reduce overhead. @internal **/

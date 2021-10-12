@@ -121,23 +121,13 @@ Flags::TimeProfile(fn) {
 **/
 TrackObj::Distribution(pobj,obj) {
     if (isclass(obj,"ActionVariable")) {
-        decl v = sumr(obj.actual[Alpha::C[][obj.pos]]' * pobj.chq);
-        /*   GETTING RID OF INNER LOOP, can't compute hist
-        decl hk, k;
-        v = 0.0;
-        for(k=0;k<obj.N;++k) {
-            hk = sumr( sumc( selectifr(pobj.chq,Alpha::C[][obj.pos].==k) ) );
-            v += obj.actual[k]*hk;
-            hist[k] += hk;
-            }
-        */
+        v = sumr(obj.actual[Alpha::C[][obj.pos]]' * pobj.chq);
         }
     else if (isclass(obj,"StateVariable")) {
         decl me = pobj.state[obj.pos];
         hist[me] += pobj.pq;        //Leak:sind[][k] -> q
         v =obj.actual[me]'*pobj.pq;
         }
-    //else { Auxiilary already done}
     mean += v;
     if (obj.Volume>=LOUD) println(I::t," ",obj.L," OV ",obj.v'," ",v," ",mean);
     }
@@ -154,6 +144,7 @@ TrackObj::TrackObj(LorC,obj,pos) {
     hist = zeros(obj.N,1);
   else
     hist = zeros(0,1);
+  mean = 0.0;
   }
 
 /** . @internal **/

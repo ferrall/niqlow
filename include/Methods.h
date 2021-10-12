@@ -8,7 +8,7 @@ enum{USEBROYDEN,USENEWTONRAPHSON,SystemAlgorithms}
 struct Method : FETask {
 	   static const decl
 		/** Default convergence tolerance on Bellman Iteration for stationary
-            environments = `DIFF_EPS` = 1^{-8}. @see Method::Tune , Clock::normparam
+            environments = `DIFF_EPS` = 10^{-8}. @see Method::Tune , Clock::normparam
             **/                                                     DefTolerance = DIFF_EPS;
         decl
         /** Either r or AllRan to solve for all random effects.**/  Rgroups,
