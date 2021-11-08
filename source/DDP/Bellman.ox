@@ -1121,7 +1121,6 @@ KeepZ::DynamicActVal(z) {
 /** @internal **/
 KeepZ::thetaEMax () {
     return OneDimensionalChoice::thetaEMax();
-//    return v;
     }
 
 /** Initialize the model.

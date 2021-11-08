@@ -20,7 +20,8 @@ wolpinmenu() {
 			{"WolpinEmet1987",			SchToWork::Replicate},
 			{"RosenzweigWolpinJPE1993",	Farmer::Replicate},
 			{"KeaneWolpinREStat1994",	DynamicRoy::Replicate},
-			{"KeaneWolpinJPE1997",	    KWJPE97::Replicate}
+			{"KeaneWolpinJPE1997",	    KWJPE97::Replicate},
+            {"StinebricknerIER2001",    Stinebrickner::Run}
            );
     return w;
     }

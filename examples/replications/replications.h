@@ -15,6 +15,7 @@
 #import "FrenchREStud2005"
 #import "RosenzweigWolpinJPE1993"
 #import "AiyagariQJE1994b"
+#import "StinebricknerIER2001"
 
 repmenu();
 rust87menu();
