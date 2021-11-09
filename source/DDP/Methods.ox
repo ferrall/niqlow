@@ -22,8 +22,8 @@ Method::Method(myGSolve) {
     }
 
 /** Set basic parameters of a solution method.
-@argument Volume  UseCurrent (-2) do not change<br/>
-                  Volume level for output, @see `NoiseLevels'<br/>
+@param Volume  UseCurrent (-2) do not change<br/>
+                  Volume level for output, <br/>
                   vtoler UseCurrent (-2) do not change<br/>
                          convergence criteria for stationary problems (fixed points)<br/>
                   MaxTrips UseCurrent (-2) do not change<br/>
@@ -37,6 +37,7 @@ Method::Method(myGSolve) {
                             2: square root of sum of squares,<br/>
                             p: p-th root of sum of absolute elements raised to the power p.<br/>
                             -1: minimum absolute value,<br/>
+@see NoiseLevels
 **/
 Method::Tune(Volume,vtoler,MaxTrips,NormType) {
     if (Volume!=UseCurrent) this.Volume = Volume;

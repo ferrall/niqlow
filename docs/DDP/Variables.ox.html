@@ -234,7 +234,7 @@ P_\epsilon(\epsilon^{\,\prime}) P_\eta(\eta^{\,\prime}) P_\theta\left(\theta^{\,
 That is, the joint probability distribution of all state variables next period is the product of the probabilities of the three state vectors.  So the vectors evolve independently conditional on the current state. Further, the IID nature of <span class="expressions">\(\epsilon\)</span> and <span class="expressions">\(\eta\)</span> mean that their probability is constant across current states and actions.  In turn,
 <span class="equation">$$\eqalign{
 P_\epsilon(\epsilon^{\,\prime}) &= \prod_{k=0\dots \epsilon.N-1} P_{e_k}\left(e^{\,\prime}_k\right)\cr
-P_\eta(\eta^{\,\prime}) &= \prod_{k=0\dots \eta.N-1} P_{e_k}\left(e^{\,\prime}_k\right)\cr
+P_\eta(\eta^{\,\prime}) &= \prod_{k=0\dots \eta.N-1} P_{h_k}\left(h^{\,\prime}_k\right)\cr
 P_\theta\left(\theta^{\,\prime}\ |\ \alpha,\eta,\theta\right) &= \prod_{k=0\dots \theta.N-1} P_{q_k}\left(q^{\,\prime}_k\ |\ \alpha,\eta,\theta\right).\cr}$$</span>
 <P/>
 <DD>It is important to note that e<sub>k</sub>, h<sub>k</sub> and q<sub>k</sub> represents either an autonomous state variable or a whole state block, which is responsible for returning the joint transition of its coevolving members.</dd>
@@ -1356,7 +1356,7 @@ Let B = the bracket size at period t.
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___normparam">normparam</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -1406,7 +1406,7 @@ SetClock(new Aging(10));
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___normparam">normparam</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -1747,42 +1747,47 @@ to SetClock.
 <td class="description">Store Ergodic Distribution.</td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Clock___normparam">normparam</a></td>
+<td class="modifiers">static</td>
+<td class="description">Norm parameter for stationary convergence.</td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Clock___t">t</a></td>
 <td class="modifiers">const</td>
 <td class="description"><var>t</var>, current <a href="Variables.ox.html#TimeVariable">TimeVariable</a>  </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Clock___tprime">tprime</a></td>
 <td class="modifiers">const</td>
 <td class="description"><var>t'</var>, next period <a href="Variables.ox.html#TimeVariable">TimeVariable</a> used during
 			V iteration to track possible clock values next period.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Clock___Volume">Volume</a></td>
 <td class="modifiers">static</td>
 <td class="description">Volume for clocks (static so don't need to access internal var.</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Clock___Clock">Clock</a></td>
 <td class="modifiers"></td>
 <td class="description">Base clock block.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Clock___Last">Last</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">Flag for last period.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Clock___setPstar">setPstar</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Clock___Synch">Synch</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Clock___Vupdate">Vupdate</a></td>
 <td class="modifiers">virtual</td>
 <td class="description">The base calculation to be carried out after the value of all states at time t have been computed.</td>
@@ -2199,7 +2204,7 @@ FeasibleActions(A) {
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___normparam">normparam</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -3081,7 +3086,7 @@ T* is the last period with probability 1.
 
 <dl class="inherited">
 <dt>Inherited fields from <a href="Variables.ox.html#Mortality">Mortality</a>:</dt><dd><a href="Variables.ox.html#Mortality___DeathV">DeathV</a>, <a href="Variables.ox.html#Mortality___MortProb">MortProb</a>, <a href="Variables.ox.html#Mortality___mp">mp</a>, <a href="Variables.ox.html#Mortality___Tstar">Tstar</a></dd>
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___normparam">normparam</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -3245,7 +3250,7 @@ T* is the last period with probability 1.
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___normparam">normparam</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -3526,7 +3531,7 @@ Container for non-stationary and non-deterministic aging clocks.
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___normparam">normparam</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -3596,7 +3601,7 @@ A container for non-stationary clocks.
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___normparam">normparam</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -3995,7 +4000,7 @@ A sequence of treatment phases with fixed maximum durations.
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___normparam">normparam</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -4350,7 +4355,7 @@ Built-in variable that records realized utility.
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___normparam">normparam</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -4552,6 +4557,77 @@ s' = .
 </dl>
 
 <dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
+<dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___track">track</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
+</dl>
+
+<a name="Rouwenhorst"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Rouwenhorst : <a href="Variables.ox.html#Tauchen">Tauchen</a> : <a href="Variables.ox.html#Markov">Markov</a> : <a href="Variables.ox.html#Random">Random</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+
+Rouwenhorst approximation to discretized correlated normal value.
+
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#Tauchen">Tauchen</a></dd>
+</dl>
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Rouwenhorst___cp">cp</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Rouwenhorst___Grid">Grid</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Rouwenhorst___M">M</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Rouwenhorst___n">n</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Rouwenhorst___Nrt">Nrt</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Rouwenhorst___p">p</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Rouwenhorst___pp">pp</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Rouwenhorst___Rouwenhorst">Rouwenhorst</a></td>
+<td class="modifiers"></td>
+<td class="description">Rouwenhorst discretizization of a correlated normal process.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Rouwenhorst___Update">Update</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Dynamic updating of the transition probabilities.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#Tauchen">Tauchen</a>:</dt><dd><a href="Variables.ox.html#Tauchen___Tauchen">Tauchen</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___Markov">Markov</a></dd>
+<dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___Track">Track</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#Tauchen">Tauchen</a>:</dt><dd><a href="Variables.ox.html#Tauchen___gaps">gaps</a>, <a href="Variables.ox.html#Tauchen___pars">pars</a>, <a href="Variables.ox.html#Tauchen___pts">pts</a>, <a href="Variables.ox.html#Tauchen___rnge">rnge</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___jprob">jprob</a>, <a href="Variables.ox.html#Markov___Pi">Pi</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___track">track</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
@@ -5004,7 +5080,7 @@ SetClock(NormalAging,1);
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___normparam">normparam</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -5057,7 +5133,7 @@ SetClock(new Stationary(TRUE));
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
+<dt>Inherited fields from <a href="Variables.ox.html#Clock">Clock</a>:</dt><dd><a href="Variables.ox.html#Clock___IsErgodic">IsErgodic</a>, <a href="Variables.ox.html#Clock___normparam">normparam</a>, <a href="Variables.ox.html#Clock___t">t</a>, <a href="Variables.ox.html#Clock___tprime">tprime</a>, <a href="Variables.ox.html#Clock___Volume">Volume</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateBlock">StateBlock</a>:</dt><dd><a href="Variables.ox.html#StateBlock___Actual">Actual</a>, <a href="Variables.ox.html#StateBlock___Allv">Allv</a>, <a href="Variables.ox.html#StateBlock___rnge">rnge</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
@@ -5135,7 +5211,7 @@ Let a state variable transit only in one sub-period of a Divided clock.
 </dl>
 
 <a name="Tauchen"></a>
-<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Tauchen : <a href="Variables.ox.html#Random">Random</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Tauchen : <a href="Variables.ox.html#Markov">Markov</a> : <a href="Variables.ox.html#Random">Random</a> : <a href="Variables.ox.html#Autonomous">Autonomous</a> : <a href="Variables.ox.html#StateVariable">StateVariable</a> : <a href="Shared.ox.html#Discrete">Discrete</a> : <a href="Shared.ox.html#Quantity">Quantity</a></span></h2>
 
 A one-dimensional correlated discretized normal process using Tauchen's approach.
 
@@ -5143,32 +5219,32 @@ A one-dimensional correlated discretized normal process using Tauchen's approach
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Tauchen___cp">cp</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Tauchen___gaps">gaps</a></td>
 <td class="modifiers">const</td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Tauchen___Grid">Grid</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Tauchen___M">M</a></td>
 <td class="modifiers">const</td>
 <td class="description">support.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Tauchen___pars">pars</a></td>
 <td class="modifiers">const</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Tauchen___pts">pts</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Tauchen___r">r</a></td>
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Tauchen___pts">pts</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
@@ -5177,12 +5253,7 @@ A one-dimensional correlated discretized normal process using Tauchen's approach
 <td class="modifiers"></td>
 <td class="description"></td>
 </tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Variables.ox.html#Tauchen___s">s</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Variables.ox.html#Tauchen___Tauchen">Tauchen</a></td>
 <td class="modifiers"></td>
 <td class="description">Tauchen discretizization of a correlated normal process.</td>
@@ -5190,12 +5261,14 @@ A one-dimensional correlated discretized normal process using Tauchen's approach
 </table>
 
 <dl class="inherited">
+<dt>Inherited methods from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___Markov">Markov</a></dd>
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___Track">Track</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___Discrete">Discrete</a>, <a href="Shared.ox.html#Discrete___PDF">PDF</a>, <a href="Shared.ox.html#Discrete___SetActual">SetActual</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></dd>
 </dl>
 
 <dl class="inherited">
+<dt>Inherited fields from <a href="Variables.ox.html#Markov">Markov</a>:</dt><dd><a href="Variables.ox.html#Markov___jprob">jprob</a>, <a href="Variables.ox.html#Markov___Pi">Pi</a></dd>
 <dt>Inherited fields from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Prune">Prune</a>, <a href="Variables.ox.html#StateVariable___TermValues">TermValues</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Discrete">Discrete</a>:</dt><dd><a href="Shared.ox.html#Discrete___actual">actual</a>, <a href="Shared.ox.html#Discrete___N">N</a>, <a href="Shared.ox.html#Discrete___pdf">pdf</a>, <a href="Shared.ox.html#Discrete___subv">subv</a>, <a href="Shared.ox.html#Discrete___vals">vals</a></dd>
 <dt>Inherited fields from <a href="Shared.ox.html#Quantity">Quantity</a>:</dt><dd><a href="Shared.ox.html#Quantity___L">L</a>, <a href="Shared.ox.html#Quantity___logf">logf</a>, <a href="Shared.ox.html#Quantity___pos">pos</a>, <a href="Shared.ox.html#Quantity___track">track</a>, <a href="Shared.ox.html#Quantity___v">v</a>, <a href="Shared.ox.html#Quantity___Volume">Volume</a></dd>
@@ -6490,6 +6563,22 @@ If TRUE then transitions are not computed.
 </dd></dl>
 
 <hr>
+<a name="Clock___normparam"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">normparam</span></h3>
+
+<span class="declaration">static decl normparam [public]</span>
+<dl><dd>
+Norm parameter for stationary convergence. Default=2, Eucliean.  See Ox's norm()
+        When A is a vector:
+        0: infinity norm, maximum absolute value,
+        1: sum of absolute values,
+        2: square root of sum of squares,
+        p: p-th root of sum of absolute elements raised to the power p.
+        -1: minimum absolute value.
+
+</dd></dl>
+
+<hr>
 <a name="Clock___setPstar"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">setPstar</span></h3>
 
@@ -6553,6 +6642,7 @@ The base calculation to be carried out after the value of all states at time t h
 
 <dl><dt class="returns">Returns:</dt><dd class="returns">||V(&theta;)-V'(&theta;&prime;)||
 </dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Methods.ox.html#Method___Tune">Tune</a>, <a href="Variables.ox.html#Clock___normparam">normparam</a>, <a href="Methods.ox.html#Method___vtoler">vtoler</a></dd>
 </dl>
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Coevolving</span></h2>
@@ -8554,7 +8644,7 @@ noise is additive (not multiplicative).
 <a name="Noisy___Noisy"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Noisy</span></h3>
 
-<span class="declaration">Noisy :: Noisy ( truevalue , sigma , Linear )</span>
+<span class="declaration">Noisy :: Noisy ( truevalue , sigma , Linear , Label )</span>
 <dl><dd>
 Create an auxiliary value that adds normally-distributed noise to the actual value.
 
@@ -8572,7 +8662,12 @@ Create an auxiliary value that adds normally-distributed noise to the actual val
 </tr>
 <tr>
 <td class="declaration" valign="baseline">Linear</td>
-<td class="description" valign="baseline">TRUE error is additive<br/>FALSE error is multiplicative and log-normal</td>
+<td class="description" valign="baseline">TRUE error is additive<br/>FALSE error is multiplicative and log-normal
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Label</td>
+<td class="description" valign="baseline">if truevalue does not have a L member this will be used</td>
 </tr>
 </table>
 </dd>
@@ -9793,6 +9888,125 @@ Accept or reject an offer then retain.
 </dd>
 </dl>
 </dd></dl>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Rouwenhorst</span></h2>
+
+<a name="Rouwenhorst___cp"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cp</span></h3>
+
+<span class="declaration">decl cp [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Rouwenhorst___Grid"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Grid</span></h3>
+
+<span class="declaration">decl Grid [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Rouwenhorst___M"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">M</span></h3>
+
+<span class="declaration">decl M [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Rouwenhorst___n"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">n</span></h3>
+
+<span class="declaration">decl n [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Rouwenhorst___Nrt"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Nrt</span></h3>
+
+<span class="declaration">const decl Nrt [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Rouwenhorst___p"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">p</span></h3>
+
+<span class="declaration">decl p [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Rouwenhorst___pp"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">pp</span></h3>
+
+<span class="declaration">decl pp [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Rouwenhorst___Rouwenhorst"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Rouwenhorst</span></h3>
+
+<span class="declaration">Rouwenhorst :: Rouwenhorst ( L , N , pars )</span>
+<dl><dd>
+Rouwenhorst discretizization of a correlated normal process.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">Number of discrete points in the approximation
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">pars</td>
+<td class="description" valign="baseline">3x1 vector or array of <a href="Shared.ox.html#AV">AV</a>()-compatible parameters<br/>
+<pre>
+    i: Parameter (default)
+    0: mean (&mu;=0.0)<br/>
+    1: st. dev.    (&sigma;=1.0)
+    2: correlation (&rho;=0.0)
+</pre>
+<P/>
+Actual values will take on <span class="expressions">\(N\)</span> equally spaced values in a dynamically determined range
+<DD>Note: If none of the paramters are objects then the actual values will be Updated upon creation. This makes
+    them available while creating spaces.  Otherwise, update is not called on creation in case parameters  will be
+    read in later.</DD>
+<P/>
+The udpate code is based on these implementations:
+<pre>
+https://drive.google.com/file/d/0BzbiTUXVnwezQjBmU3p5NFVOYnM/view?resourcekey=0-IgQlYEXCqGMBYBGzd4Y4Zg
+https://quanteconpy.readthedocs.io/en/latest/_modules/quantecon/markov/approximation.html#rouwenhorst
+</pre></td>
+</tr>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Rouwenhorst___Update"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
+
+<span class="declaration">virtual Rouwenhorst :: Update ( )</span>
+<dl><dd>
+Dynamic updating of the transition probabilities.
+
+</dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">SimpleJump</span></h2>
 
 <a name="SimpleJump___SimpleJump"></a>
@@ -10622,6 +10836,15 @@ Make a state variable only transit in one subperiod of a <a href="Variables.ox.h
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Tauchen</span></h2>
 
+<a name="Tauchen___cp"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cp</span></h3>
+
+<span class="declaration">decl cp [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="Tauchen___gaps"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">gaps</span></h3>
 
@@ -10670,28 +10893,10 @@ support.
 </dd></dl>
 
 <hr>
-<a name="Tauchen___r"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">r</span></h3>
-
-<span class="declaration">decl r [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="Tauchen___rnge"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">rnge</span></h3>
 
 <span class="declaration">decl rnge [public]</span>
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="Tauchen___s"></a>
-<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">s</span></h3>
-
-<span class="declaration">decl s [public]</span>
 <dl><dd>
 
 </dd></dl>
