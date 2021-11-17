@@ -12,7 +12,7 @@ WStarB::Create() {
 	GroupVariables(g);
 	CreateSpaces();
 	RV = new ReservationValues();
-    eta = <0.02 ; 0.25>;
+    eta = <0.02 ; 0.04>;
     }
 
 WStarB::Run()	{

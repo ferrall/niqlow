@@ -13,7 +13,7 @@ Farmer::Replicate()	{
             m = new BinaryChoice("m"),
             calf = new BinaryChoice("n")
             );
-    b.actual = range(-BullMax,BullMax)';
+    b->SetActual(range(-BullMax,BullMax)');
 	ExogenousStates(
         eps = new Zvariable("e",Ndraws),
         badweath = new IIDBinary("Z",badweathprob)

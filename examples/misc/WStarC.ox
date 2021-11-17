@@ -49,7 +49,7 @@ WStarC::EUtility()    {
 	}	
 
 WStarC::Run()	{
-
+    Create();
     RV->ToggleRunSafe();
     decl key;
 //    for (sigma = 0.4; sigma<1.1; sigma += 0.05) {
