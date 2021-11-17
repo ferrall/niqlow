@@ -1,7 +1,7 @@
 #import "DDP"
 #include <oxdraw.oxh>
 #import "WStarA"
-#import "WstarB"
-#import "WstarC"
+#import "WStarB"
+#import "WStarC"
 
 WStarTestRun();
