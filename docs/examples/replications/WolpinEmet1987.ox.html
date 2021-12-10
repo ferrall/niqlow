@@ -4,7 +4,7 @@
 <link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><link rel="icon" href="icons/favicon16.png" type="image/png">
 <link rel="stylesheet" type="text/css" href="../../oxdoc.css">
 <link rel="stylesheet" type="text/css" media="print" href="../../print.css">
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
+<script type="text/javascript" async  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
 <title>WolpinEmet1987.ox - Replications</title>
 </head>
 <body>
@@ -17,55 +17,83 @@
 
 Replicate <a href="">Wolpin (Econometrica 1987)</a>, the school to work transition search model.
 <P/>
-<OL>
-<LI>CCP Smoothing: OneDimensionalChoice of a reservation wage </LI>
-<LI>The Clock: ordinary aging. Choice horizon: <span class="expressions">\(T=115\)</span> (months), 61 before leaving school, 54 after, plus 500 months of no choice periods.</LI>
-<LI><span class="expressions">\(\alpha = (a) \in \{0,1\}\)</span>.</LI>
-<LI><span class="expressions">\(\theta = (h,m,t)\)</span>. where <span class="expressions">\(m \in \{0,1\}\)</span> is the lagged action, indicating a job has been accepted.  <span class="expressions">\(m=1\)</span> is a <em>terminal state</em>. <span class="expressions">\(h\)</span> is an IID binary process with <span class="expressions">\(h=1\)</span> meaning a wage offer arrived, 0 otherwise.
-    $<span class="expressions">\(d = \cases{ 0    & \)</span>t<61<span class="expressions">\( (in school)\cr
-                  t-62 & otherwise (out of school)\cr}\)</span><span class="expressions">\(
-    \)</span><span class="expressions">\(
-    Prob(h=1) = \cases{ 0.01 & if \)</span>d=0<span class="expressions">\(\cr
-                        \Phi(-2.08-0.0025d) & otherwise\cr}\)</span><span class="expressions">\(
-    </LI>
-<LI>\)</span><span class="expressions">\(A(\theta) = \cases{
-            \{0,1\} & if \)</span>(1-m)h<span class="expressions">\( and \)</span>d<54<span class="expressions">\( (has an offer, still unemployed, still choosin)\cr
-            \{0\} & if \)</span>h=0<span class="expressions">\( (no offer)\cr
-            \{1\} & if \)</span>h=1<span class="expressions">\( and \)</span>t\ge 54<span class="expressions">\( (must accept any offer)\cr}\)</span><span class="expressions">\(
-<LI>Expected Utility of Reject/Accept.</LI>
-    Given \)</span>z^\star_t<span class="expressions">\( the current value of the reservation wage, and wage offers are log-normally distributed.
-    define \)</span>q = \ln(z^\star_t,\nu)-\ln(\tilde{w})<span class="expressions">\(, \)</span>p = 1-\Phi(q/\sigma)<span class="expressions">\(,
-    \)</span>\lambda = 1 - \Phi(q/\sigma-\sigma^2)<span class="expressions">\(.  Then the model delivers a 2x2 matrix of expected values:
-    \)</span>\pmatrix{ -c & (1-p) \cr PDV(E\lambda/p) & p }<span class="expressions">\(
-    That is, the right column is the probability of \)</span>w<span class="expressions">\( above and below \)</span>z^\star<span class="expressions">\(, respectively.
-    The left column is the expected utility of rejecting and accepting given \)</span>z^\star<span class="expressions">\(.  Rejection has
-    utility \)</span>c<span class="expressions">\(.  Acceptance is the present discounted value of the mean wage conditional on it being greater than \)</span>\z^\star<span class="expressions">\(, thus
-    \)</span><span class="expressions">\(PDV(w) = { w+.99901408{T^\star-t}\over 1-.99901408}.\)</span><span class="expressions">\(
-    Note that <q>utility</q> is the right term if upon acceptance the searcher gets the full present value of wages.  This is consistent with the model since there are no further decisions after a wage is accepted.  If there were further decisions that depended on future wages then the value of the accepted wage would have to be tracked as a discrete state variable.
+<table class="niqsum">
+<tbody>
+<tr><th>Element</th><th class="r" colspan="3">Value</th><th colspan="3" nowraps>Category / Params / Notes</th></tr>
+<tr>
+  <td>Clock</td><td></td><td><span class="expressions">\(t\)</span></td><td></td>  <td colspan="2">Ordinary Aging. T=615. <span class="expressions">\(t\lt 61\)</span> in school</td>
+</tr>
+<tr>
+  <td>CCP</td><td class="r"><span class="expressions">\(\ln z\)</span></td><td><span class="expressions">\(\sim\)</span></td>  <td><span class="expressions">\(N(\tilde{w},\sigma^2)\)</span></td><td>OneDimensionalChoice</td><td></td>
+</tr>
+<tr>
+  <td>Actions</td><td class="r"><span class="expressions">\(\al\)</span></td><td><span class="expressions">\(=\)</span></td> <td><span class="expressions">\((a)\)</span></td><td>Binary Choice</td><td>accept offer.</td></tr>
+<tr>
+  <td>States:</td><td class="r"><span class="expressions">\(\th\)</span></td><td><span class="expressions">\(=\)</span></td>
+  <td><span class="expressions">\((h,m)\)</span></td><td nowrap><code>h:</code> IIDBinary<br/><code>m:</code> LaggedAction</td><td>has offer<br> accepted in <span class="expressions">\(t-1\)</span>. </td>
+</tr>
+<tr><td rowspan="2">Choice Sets</td>
+<td class="r"><span class="expressions">\(CC(\th)\)</span></td><td><span class="expressions">\(=\)</span></td><td><span class="expressions">\((!m)h\,\&\,t\lt 115\)</span></td><td colspan="3">condition to solve for <span class="expressions">\(z^\star\)</span>  </td></tr>
+<tr><td class="r"><span class="expressions">\(A(\th)\)</span></td><td><span class="expressions">\(=\)</span></td><td>
+ <span class="expressions">\(\cases{    \{0\}   &\)</span>!h<span class="expressions">\(\cr
+             \{0,1\} &\)</span>CC(\th)<span class="expressions">\(\cr
+             \{1\}   &\)</span>(!m)h\, \&\, t\ge 115<span class="expressions">\(\cr}\)</span></td><td colspan="2">no offer<br/>has offer, can choose <br/>must accept offer</td></tr>
+<tr><td>Utility<br/> at <span class="expressions">\(z\)</span></td>
+<td class="r"><span class="expressions">\(PDV(z)\)</span><br/><span class="expressions">\(U(z)\)</span></td><td><span class="expressions">\(=\)</span><br/><span class="expressions">\(=\)</span></td><td><span class="expressions">\({ z+\delta_v^{T-t}\over 1-\delta_v}\)</span><br/><span class="expressions">\(\left(\matrix{ -c \cr PDV(z) }\right).\)</span></td><td colspan="2">lifetime value of offer</td></tr>
+<tr><td>Exp. Utility</td><td class="r"><span class="expressions">\(E_w\)</span><br/><span class="expressions">\(EU\)</span></td><td><span class="expressions">\(=\)</span><br/><span class="expressions">\(=\)</span></td><td><span class="expressions">\({\tilde w}\exp\{\sigma^2/2\}\)</span><br/><span class="expressions">\(\left(\matrix{c \cr PDV(E_w\lambda/p)}\right)\)</span></td>
+<td colspan="2">Expected wage offer<br/>see \eqref{EU}</td></tr>
+<tr><td>Utility</td>
+<td class="r"><span class="expressions">\(U()\)</span></td><td><span class="expressions">\(=\)</span></td><td><span class="expressions">\((1-m)(-(1-h)c\)</span><br/><span class="expressions">\(+ hPDV(E_w))\)</span></td><td colspan="2">Non-choice state</td>
+</tbody>
+</table>
 <P/>
-    To solve the model also provides the utility vector at the reservation wage, which is simply \)</span>\pmatrix{ -c \cr PDF(x) }<span class="expressions">\(.  Together \)</span>z^\star<span class="expressions">\( is a root to a non-linear equation: <span class="n">niqlow</span> solves this equation for each state at which search is possible. In the model there are states at which search is not possible and <code>Utility()</code> must account for this
-    \)</span><span class="expressions">\(U() = (1-m)(-(1-h)c + h*PDV(E[w])).\)</span><span class="expressions">\(
-    That is, if no offer is in hand utility is \)</span>-c<span class="expressions">\(.  And if an offer is in hand (and search is not possible) the searcher must accept the wage.  The expected utility of arriving at this state is therefore \)</span>PDV(E[w])<span class="expressions">\( where \)</span>E[w] = ??<span class="expressions">\(.</LI>
-<LI>\)</span>\delta = 0.999<span class="expressions">\(.  The text states for the long post-search period a <q>annual discount rate of 5 percent</q> was used.  In monthly terms this results in a discount factor of \)</span>\delta_v = e^{\ln(.95)/52} = .99901408$.</LI>
-</OL>
+The indicator for having an offer in hand, <span class="expressions">\(h\)</span>, evolves independent of other choices, but it is not identically distributed since its distribution depends on time.  
+$<span class="expressions">\(P(h=1) = \cases{ 0.01 & if \)</span>t\le k<span class="expressions">\(\cr
+                        \Phi\l(-2.08-0.0025(t-k)\r) & \)</span>t\gt k<span class="expressions">\(.\cr}\nonumber\)</span><span class="expressions">\(
+</p>
 <P/>
-<h2>Replication of Table IV, p. 813, Wolpin, Econometrica 1987</h2>
-<table>
-<tr><th>Weeks i</th><th>Reported Predicted Hazard</th><th>Emulated Hazard</th> </tr>
-<tr><td>1         </td><td>    .313       </td><td>  .2773175  </td></tr>
-<tr><td>2-13      </td><td>    .141       </td><td>    .08758  </td> </tr>
-<tr><td>14-26     </td><td>    .135       </td><td>  .0825763  </td> </tr>
-<tr><td>27-39     </td><td>    .127       </td><td>  .0690007  </td> </tr>
-<tr><td>40-52     </td><td>    .117 </td>     <td>   .0577042  </td></tr>
-<tr><td>53-65     </td><td>    .105       </td> <td> .0545755  </td> </tr>
-<tr><td>66-78     </td><td>    .097 </td>       <td> .0445571  </td> </tr>
-<tr><td>79-91     </td><td>    .090       </td><td>  .0355048   </td> </tr>
-<tr><td>92-104    </td><td>    .083</td>        <td>  .028323   </td> </tr>
-<tr><td>105-117   </td><td>    .076       </td><td>  .0228554   </td> </tr>
-<tr><td>118-130   </td><td>    .070</td>        <td> .0186378   </td> </tr>
-<tr><td>131-143   </td><td>    .064       </td><td>  .0153897  </td> </tr>
-<tr><td>144-156   </td><td>     .059</td>      <td>  .0127247  </td> </tr>
-<tr><td>157-166   </td><td>     .054      </td><td>  .0107464 </td>
+<p>\)</span>m<span class="expressions">\( is included in the state vector to indicate that a job was accepted the previous period and decision making ends.  To mark a value \)</span>m=1<span class="expressions">\( as terminal simply requires:
+<DD><pre class="shade">
+ m -> MakeTerminal(1);
+</pre></DD>
+This must happen in the Build code segment such as <a href="#codeD" class="seg">D</a>. Future values are not computed at terminal states, so the value of a terminal state is return as the utility by the user's code.</p>
+<P/>
+<p>Second, as discussed earlier in <a href="#VVI" class="subsection">4.2</a>, a state involves a reservation value if it satisfies
+\)</span><span class="expressions">\(CC(\th) =(t\lt T+k)\ \&\ h\ \&\ (1-m).\nonumber\)</span><span class="expressions">\(
+At other states the searcher has no choice: they either have no offer to reject or they must accept any offer. This is achieved by providing a replacement for the virtual <code>Continuous()</code> method with one that returns the logical condition:
+<DD><pre class="shade">
+SchToWork::Continuous() {
+    return (I::t &lt; T+k) && CV(h) && (1-CV(m));
+    }</pre></DD></p>
+<P/>
+<p>The estimates use a discount rate of \)</span>\delta = 0.999<span class="expressions">\(, but the original text states for the long post-search period a "annual discount rate of 5 percent" was used.  In weekly terms this results in a discount factor of \)</span>\delta_v = e^{\ln(.95)/52} = .99901408.<span class="expressions">\(</p>
+<P/>
+<p>The searcher gets the full present value of wages upon acceptance.  This is consistent with the model since there are no further decisions after a wage is accepted.  If further decisions that depend on the accepted wage were made then a discrete approximation to its distribution would have to be tracked as a discrete state variable.</p>
+<P/>
+<p>The target of the replication are predicted hazard rates reported in Wolpin (1987). A hazard rate is the same as averaging \)</span>P^{\,\star}(1)<span class="expressions">\( conditional on not terminating yet (\)</span>m=0<span class="expressions">\().  The paper grouped the hazard by weeks which requires some additional code. The table of predicted hazards in the original paper and the replicated results are given in <a href="#Wolpin87" class="table">3</a>. </p>
+<P/>
+<p>The results are substantially different.  Starting from the bottom, we see the replicated hazard is about one-fifth that of the reported values.  The difference falls as we move back in time to the point that the initial replicated hazard is only 10% below the reported value.  This first hazard includes in-school search.  The computed reservation wages are for the most part negative. Given log-normal offers this implies all offers are accepted. And after week 54 all offers must be accepted if still searching (by assumption). Together this means that, except near week 1 in the table, the declining hazards simply reflect the falling offer probability not a change in rejection rates.</p>
+<P/>
+<p>The differences remain unresolved with  <a href="#Wolpin87" class="table">3</a>. The original text (<a href="#W87" class="r">Wolpin 1987</a> p. 812) notes negative reservation values.  Given the need to calculate expected values entering this period while iterating backwards it is important to handle negative values carefully.  That is, when \)</span>w^\star<span class="expressions">\( is on the support of offers it is possible to use \)</span>w^\star<span class="expressions">\( to compute \)</span>v(0)<span class="expressions">\(, the value of rejection.  This should receive 0 weight in the calculation because \)</span>Prob(w\le w^\star)=0<span class="expressions">\( when offers are log-normal and \)</span>w^\star\lt 0.$ Numerical issues in these computations from the 1980s may explain the discrepancy with modern  calculations.</p>
+<P/>
+<table class="data" noborder id="Wolpin87">
+<caption>Replication of Wolpin (1987) Table IV, p. 813</caption>
+<tr><th>Weeks i</th><th>Reported</th><th>Replicated</th> </tr>
+<tr><td>1</td><td> .313  </td><td>       .2773175 </td></tr>
+<tr><td>2-13  </td><td> .141  </td><td>  .08758 </td> </tr>
+<tr><td>14-26  </td><td> .135  </td><td> .0825763 </td> </tr>
+<tr><td>27-39  </td><td> .127  </td><td> .0690007 </td> </tr>
+<tr><td>40-52  </td><td> .117 </td>  <td>.0577042 </td></tr>
+<tr><td>53-65  </td><td> .105  </td> <td>.0545755 </td> </tr>
+<tr><td>66-78  </td><td> .097 </td>  <td>.0445571 </td> </tr>
+<tr><td>79-91  </td><td> .090  </td><td> .0355048 </td> </tr>
+<tr><td>92-104 </td><td> .083</td>  <td> .028323 </td> </tr>
+<tr><td>105-117 </td><td> .076  </td><td>.0228554 </td> </tr>
+<tr><td>118-130 </td><td> .070</td>  <td>.0186378 </td> </tr>
+<tr><td>131-143 </td><td> .064  </td><td>.0153897 </td> </tr>
+<tr><td>144-156 </td><td>  .059</td> <td>.0127247 </td> </tr>
+<tr><td>157-166 </td><td>  .054 </td><td>.0107464 </td></tr>
+<tr><td colspan="3">Predicted hazard rates out of job search at  estimated parameters.</td></tr>
 </table>
 
 <a name="SchToWork"></a>
@@ -111,7 +139,7 @@ Replicate <a href="">Wolpin (Econometrica 1987)</a>, the school to work transiti
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WolpinEmet1987.ox.html#SchToWork___Uz">Uz</a></td>
 <td class="modifiers"></td>
-<td class="description">Return vector of utilities at the cutoff(s) z.</td>
+<td class="description"></td>
 </tr>
 </table>
 
@@ -120,7 +148,6 @@ Replicate <a href="">Wolpin (Econometrica 1987)</a>, the school to work transiti
 <a name="SchToWork___Continuous"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Continuous</span></h3>
 
-<span class="declaration">SchToWork :: Continuous ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -129,7 +156,6 @@ Replicate <a href="">Wolpin (Econometrica 1987)</a>, the school to work transiti
 <a name="SchToWork___EUtility"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">EUtility</span></h3>
 
-<span class="declaration">SchToWork :: EUtility ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -138,7 +164,6 @@ Replicate <a href="">Wolpin (Econometrica 1987)</a>, the school to work transiti
 <a name="SchToWork___FeasibleActions"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FeasibleActions</span></h3>
 
-<span class="declaration">SchToWork :: FeasibleActions ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -147,7 +172,6 @@ Replicate <a href="">Wolpin (Econometrica 1987)</a>, the school to work transiti
 <a name="SchToWork___PDV"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PDV</span></h3>
 
-<span class="declaration">SchToWork :: PDV ( z )</span>
 <dl><dd>
 
 </dd></dl>
@@ -156,7 +180,6 @@ Replicate <a href="">Wolpin (Econometrica 1987)</a>, the school to work transiti
 <a name="SchToWork___Poff"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Poff</span></h3>
 
-<span class="declaration">static SchToWork :: Poff ( ... )</span>
 <dl><dd>
 
 </dd></dl>
@@ -165,7 +188,6 @@ Replicate <a href="">Wolpin (Econometrica 1987)</a>, the school to work transiti
 <a name="SchToWork___Replicate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Replicate</span></h3>
 
-<span class="declaration">static SchToWork :: Replicate ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -174,7 +196,6 @@ Replicate <a href="">Wolpin (Econometrica 1987)</a>, the school to work transiti
 <a name="SchToWork___Utility"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Utility</span></h3>
 
-<span class="declaration">SchToWork :: Utility ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -183,12 +204,10 @@ Replicate <a href="">Wolpin (Econometrica 1987)</a>, the school to work transiti
 <a name="SchToWork___Uz"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Uz</span></h3>
 
-<span class="declaration">SchToWork :: Uz ( z )</span>
 <dl><dd>
-Return vector of utilities at the cutoff(s) z.
 
 </dd></dl>
 <div class="footer">
-Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1</a> &copy Copyright 2005-2014 by Y. Zwols<br>
 Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
 </div>

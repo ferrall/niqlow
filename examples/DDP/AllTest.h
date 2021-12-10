@@ -11,6 +11,12 @@ struct Test1 : Bellman {
 	Utility();
 	}
 
+struct Test1a : NIID {
+    static decl a;
+	static Run();
+	Utility();
+	}
+
 struct Test2 : ExtremeValue	{
 	/** tags for estimated parameters. @name Zparams **/
 	enum{disc,RC,theta1,theta3,Nparams}

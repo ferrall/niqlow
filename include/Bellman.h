@@ -1,19 +1,24 @@
 #import "DP"
 /* This file is part of niqlow. Copyright (C) 2011-2021 Christopher Ferrall */
 
-/** The base class for $\theta$-specific values.
+/** Base class for any DP problem and each point $\theta$ in the endogenous state space.
 
-<UL>
-<LI>This is the base for a single point in the endogenous state space, $\theta\in \Theta$.</LI>
+<DL>
 
-<LI>It corresponds to a a model with no continuous shocks $\theta$ and no ex-post smoothing.</LI>
+<DT>Models based on this class correspond have no continuous shocks $\zeta$ and no ex-post smoothing.</DT>
 
+<DD>That is, action value is utility plus discounted expected future value:</DD>
+$$v\left( A(\theta) ;\cdots \right) = U(A) + \delta EV(\theta^\prime).$$
 
-<LI>Since a new instance is created for each reachable point in the (endogneous) state space, the structure relies heavily
-on static members in order to reduce memory requirements.  These are defined in the base `DP` class.</LI>
-</UL>
+<DT>CCPs are discussed in <a href="https://ferrall.github.io/OODP/OODP.html#CCPs">OODP 2.1.3</a>.</DT>
+    <DD>Models based on this class have choice probabilities of the form CCP1 (equation 6).</DD>
 
-<code>MyModel</code> is derived from a class that in turn is derived from Bellman.
+<DT>Static members of the class are inherited from the base `DP` class.</DT>
+
+</DL>
+
+<code>MyModel</code> is derived from Bellman <strong>or</strong> from a class
+derived from Bellman.
 
 **/
 struct  Bellman : DP {
@@ -50,7 +55,7 @@ struct  Bellman : DP {
 		/**EV(&theta;)  **/					                                  EV;
 
 			static 	Delete();
-			static 	Initialize(userState,UseStateList=FALSE);
+			static 	Initialize(userState);
 			static  CreateSpaces();
 
                     //  Users may or must replace these with their own
@@ -85,14 +90,17 @@ struct  Bellman : DP {
                     virtual InSS();
 	}																																				
 
-/** A point in the state space for a model in which choice probabilities are smoothed ex post.
+/** Base class for DP problem when choice probabilities are smoothed ex-post.
 
-<DT>Utility() has no continuous error terms that affect the formula for computing $EV(\theta)$.
-</DT>
-<DT>After $V(\theta)$ is computed, choice probabilities are either </dt>
-<DD>left unsmoothed or </dd>
-<Dd>smoothed <em>ex post</em>
-according to the `SmoothingMethods` sent to `ExPostSmoothing::CreateSpaces`().</DD>
+<DT>Utility() has no continuous shock $\zeta$. So action values are the
+same form as in `Bellman`.</DT>
+
+<DT>After $V(\theta)$ is computed, choice probabilities can take different forms:</dt>
+<DD>left unsmoothed (same as `Bellman`)</dd>
+<Dd>smoothed <em>ex post</em> with a kernel in values according to one of the
+        `SmoothingMethods` sent as argument to `ExPostSmoothing::CreateSpaces`().</DD>
+<DT>CCPs are discussed in <a href="https://ferrall.github.io/OODP/OODP.html#CCPs">OODP 2.1.3</a>.</DT>
+    <DD>Models based on this class have choice probabilities of the form CCP3 (equation 9).</DD>
 
 **/
 struct ExPostSmoothing : Bellman {
@@ -101,8 +109,7 @@ struct ExPostSmoothing : Bellman {
             Method,
     /**Smoothing parameter $\rho$ (logit or normal method)**/
             rho;
-//    /**Smoothing parameter $\sigma$ (normal method)**/        sigma;
-	static Initialize(userState,UseStateList=FALSE);
+	static Initialize(userState);
 	static CreateSpaces(Method=NoSmoothing,rho=1.0);
 	static SetSmoothing(Method,rho);
 	virtual Smooth();
@@ -154,6 +161,9 @@ $$\eqalign{
 &Rho;*(&alpha;;&epsilon;,&eta;,&gamma;) =
 </pre></dd>
 
+<DT>CCPs are discussed in <a href="https://ferrall.github.io/OODP/OODP.html#CCPs">OODP 2.1.3</a>.</DT>
+    <DD>Models based on this class have choice probabilities of the form CCP2 with Extreme Value shocks (equation 8).</DD>
+
 **/
 struct ExtremeValue : Bellman {
     static const decl lowb = 0.9*DBL_MIN_E_EXP,
@@ -163,7 +173,7 @@ struct ExtremeValue : Bellman {
 		/** Choice prob smoothing &rho;.**/ rho,
 		/** Hotz-Miller estimation task.**/ HMQ;
 	static SetRho(rho);
-	static Initialize(rho,userState,UseStateList=FALSE);
+	static Initialize(rho,userState);
 	static  CreateSpaces();
 	virtual thetaEMax() ;
 	virtual Smooth();
@@ -172,7 +182,7 @@ struct ExtremeValue : Bellman {
 
 /** Special case of Extreme value.
 <UL>
-<LI>Infinite horize and Ergodic state transition.</LI>
+<LI>Infinite horizon Ergodic state transition.</LI>
 <LI>binary choice.</LI>
 </UL>
 **/
@@ -192,28 +202,49 @@ to the value of actions.
 struct McFadden : ExtremeValue {
 	static decl
 	/**The decision variable. **/ d;
-	static Initialize(Nchoices,userState,UseStateList=FALSE);
+	static Initialize(Nchoices,userState);
 	static CreateSpaces();
 	ActVal();
 	}
-	
-/** Base class for models with an additive normal $\zeta$ shock added to action values.
+
+
+/** The containter class for models that include additve normal smoothing shocks.
+
+<DT>Specification</DT>
+$$v(\alpha,\cdots) = Utility(\alpha,\cdots) + \zeta_\alpha$$
+
+$\zeta$: vector of normal shocks
+
+Note: a user should base <code>MyModel</code> on either `NIID` or `NnotIID`
+which are derived from this base.
+
+
+<DT>CCPs are discussed in <a href="https://ferrall.github.io/OODP/OODP.html#CCPs">OODP 2.1.3</a>.</DT>
+    <DD>Models based on this class have choice probabilities of the form CCP2  (equation 7).</DD>
 
 **/
-struct Normal : Bellman {
+	struct Normal : Bellman {
 	static decl
-					Chol,
-	/** **/			AChol;
-	static Initialize(userState,UseStateList=FALSE);
+	/**Current Choleski matrix for shocks (over all feasible actions) **/			Chol,
+	/**User-supplied Choleski.**/			AChol;
+	static Initialize(userState);
 	static CreateSpaces();
 	thetaEMax() ;
 	virtual Smooth();
 	virtual ActVal();
 	}
 
-/** Base class for normal smoothing and correlated errors.
+/** Class for adding correlated normal smoothing shocks to action value.
 
- Smooth  simulation of choice probabilities.
+<DT>$\zeta \sim N(0,|Sigma)$</DT>
+
+<DT>User provides the vectorized Choleski decomposition of $\Sigma$</DT>
+
+<DT>CCPs are discussed in <a href="https://ferrall.github.io/OODP/OODP.html#CCPs">OODP 2.1.3</a>.</DT>
+    <DD>Models based on this class have choice probabilities of the form CCP2  (equation 7).</DD>
+    <DD>Choice probabilities are computed using GHK smooth simulation.</DD>
+
+ @see NnotIID::SetIntegration
  **/
 struct NnotIID : Normal {
 	// GHK and Quadrature integration
@@ -221,7 +252,7 @@ struct NnotIID : Normal {
         /** Current variance matrix.**/             BigSigma,
 		/**  replications for GHK **/				R,
 		/**  array of `GHK` objects 		**/		ghk;
-	static Initialize(userState,UseStateList=FALSE);
+	static Initialize(userState);
 	static SetIntegration(R=One,iseed=Zero,AChol=UseDefault);
 	static CreateSpaces();
 	static UpdateChol();
@@ -229,16 +260,25 @@ struct NnotIID : Normal {
             ExogExpectedV();
 	}
 
-/** Numerically integrate using Gauss-Hermite Quadrature.
+/** Class for adding correlated normal smoothing shocks to action value.
 
-**/
+<DT>$\zeta \sim N(0,|Sigma)$</DT>
+
+<DT>User provides the vectorized Choleski decomposition of $\Sigma$</DT>
+
+<DT>CCPs are discussed in <a href="https://ferrall.github.io/OODP/OODP.html#CCPs">OODP 2.1.3</a>.</DT>
+    <DD>Models based on this class have choice probabilities of the form CCP2  (equation 7).</DD>
+    <DD>Choice probabilities are computed using GHK smooth simulation.</DD>
+
+ @see NIID::SetIntegration
+ **/
 struct NIID : Normal {
 	static decl
 							MM,
 							GQNODES,
 							GQLevel;
-	static Initialize(userState,UseStateList=FALSE);
-	static SetIntegration(GQLevel,AChol);
+	static Initialize(userState);
+	static SetIntegration(GQLevel=7,AChol=0);
 	static CreateSpaces() ;
 	static UpdateChol();
 	ActVal();
@@ -247,7 +287,7 @@ struct NIID : Normal {
 
 /** Myopic choice problem ($\delta=0.0$) over $J$ sectors with correlated Normal $\zeta$.
 
-This is the base class for a multi-sector static discrete model with normally correlated shocks.
+This is a base class for a multi-sector static discrete model with normally correlated shocks.
 
 **/
 struct Roy : NnotIID {
@@ -310,7 +350,7 @@ struct OneDimensionalChoice : ExPostSmoothing {
             /** TRUE: solve for z* at this state.
                 Otherwise, ordinary discrete choice.**/             solvez,
 			/**N::Aind-1 x 1 of reservation value vectors.  **/	 zstar;
-	static 	Initialize(userState,d=Two,UseStateList=FALSE);
+	static 	Initialize(userState,d=Two);
 	static  CreateSpaces(Method=NoSmoothing,smparam=1.0);
 	virtual Uz(z);
 	virtual EUtility();
@@ -325,7 +365,7 @@ struct OneDimensionalChoice : ExPostSmoothing {
     virtual Setz(z);
 	}
 
-/** A OneDimensionalChoice model with discretized approximation to $\zeta$.
+/** A OneDimensionalChoice model with discretized approximation to "accepted" past $\zeta$.
 
 A discrete approximation to $\zeta$ enters the state vector if the decision is to accept (<code>d&gt;0</code>).
 
@@ -333,7 +373,7 @@ A discrete approximation to $\zeta$ enters the state vector if the decision is t
 struct KeepZ : OneDimensionalChoice {
 	static 	decl
             /** Discrete state variable of kept &zeta;.**/ keptz, myios;
-	static 	Initialize(userState,d=2,UseStateList=FALSE);
+	static 	Initialize(userState,d=2);
     static  SetKeep(N,held=TRUE);
 	virtual thetaEMax();
 	virtual ActVal();

@@ -2,6 +2,7 @@
 /* This file is part of niqlow. Copyright (C) 2011-2021 Christopher Ferrall */
 
 /** Task to construct $\theta$ transition, the endogenous state vector.
+<mark>Not called by User code directly</mark>
 
 This task loops over $\eta$ and $\theta$ to compute at each $\theta$
 
@@ -23,7 +24,14 @@ EndogTrans::EndogTrans() {
    	left = S[semiexog].M; 	right = S[clock].M;
 	}
 
-/** The inner work at $\theta$. **/
+/** The inner work at $\theta$ when computing transition probabilities.
+<mark>Not called by User code directly</mark>
+<OL>
+<LI>Do Hooks scheduled for <oxcode>AtThetaTrans</code></LI>
+<LI>Compute and store the endogenous $P(\theta^\prime;\alpha,\theta)$.
+by calling ThetaTransition</LI>
+</OL>
+**/
 EndogTrans::Run() {
     I::curth.EV = 0.0;              // reset EV
     Hooks::Do(AtThetaTrans);        // do anything the user wants done
@@ -32,6 +40,7 @@ EndogTrans::Run() {
 	}
 
 /** Update dynamically changing components of the program at the time chosen by the user.
+<mark>Not called by User code directly</mark>
 
 <DT>Things to do before spanning the $\eta$ and $\Theta$ state spaces
 <OL>
@@ -91,7 +100,9 @@ The users replacement for this must call this or the parent version.
 **/
 Bellman::SetTheta(state,picked) { Bellman(state,picked);    }
 
-/** Create a new point in $\Theta$, initializing the automatic (non-static) members.
+/** Creator function for a new point in $\Theta$, initializing the automatic (non-static) members.
+<mark>Not called by User code directly</mark>
+
 @param state  state vector
 @param picked TRUE: in sub sample of states for full solution.<br/>  FALSE: will be approximated
 
@@ -99,6 +110,8 @@ This is called in CreateSpaces() for each clone of <code>MyModel</code>
 
 <DT>Determine if the state is terminal</DT>
 <DT>Set $A(\theta)$.  </DT>
+
+
 @see Alpha::AddA
 **/		
 Bellman::Bellman(state,picked) {
@@ -146,8 +159,9 @@ Bellman::Allocate(picked,CalledFromBellman) {
   }
 
 /** Default $A(\theta)$:  all actions are feasible at all states, except for terminal states.
+<mark>Not called by User code directly</mark>
 
-This is a virtual method.  <code>MyModel</code> provide its own to replace it if some actions
+This is a virtual method.  <code>MyModel</code> provides its own to replace it if some actions
 are infeasible at some states.
 
 @return Mx1 indicator column vector<br> 1=row is feasible at current state<br> 0 otherwise.
@@ -171,6 +185,7 @@ Bellman::FeasibleActions()	{  	return ones(Alpha::N,1); 	}
 
 
 /** Default Choice Probabilities: no smoothing.
+<mark>Not called by User code directly</mark>
 @param inV expected value integrating over endogenous and semi-endogenous states.
 
 Smooth is called for each point in the state space during value function iteration, but only in the last iteration
@@ -187,8 +202,9 @@ Bellman::Smooth() {
 	pandv[][] ./= sumc(pandv);
 	}
 
-/** Completes $v(\alpha;\cdots,\eta,\theta)$ by adding discounted expected value
-    to utilities for a given $\eta$.
+/** Completes $v(\alpha;\cdots,\eta,\theta)$ by adding discounted expected value to utilities for a given $\eta$.
+<mark>Not called by User code directly</mark>
+
     The columns that are updated are indexed as `I::elo` : `I::ehi`.
     The element of the transition used is $\eta = $ `I::all`[onlysemiexog].
     <dd><pre>
@@ -203,22 +219,28 @@ Bellman::ExogExpectedV() {
         I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]);
     }
 
-/** Default to be replaced by user.
+/** Default to be replaced by user if necessary.
 This function is called before looping over $\epsilon$ and $\eta$.
 The user can place code in the replacement to avoid dupcliate calculations.
-This function must be coded when using `KeaneWolpin`
+This virtual function must be replaced when using `KeaneWolpin` solution method.
 
 @return NaN so that it won't accidentally because user did not provide a replacement.
 **/
 Bellman::ThetaUtility() { return .NaN; }
 
-/** For Myopic agent or StaticClock or just Initial, v=U and no need to evaluate EV. .**/
+/** For Myopic agent or StaticClock or just Initial, v=U and no need to evaluate EV.
+<mark>Not called by User code directly</mark>
+
+.**/
 Bellman::MyopicActVal() {
     XUT->ReCompute(DoAll);
     pandv[][] = XUT.U;
     }
 
-/** Compute $v(\alpha;\theta)$ for all values of $\epsilon$ and $\eta$. **/
+/** Compute $v(\alpha;\theta)$ for all values of $\epsilon$ and $\eta$.
+<mark>Not called by User code directly</mark>
+
+**/
 Bellman::ActVal() {
     MyopicActVal();
 	if (Type>=LASTT) return;
@@ -226,7 +248,10 @@ Bellman::ActVal() {
     IOE->Compute();
     }
 
-/** KeaneWolpin: Computes v() and V for out-of-sample states. **/
+/** KeaneWolpin: Computes v() and V for out-of-sample states.
+<mark>Not called by User code directly</mark>
+
+**/
 Bellman::MedianActVal() {
         //Note Since Action values not computed for terminal states, Type same as IsLast
         //XUT->ReCompute(UseCurrent);  Removed Oct. 2019.  Replaced by call to ThetaUtility
@@ -235,6 +260,8 @@ Bellman::MedianActVal() {
 	}
 	
 /**Default <code>Emax</code> operator at $\theta.$
+<mark>Not called by User code directly</mark>
+
 Derived classes provide a replacement.
 <DT>Computes</DT>
 $$\eqalign{
@@ -254,6 +281,7 @@ Bellman::thetaEMax() {
 
 /** Compute endogenous state-to-state transition $P^\star(\theta'|\theta)$ for the current
     state $\theta$.
+<mark>Not called by User code directly</mark>
 
 This updates either `Group::Ptrans` or `DP::NKptrans`.    This is called in `GSolve::PostEMax`
 and only if `Flags::setPstar` is TRUE and the clock is Ergodic or `Flags::NKstep` is true.
@@ -281,6 +309,7 @@ Bellman::UpdatePtrans() {
 
 
 /** Computes the endogneous transition given $\eta.$
+<mark>Not called by User code directly</mark>
 
 Loops over all state variables to compute $P(\theta^\prime ; \alpha, \eta )$.  For `StateBlock`s the root of
 the block is called to compute the joint transition.
@@ -365,13 +394,16 @@ Bellman::ThetaTransition() {
 
 /** Default U() &equiv; <b>0</b>.
 This is a virtual method.  <code>MyModel</code> provides a replacement.
+This simply returns a vector of 0s of length equal to the number of
+feasible action vectors
+$$U(A(\theta)) = \overrightarrow{0}$$
 **/
 Bellman::Utility()  {
 	if (!Flags::Warned) {
         Flags::Warned=TRUE;
         if (!Version::MPIserver) oxwarning("DDP Warning 02.\n Using default Utility() equal to 0.\n Your derived DDP should provide a replacement for Bellman::Utility().\n ");
         }
-	return zeros(N::Options[Aind],1);
+	return OnlyFeasible(zeros(N::Options[Aind],1));
 	}
 
 /** Returns the entry in Hotz Miller Q vector for this state.
@@ -398,6 +430,7 @@ Bellman::AMEMax() {
     }
 
 /** Extract and return rows of a matrix that correspond to feasible actions at the current state.
+
 @param myU `N::A` &times; m matrix
 
 @example
@@ -419,6 +452,7 @@ Bellman::OnlyFeasible(myU) {
     }
 
 /** Return TRUE if full iteration to be carried out at this point (in submsample).
+
 **/
 Bellman::InSS() { return Type>=INSUBSAMPLE && Type!=LASTT; }
 
@@ -432,12 +466,15 @@ Bellman::AutoVarPrint1(task) {
 	}
 
 
-/** The default / virtual routine called .
-The user can provide a replacement.  It is called when computing predictions.
+/** Default / virtual routine.
+Called when computing predictions.
+<mark>Not called by User code directly</mark>
+
 **/
 Bellman::OutcomesGivenEpsilon(){}
 
 /** This is called by a semi-exogenous task to update transitions from this state to the future.
+<mark>Not called by User code directly</mark>
 @internal
 **/
 Bellman::ExogStatetoState() {
@@ -455,6 +492,7 @@ Bellman::ExogStatetoState() {
     }
 
 /** Compute $P(\theta^\prime;\theta)$.
+<mark>Not called by User code directly</mark>
  **/
 Bellman::StateToStatePrediction(intod) {
     tod = intod;
@@ -474,6 +512,7 @@ Bellman::StateToStatePrediction(intod) {
 @internal
 @param Y `Outcome`
 @return UnInitialized if end of process<br>otherwise, index for next realized endogenous state
+<mark>Not called by User code directly</mark>
 **/
 Bellman::Simulate(Y) {
 	decl curJ = rows(pandv), done = Type>=LASTT ;
@@ -546,21 +585,21 @@ Bellman::Delete() {
 
 /** Base Initialize function.
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
-@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
-					FALSE [default], traverse &Theta; through iteration on all state variables
 
 User code must call the <code>Initialize()</code> of the parent class that <code>MyModel</code> is derived from.  That
 routine will ensure this is called.
 	
 **/
-Bellman::Initialize(userState,UseStateList) {
-	DP::Initialize(userState,UseStateList);
+Bellman::Initialize(userState) {
+	DP::Initialize(userState);
     parents = " | Bellman";
 	}
 
-/** Base function, just calls the DP version.
-User code must call CreateSpaces for the parent class that <code>MyModel</code> is derived from.  It will
-ultimately call this routine.
+/** Calls the DP version.
+
+User code must call CreateSpaces for the parent class that <code>MyModel</code> is derived from.
+
+It will ultimately call this routine.
 **/
 Bellman::CreateSpaces() {	DP::CreateSpaces(); 	}
 
@@ -569,14 +608,12 @@ Bellman::CreateSpaces() {	DP::CreateSpaces(); 	}
 @param rho 	`AV` compatible, the smoothing parameter &rho;.<br/>
 			CV(rho) &lt; 0, sets &rho; = <code>DBL_MAX_E_EXP</code> (i.e. no smoothing).
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
-@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br/>
-					FALSE, traverse &Theta; through iteration on all state variables
 	
 With &rho; = 0 choice probabilities are completely smoothed. Each feasible choices becomes equally likely.
 
 **/
-ExtremeValue::Initialize(rho,userState,UseStateList) {								
-	Bellman::Initialize(userState,UseStateList);
+ExtremeValue::Initialize(rho,userState) {								
+	Bellman::Initialize(userState);
     parents = " | Exteme Value " + parents;
 	SetRho(rho);
 	}
@@ -597,10 +634,10 @@ ExtremeValue::CreateSpaces() {	Bellman::CreateSpaces(); }
 @comments
 The action variable is created by this function and stored in `Rust::d`
 The value of the smoothing parameter &rho; can be changed.
-UseStateList is forced to be FALSE because the environment is Ergodic.
+
 **/	
 Rust::Initialize(userState) {
-	ExtremeValue::Initialize(1.0,userState,FALSE);
+	ExtremeValue::Initialize(1.0,userState);
     parents = " | Rust "+parents;
 	SetClock(Ergodic);
 	Actions(d = new BinaryChoice());
@@ -613,18 +650,18 @@ Rust::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 /** Initialize a McFadden model (one-shot, one-dimensional choice, extreme value additive error with &rho;=1.0). 	
 @param Nchoices <em>integer</em>, number of options.
 @param userState a `Bellman`-derived object that represents one point $\theta$ in the user's endogenous state space &Theta;.<br/>
-@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br/>
-					FALSE, traverse &Theta; through iteration on all state variables
 
 **/
-McFadden::Initialize(Nchoices,userState,UseStateList) {
-	ExtremeValue::Initialize(1.0,userState,UseStateList);
+McFadden::Initialize(Nchoices,userState) {
+	ExtremeValue::Initialize(1.0,userState);
     parents = " | McFadden "+parents;
 	Actions(d = new ActionVariable("d",Nchoices));
 	SetDelta(0.0);	
 	}
 
-/**  just calls the ExtremeValue version, no special code.
+/**  Create state space for McFadden models.
+
+Calls the ExtremeValue version, no special code.
 **/
 McFadden::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 
@@ -632,13 +669,11 @@ McFadden::CreateSpaces() {	ExtremeValue::CreateSpaces();	}
 
 /** Initialize an ex post smoothing model.
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
-@param UseStateList FALSE [default], traverse &Theta; through iteration on all state variables<br/>
-    TRUE, traverse the state space &Theta; from a list of reachable indices
 					
 	
 **/
-ExPostSmoothing::Initialize(userState,UseStateList){
-	Bellman::Initialize(userState,UseStateList);
+ExPostSmoothing::Initialize(userState){
+	Bellman::Initialize(userState);
     parents = " | Ex Post Smoothing "+parents;
 	}
 
@@ -666,6 +701,8 @@ ExPostSmoothing::SetSmoothing(Method,smparam) {
 @param BorU either `Bellman`-derived object or a static function that simply returns utility.
 @param Method ex-post choice probability `SmoothingMethods` [default=NoSmoothing]
 @param &hellip; `ActionVariable`s to add to the model
+
+
 <DD>Calls `ExPostSmoothing::Initialize`() with either BorU or new OneStateModel(). </DD>
 <DD>Sets the `ClockTypes` to <code>StaticProgram</code></DD>
 <DD>Sends the optional arguments to `DP::Actions`()</DD>
@@ -705,11 +742,13 @@ Sets `Bellman::pandv` equal to
 @see RowLogit
 **/
 ExPostSmoothing::Logistic() {
-//    decl hold = pandv;
 	pandv[][] = RowLogit( pandv-(V[]=maxc(pandv)), CV(rho) );
-//    if (I::t<=1 && I::f==0) println("-----",I::t," ",I::r,hold~pandv);
  	}
 
+/**
+@internal
+<mark>Not called by User code directly</mark>
+**/
 ExPostSmoothing::Normal() {
     GQH::Initialize(20);
     decl NA=rows(pandv), inpv = rho*pandv', i,j, lk, r2 = sqrt(2);
@@ -722,6 +761,10 @@ ExPostSmoothing::Normal() {
        }
 	}
 
+/**
+@internal
+<mark>Not called by User code directly</mark>
+**/
 ExPostSmoothing::Smooth() {
 	switch_single(Method) {
 		case NoSmoothing : Bellman::Smooth();
@@ -731,13 +774,14 @@ ExPostSmoothing::Smooth() {
 	}
 
 /** Extreme Value Ex Ante Choice Probability Smoothing.
+<mark>Not called by User code directly</mark>
 **/
 ExtremeValue::Smooth() {
 	pandv ./= V;
-    //if (!I::t) println("*** ",I::all[tracking],V~pandv);
 	}
 	
 /**Iterate on Bellman's equation at &theta; using Rust-styled additive extreme value errors.
+<mark>Not called by User code directly</mark>
 **/
 ExtremeValue::thetaEMax(){
 	rh = CV(rho);
@@ -748,13 +792,10 @@ ExtremeValue::thetaEMax(){
 
 /**  Initialize the normal-smoothed model.
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
-@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
-					FALSE, traverse &Theta; through iteration on all state variables
-	
 
 **/
-Normal::Initialize(userState,UseStateList) {
-	Bellman::Initialize(userState,UseStateList);
+Normal::Initialize(userState) {
+	Bellman::Initialize(userState);
     parents = " | Normal "+parents;
 
 	}
@@ -801,28 +842,43 @@ NIID::ActVal() {
 	}
 	
 /** This does nothing because smoothing occurs in `NIID::ActVal`.
+@internal
+<mark>Not called by User code directly</mark>
+
 **/
 Normal::Smooth() {	}
 
 /** Initialize a normal Gauss-Hermite integration over independent choice-specific errors.
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
-@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br/>
-					FALSE [default], traverse &Theta; through iteration on all state variables
 **/
-NIID::Initialize(userState,UseStateList) {
-	Normal::Initialize(userState,UseStateList);
+NIID::Initialize(userState) {
+	Normal::Initialize(userState);
     parents = " | NIID "+parents;
+    AChol = UnInitialized;
 	Hooks::Add(PreUpdate,NIID::UpdateChol);
 	}
 
 /** Initialize a normal Gauss-Hermite integration over independent choice-specific errors.
-@param GQLevel integer, depth of Gauss-Hermite integration
-@param AChol `CV` compatible A&times;1 vector of standard deviations of action-specific errors.
+@param GQLevel integer[default=7], depth of Gauss-Hermite integration
+@param StDev integer [default] set all action standard deviations to $1/\sqrt{2}$<br/>
+            `CV` compatible A&times;1 vector of standard deviations of action-specific errors.
 **/
 NIID::SetIntegration(GQLevel,AChol) {
-	this.AChol = AChol;
-	GQH::Initialize(this.GQLevel = GQLevel);
-    if (Volume>SILENT) println("Initializing Gauss-Hermite Integration\nLevel",GQLevel,"Choleski:",diag(CV(AChol)));
+    if (!Flags::ThetaCreated) {
+        oxwarning("Must create spaces before setting integration.  Doing nothing.");
+        return;
+        }
+	if (isint(AChol))
+        this.AChol = constant(1/sqrt(2),N::Options[Zero],1);
+    else {
+        this.AChol = AChol;
+        if (rows(CV(AChol))!=N::Options[Zero])
+            oxrunerror("Length of Choleski vector must equal rows of full action matrix = "+sprint(N::Options[Zero]));
+        }
+    this.GQLevel = GQLevel;
+	GQH::Initialize(GQLevel);
+    if (Volume>SILENT)
+        println("Initializing IID Gauss-Hermite Integration\nLevel",GQLevel,"Choleski:",diag(CV(AChol)));
 	}
 
 /**  Create spaces and set up quadrature for integration over the IID normal errors.
@@ -831,35 +887,35 @@ NIID::CreateSpaces() {
 	Normal::CreateSpaces();
 	GQNODES = new array[N::J];
 	MM = new array[N::J];
-	decl mm = N::Options[0],i;
-	if (isint(AChol)||!GQLevel)
-        SetIntegration(15,ones(mm,1));
-	else if (rows(CV(AChol))!=mm) oxrunerror("Length of Choleski vector must equal rows of full action matrix");
-	for (i=0;i<N::J;++i) {
-		MM[i] = new array[N::Options[i]];
-		GQNODES[i] = new array[N::Options[i]];
+    decl i,n;
+	foreach (n in N::Options[i]) { // (i=0;i<N::J;++i) {
+		MM[i] = new array[n];
+		GQNODES[i] = new array[n];
 		}
+    SetIntegration();
 	}
 
 /** Update vector of standard deviations for normal components.
+<mark>Not called by User code directly</mark>
 
 `AV`(Chol) is called for each &gamma;, so &sigma; can include random effects.
 
 **/
 NIID::UpdateChol() {
-	decl nfeas,i,nr,j,a, AC = CV(AChol);
-	for (i=0;i<N::J;++i) {
-		nfeas = N::Options[i];
+	decl nfeas,i,mj,j,a, AC = CV(AChol);
+    foreach (nfeas in N::Options[i]) {
 		if (nfeas>1) {
 			Chol[i] = selectifr(AC,Alpha::Sets[i])';
 			a = unit(nfeas);
 			for(j=0;j<nfeas;++j) {
-				MM[i][j]      = dropc( (-a+a[][j])./Chol[i],matrix(j));
-				GQNODES[i][j] = dropc( (Chol[i][j]*GQH::nodes)./Chol[i],matrix(j));
+                mj = matrix(j);
+				MM[i][j]      = dropc( (-a+a[][j])./Chol[i][],mj);
+				GQNODES[i][j] = dropc( (Chol[i][j]*GQH::nodes)./Chol[i][],mj);
 				}
 			}
 		else {
-			MM[i][0] = VZero; GQNODES[i][0] = <+.Inf>;
+			MM[i][0] = VZero;
+            GQNODES[i][0] = <+.Inf>;
 			}
 		}
 	}
@@ -908,10 +964,9 @@ Normal::thetaEMax() {	return EV;	}
 	
 /** Initialize GHK correlated normal solution.
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
-@param UseStateList
 **/
-NnotIID::Initialize(userState,UseStateList) {
-	Normal::Initialize(userState,UseStateList);
+NnotIID::Initialize(userState) {
+	Normal::Initialize(userState);
     parents = " | Not IID "+parents;
 	Hooks::Add(PreUpdate,NnotIID::UpdateChol);
     R = UnInitialized;
@@ -925,24 +980,28 @@ NnotIID::Initialize(userState,UseStateList) {
 NnotIID::SetIntegration(R,iseed, AChol) {
     if (!Flags::ThetaCreated) oxwarning("Must create spaces before setting integration.  Doing nothing.");
     if (this.R!=UnInitialized) delete ghk;
-	decl mm= N::Options[Zero], i;
+	decl mm= N::Options[Zero], i, n;
 	this.R = R;
     GHK::SetSeed(iseed);
-    this.AChol = isint(AChol) ? vech(unit(mm)) : AChol;
-	ghk=new array[N::J];
+    this.AChol = isint(AChol) ? vech(unit(mm)./sqrt(2)) : AChol;
     if (rows(CV(this.AChol)) != mm*(mm+1)/2)
 	 	oxrunerror("Length of Choleski vector must equal lower triangle for full action vector, ");
-	for (i=0;i<N::J;++i)
-        ghk[i] = new GHK(this.R,N::Options[i]);
+	ghk=new array[N::J];
+	foreach (n in N::Options[i])       //for (i=0;i<N::J;++i)
+        ghk[i] = new GHK(this.R,n);
 	}
 
 /**  Create spaces and set up GHK integration over non-iid errors.
 **/
 NnotIID::CreateSpaces() {
 	Normal::CreateSpaces();
+    AChol = UnInitialized;
 	}	
 	
-/** Use GHK to integrate over correlated value shocks. **/
+/** Use GHK to integrate over correlated value shocks.
+<mark>Not called by User code directly</mark>
+
+**/
 NnotIID::ExogExpectedV() {
     et = I::all[onlysemiexog];
     pandv[][et] += I::CVdelta*sumr( Nxt[Qrho][et] .* N::VV[I::later][Nxt[Qit][et]] );
@@ -955,6 +1014,7 @@ NnotIID::ExogExpectedV() {
 
 /**Iterate on Bellman's equation at &theta; with ex ante correlated normal additive errors.
 @internal
+<mark>Not called by User code directly</mark>
 
 **/
 NnotIID::ActVal() {
@@ -972,6 +1032,7 @@ NnotIID::ActVal() {
 
 /** Update the Cholesky matrix for the correlated value shocks.
 This routine is added to the preUpdate Hook so it is called after parameters may have changed.
+<mark>Not called by User code directly</mark>
 **/
 NnotIID::UpdateChol() {
 	decl i, mm=N::Options[Zero];
@@ -987,11 +1048,9 @@ NnotIID::UpdateChol() {
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
 @param d `ActionVariable` not already added to the model<br/>
 		integer, number of options (action variable created) [default = 2]
-@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br/>
-					FALSE [default], traverse &Theta; through iteration on all state variables
 **/
-OneDimensionalChoice::Initialize(userState,d,UseStateList) {
-	Bellman::Initialize(userState,UseStateList);
+OneDimensionalChoice::Initialize(userState,d) {
+	Bellman::Initialize(userState);
     parents = " | One Dimensional Choice "+parents;
 	if (isclass(d,"ActionVariable")) Actions(this.d = d);
 	else if (isint(d) && d>0) Actions(this.d = new ActionVariable("d",d));
@@ -999,13 +1058,13 @@ OneDimensionalChoice::Initialize(userState,d,UseStateList) {
     println("Action variable objected stored in d.  Label = '",this.d.L,"'.  Number of values: ",this.d.N);
 	}
 
-/* Default 1-d utility, returns 0.
+/** Default 1-d utility, returns 0.
 @see OneDimensional::EUstar
-*/
+**/
 OneDimensionalChoice::Utility()    {    return 0;    }
 
 /** Create spaces and check that &alpha; has only one element.
-@param Method the `SmoothingMethods`, default = <code>NoSmoothing</code>
+@param Method  `SmoothingMethods`, default = <code>NoSmoothing</code>
 @param  smparam the smoothing parameter (e.g. &rho; or &sigma;)<br>Default value is 1.0.
 
 **/
@@ -1042,6 +1101,7 @@ OneDimensionalChoice::SetTheta(state,picked) {
     }
 
 /** Smoothing in 1d models.
+<mark>Not called by User code directly</mark>
 **/
 OneDimensionalChoice::Smooth() {
     if (solvez)
@@ -1052,6 +1112,7 @@ OneDimensionalChoice::Smooth() {
 
 /**  Compute EV(&theta;) after optimal cutoffs z* have been found and compute choice probabilities if `Flags::setPstar` is TRUE.
 @internal
+<mark>Not called by User code directly</mark>
 
 <dd class="disp">
 $$EV(\theta) = \sum_{j=0}^{d.N-1} \left[ \left\{ Prob(z^\star_{j-1}<z\le z^\star_j)( EU_{z*}(d=j) + \delta EV(\theta'|d=j)\right\}dz\right].$$
@@ -1076,16 +1137,20 @@ OneDimensionalChoice::thetaEMax(){
 	return EV=V;
 	}
 
-/** Returns z* at the current state $\theta$.**/
+/** Returns z* at the current state $\theta$.
+
+**/
 OneDimensionalChoice::Getz() { return zstar; }
 
 /** Sets z* to z.
+<mark>Not called by User code directly</mark>
 This is called when solving for z*.
 @param z.
 **/
 OneDimensionalChoice::Setz(z){ zstar[]=z; }
 
 /** Initialize $v(d;\theta)$.
+<mark>Not called by User code directly</mark>
 
 Stored in `Bellman::pandv`, as the constant future component that does not depend on z*.
 
@@ -1101,7 +1166,10 @@ OneDimensionalChoice::ActVal() {
         }
 	}	
 
-/** @internal **/
+/** .
+@internal
+<mark>Not called by User code directly</mark>
+**/
 KeepZ::ActVal() {
     if (solvez>One) {
         keptz->InitDynamic(this); //vV
@@ -1110,7 +1178,11 @@ KeepZ::ActVal() {
     OneDimensionalChoice::ActVal();
     }
 
-/** @internal **/
+/** .
+@internal
+<mark>Not called by User code directly</mark>
+
+**/
 KeepZ::DynamicActVal(z) {
     pandv[] = diagonal(this->Uz(z),0,-1); // keep adjacent values to be differenced later
                                           // April 2016.  This was -diagonal() but not consistent with later addin EV
@@ -1118,20 +1190,21 @@ KeepZ::DynamicActVal(z) {
     return pandv;
     }
 
-/** @internal **/
+/** .
+<mark>Not called by User code directly</mark>
+@internal
+**/
 KeepZ::thetaEMax () {
     return OneDimensionalChoice::thetaEMax();
     }
 
-/** Initialize the model.
+/** Initialize a KeepZ model.
 @param userState a `Bellman`-derived object that represents one point &theta; in the user's endogenous state space &Theta;.
 @param d <b>Binary</b> `ActionVariable` not already added to the model<br>
 		integer, number of options (action variable created) [default = 2]
-@param UseStateList TRUE, traverse the state space &Theta; from a list of reachable indices<br>
-					FALSE [default], traverse &Theta; through iteration on all state variables
 **/	
-KeepZ::Initialize(userState,d,UseStateList) {
-	OneDimensionalChoice::Initialize(userState,d,UseStateList);
+KeepZ::Initialize(userState,d) {
+	OneDimensionalChoice::Initialize(userState,d);
     parents = " | KeepZ "+parents;
     if (this.d.N!=2) oxrunerror("KeepZ can only handle binary choice in this version");
     keptz = UnInitialized;
@@ -1149,7 +1222,7 @@ KeepZ::SetKeep(N,held) {
     Flags::HasKeptZ = TRUE;
     }
 
-/**
+/**  Create spaces for a KeepZ model.
 **/
 KeepZ::CreateSpaces() {
     if (!isclass(keptz) && (!Version::MPIserver) ) oxwarning("DDP Warning 06.\n Dynamic approximation to continuous state has not defined.\n Call SetKeep().\n" );

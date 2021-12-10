@@ -5,6 +5,7 @@ TestRun() {
     decl tmenu = new CallMenu("DDP Tests",TRUE,FALSE);
     tmenu->add(
             {"Aging-FixedEffects",Test1::Run},
+            {"NIID Smoothing",Test1a::Run},
             {"Longevity-Renewak",Test2::Run},
             {"KW-Approximization",Test3::Run},
 	        {"KW-NormalEffects",Test3a::Run},
@@ -28,11 +29,26 @@ Test1::Run() {
     }
 
 Test1::RunA(UseList) {
-	Bellman::Initialize(new Test1(),UseList);
+	Bellman::Initialize(new Test1());
 	SetClock(NormalAging,10);
 	GroupVariables(new FixedEffect("g",2));
 	CreateSpaces();
 //    Task::trace = TRUE;
+    VISolve();
+	Delete();
+	}
+
+Test1a::Utility() {
+    decl ca = CV(a);
+    return (ca.==1)*0.5*I::t + (ca.==2)*I::t*(1 - 0.25*I::t);
+    }
+
+Test1a::Run() {
+	NIID::Initialize(new Test1a());
+	SetClock(NormalAging,10);
+    Actions(a = new ActionVariable("a",3));
+	CreateSpaces();
+    SetDelta(0.0);
     VISolve();
 	Delete();
 	}
@@ -82,7 +98,7 @@ Test3::Run() {
 
 
 Test3::RunA(UseList) {
-	Initialize(new Test3(),FALSE);
+	Initialize(new Test3());
 	SetClock(NormalAging,5);
 	Actions(a=new ActionVariable("a",2));
 	ExogenousStates(d = new SimpleJump("d",11));
@@ -100,7 +116,7 @@ Test3::RunA(UseList) {
 
 Test3a::Run()	{
 	decl i, Approx,Brute,AMat,BMat;	
-	Initialize(new Test3a(),FALSE);
+	Initialize(new Test3a());
 	SetClock(NormalAging,1);
 	Actions(accept = new ActionVariable("Accept",Msectors));
     GroupVariables(lnk = new NormalRandomEffect("lnk",3,<0.0,0.1>));
