@@ -33,6 +33,10 @@ document:
 	${MAKE} -C $(DOC) tweak
 	$(COPY) ..\docs\index.tmp ..\docs\default.html
 	$(COPY) ..\docs\index.tmp ..\docs\index.html
+	$(COPY) ..\docs\DDP\default.html ..\docs\DDP\list.html
+	$(COPY) ..\docs\DDP\default.tmp ..\docs\DDP\default.html
+	$(COPY) ..\docs\FIVEO\default.html ..\docs\FIVEO\list.html
+	$(COPY) ..\docs\FIVEO\default.tmp ..\docs\FIVEO\default.html
 
 .PHONY : install
 install:

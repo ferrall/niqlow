@@ -10,7 +10,7 @@ probabilities<br/>Two print predictions
 probabilities<br/>Zero do not print, instead save to prediction moment file
 
 This creates a `PanelPrediction` object, creates the prediction tracking all varaibles and prints out. Object is then deleted
-
+@return flat prediction
 **/
 ComputePredictions(T,prtlevel) {
     decl op = new PanelPrediction("predictions"),TT,oldvol;
@@ -21,7 +21,9 @@ ComputePredictions(T,prtlevel) {
     if (prtlevel==Zero) Data::Volume = LOUD;
     op -> Predict(TT,prtlevel);
     Data::Volume = oldvol;
+    decl f = op -> GetFlat();
     delete op;
+    return f;
     }
 
 /** Compute the predicted distribution of actions and states.
@@ -179,10 +181,10 @@ If aggregate moments are being tracked then the weighted values for this
 
 **/
 PathPrediction::ProcessContributions(cmat){
-    decl ismat = ismatrix(cmat),  aggcur=mother;
+    decl ismat = ismatrix(cmat),  aggcur=mother, flatify = !Version::MPIserver && (Data::Volume>QUIET || prtlevel) ;
     vdelt =<>;    dlabels = {};
     if (ismatrix(flat)) delete flat;
-    if (!Version::MPIserver && Data::Volume>QUIET) {
+    if (flatify) {
         flat = constant(.NaN,T,Fcols+One+sizeof(mother.tlist));
         if (!f && aggexists) mother->SetFlat(flat);
         //mother.flat = flat;
@@ -190,8 +192,7 @@ PathPrediction::ProcessContributions(cmat){
     cur=this;
     do {
         if (ismat) { cur->IncAcc(0,cmat[cur.t][]); }
-        if (!Version::MPIserver && Data::Volume>QUIET)
-            flat[cur.t][] = fvals~cur.t~cur->GetAcc();
+        if (flatify) flat[cur.t][] = fvals~cur.t~cur->GetAcc();
         if (HasObservations) {
             if (ismatrix(pathW)) {
                 dlabels |= suffix(mother.tlabels[1:],"_"+tprefix(cur.t));
@@ -207,20 +208,20 @@ PathPrediction::ProcessContributions(cmat){
             }
         cur    =    cur.pnext;
   	    } while(isclass(cur));
-    if (!Version::MPIserver && Data::Volume>QUIET && aggexists) {
+    if (flatify && aggexists) {
         if (!f){
             mother->SetFlat(constant(AllFixed,flat));      //set everything to -1 (get the right dimensions)
             mother->SetFlat(myshare * flat[][Fcols:],TRUE,Fcols);      //only average non fixed columns
             }
         else
             mother->SetFlat(myshare * flat[][Fcols:],FALSE,Fcols);
-//            mother.flat[][Fcols:] += myshare * flat[][Fcols:];
+            // mother.flat[][Fcols:] += myshare * flat[][Fcols:];
         }
     L = (HasObservations) ? (
                 ismatrix(pathW) ? outer(vdelt,pathW)
                                 : norm(vdelt,'F') )
             : 0.0;
-    if (!Version::MPIserver && HasObservations && Data::Volume>QUIET && isfile(Data::logf) ) {
+    if (flatify && HasObservations && isfile(Data::logf) ) {
         fprintln(Data::logf," Predicted Moments group ",f," ",L,
         "%c",mother.tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:],
         "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",mother.tlabels[1:],
@@ -265,7 +266,7 @@ PathPrediction::Predict(inT,prtlevel){
         }
     else {
         ProcessContributions();
-        if (!Version::MPIserver && Data::Volume>QUIET) {
+        if (!Version::MPIserver && (Data::Volume>QUIET || prtlevel) ) {
             if (Version::HTopen) println("</pre><a name=\"Prediction\"/><pre>");
             println(" Predicted Moments for fixed group: ",f,"%c",mother.tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:]);
             }
@@ -422,10 +423,10 @@ PathPrediction::InitialConditions() {
 		  p = <1.0>;
           }
 		}
-	else if (ismatrix(iDist)) {
-		sind = SS[tracking].O*iDist;
+	else if (ismatrix(iDist)||isarray(iDist)) {
+		sind = ismatrix(iDist) ? (SS[tracking].O*iDist)' : iDist[0];
 		if (!Settheta(sind[0])) oxrunerror("DDP Error 63. Initial state is not reachable");
-		p = ones(sind)/rows(sind);
+		p = ismatrix(iDist) ? ones(sind)/sizerc(sind) : iDist[1];
 		}
 	else if (isclass(iDist,"Prediction")) {
 		sind = iDist.sind;
@@ -790,7 +791,8 @@ PanelPrediction::~PanelPrediction() {
         ErgodicDist : use computed stationary distribution in ergodic dist.<br/>
         0 [default]: start the prediction at the lowest-indexed reachable state in &Theta;.<br/>
         non-negative integer: start at iDist and increment until a reachable state index is found.<br/>
-        matrix: a list of states to start the prediction from<br/>
+        matrix: a list of states to start the prediction from, uniform distribution<br/>
+        array: a list of state INDICES and a list of probabilities, can be the output of a IID Transit()<br/>
         object of Prediction class: use `Prediction::sind` as the initial state for this prediction.
 @param wght [default=UNCORRELATED]
 @param aggshares   0 [default] equal shares of averaged moments over fixed groups<br />Fx1 vector, share of population
@@ -798,7 +800,7 @@ PanelPrediction::~PanelPrediction() {
 PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
     decl k;
     aggexists= N::F>One;
-    PathPrediction(this,aggexists ? AggGroup : 0,0,wght,0);	
+    PathPrediction(this,aggexists ? AggGroup : 0,method,iDist,wght,0);	
     EverPredicted = FALSE;
     this.method = method;
     tlabels = {"t"};

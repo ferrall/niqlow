@@ -1,5 +1,4 @@
-#include "oxstd.h"
-/** Read Rust's data into a Stata data file that can be read into niqlow
+#include "oxstd.h" /** Read Rust's data into a Stata data file that can be read into niqlow
     This is a general version of the simpler readall.ox file which reads only group 4 buses
     This version fixes an error that used the purchase month instead of the first month
     Mileage jumps that are out of bounds are corrected in this version using a recursive adjustment
@@ -15,7 +14,7 @@ const decl ext = ".ASC",
         outdir = "./",
         mxmiles = 450000,       //max mileage
         Nbins = <90,175>,       //number of discrete mileage bins
-        Mxjmps = < 2, 3>,       // # of feasible mileage jumps
+        Mxjmps = < 2, 4>,       // # of feasible mileage jumps
         SVnames = {"group","id","s","t","mi","d","x90","dx90","x175","dx175"},
         files = {   //files in order as they appear in Table 1
                 {1,"G870",     36, 15},
@@ -72,7 +71,7 @@ read(curf,SkipFirst) {
         f = indata[curh:curh+curf[nmths]-Nheader-1];
         curh += curf[nmths]-Nheader;
         prev = 0;
-        println("Bus ",i," ",curh,myhead');
+        println("\n\n Bus:",i," id:",curh,"%cf","%7.0f",myhead');
 	    if (!myhead[r2m])  {  //engine never replaced
             bus = f[prev:]~0;
             }
@@ -83,6 +82,7 @@ read(curf,SkipFirst) {
                 repm = rows(f)-1;
                 }
 		   bus = f[prev:repm]~(zeros(repm-prev,1)|1);     // last 1 is the replacement
+           println("First replacement month ",repm," ",f[repm]);
 		   if (myhead[r3m]) {                                                   // second replacement
 			   prev = repm;
 			   repm += 12*(myhead[r3y]-myhead[r2y]) + (myhead[r3m]-myhead[r2m])-1;
@@ -91,6 +91,7 @@ read(curf,SkipFirst) {
                     repm = rows(f)-1;
                     }
 			   bus |= setbounds(f[prev+1:repm] -myhead[r2mi],0,.Inf)~(zeros(repm-prev-1,1)|1);
+               println("Second replacement month ",repm," ",f[repm]);
                if (repm<rows(f)-1)
 			      bus |= setbounds(f[repm+1:]     -myhead[r3mi],0,.Inf)~0;	// no replacements after this
 			   }
@@ -104,6 +105,7 @@ read(curf,SkipFirst) {
          bus = constant(curf[group],N,1)~constant(myid,N,1)~(range(0,N-1)')~0~bus;
         foreach (b in Nbins[ib]) {
             width = mxmiles / b;
+            println("    -",ib," ",b," width= ",width," maxjump ",Mxjmps[ib]*width);
             xnew = bus[][mm];         //copy actual mileage
 	        for(k=0;k < b;++k)
 		      xnew = (xnew.>=width*k) .&& (xnew.<width*(k+1)) .? k .: xnew;
@@ -112,8 +114,7 @@ read(curf,SkipFirst) {
                 stillsome = any(dfx.>Mxjmps[ib]);
                 if (stillsome) {  //detects out of bounds mileage change
                     rind = int(maxcindex(dfx.>Mxjmps[ib]));
-                    oxwarning("Jump in x beyond Mxjmp "+sprint(myid));
-                    println(" *** ",rind,bus[rind][]~xnew[rind]~dfx[rind]);
+                    println("       ***",rind,"%cf","%7.0f",bus[rind][]~xnew[rind]~dfx[rind]);
                     dfx[rind] = Mxjmps[ib];
                     xnew[rind+1] = Mxjmps[ib]+xnew[rind]*(1-bus[rind][ii]);
                     }

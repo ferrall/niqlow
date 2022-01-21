@@ -680,6 +680,9 @@ Objective::Jacobian() {
 $$\nabla f(\psi)$$
 Stored in <code>vcur.G</code>
 
+Any derived Objective can replace this virtual method with one that computes analytic gradients or other
+approaches.  
+
 @return vcur.G
 **/
 Objective::Gradient(extcall) {

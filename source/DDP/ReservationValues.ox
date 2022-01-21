@@ -136,6 +136,7 @@ RVGSolve::RVGSolve(LBvalue,Method,caller) {
 
 /** . @internal**/
 RVGSolve::Run() {
+    I::curth->HasChoice();
     decl ns = I::curth.solvez && isclass(RValSys[I::curth.Aind]);
     XUT.state = state;
     I::curth->ThetaUtility();

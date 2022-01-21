@@ -19,7 +19,7 @@ SepTest();
 SimpTest();
 MixTest();
 
-
+/** Test Explore: set up a class with a Solve() method and call it.**/
 struct Nothing {
     static decl alphas;
     static Run();
@@ -27,24 +27,28 @@ struct Nothing {
     Solve();
     }
 
+/** System of equations test.**/
 struct SystemTest : System {
 	decl x;
 	SystemTest(N);
 	vfunc();
 	}
 
+/** One-dimensional system of equations Test.**/
 struct System1DTest : OneDimSystem {
 	decl x;
 	System1DTest();
 	vfunc();
 	}
-	
+
+/** Testing Separable objectives, using Rosebrock.**/	
 struct SeparableRosenbrock : Separable 	{
 	decl x,y;
 	SeparableRosenbrock(K);
 	vfunc();
 	}
 
+/**Equality constrained objective;  Values of parameters lie on a circle.**/
 struct OnCircle : Constrained {
 	const decl A, b;
 	decl x, y, z;

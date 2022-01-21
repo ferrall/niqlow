@@ -591,6 +591,7 @@ routine will ensure this is called.
 	
 **/
 Bellman::Initialize(userState) {
+    TypeCheck(userState,"Bellman","DDP Error 05a.  You must send an object of your Bellman-derived class to Initialize.  For example,\n Initialize(new MyModel()); \n");
 	DP::Initialize(userState);
     parents = " | Bellman";
 	}
@@ -613,6 +614,7 @@ With &rho; = 0 choice probabilities are completely smoothed. Each feasible choic
 
 **/
 ExtremeValue::Initialize(rho,userState) {								
+    TypeCheck(userState,"ExtremeValue","DDP Error 05b.  You've called ExtremeValue::Initialize().\n Must send an object of your ExtremeValue-derived class to Initialize in 2nd argument.\n      For example,\n Initialize(new MyModel()); \n    and\n class MyModel : ExtremeValue {");
 	Bellman::Initialize(userState);
     parents = " | Exteme Value " + parents;
 	SetRho(rho);
@@ -795,6 +797,7 @@ ExtremeValue::thetaEMax(){
 
 **/
 Normal::Initialize(userState) {
+    TypeCheck(userState,"Normal","DDP Error 05c.  You've called Normal::Initialize().\n Must send an object of your Normal-derived class to Initialize.\n      For example,\n Initialize(new MyModel()); \n    and\n class MyModel : Normal {");
 	Bellman::Initialize(userState);
     parents = " | Normal "+parents;
 
@@ -1050,6 +1053,7 @@ NnotIID::UpdateChol() {
 		integer, number of options (action variable created) [default = 2]
 **/
 OneDimensionalChoice::Initialize(userState,d) {
+    TypeCheck(userState,"OneDimensionalChoice","DDP Error 05d.  You've called OneDimensionalChoice::Initialize().\n Must send an object of your ExtremeValue-derived class to Initialize in 2nd argument.\n      For example,\n Initialize(new MyModel()); \n    and\n class MyModel : OneDimensionalChoice {");
 	Bellman::Initialize(userState);
     parents = " | One Dimensional Choice "+parents;
 	if (isclass(d,"ActionVariable")) Actions(this.d = d);
@@ -1074,30 +1078,48 @@ OneDimensionalChoice::CreateSpaces(Method,smparam) {
 	if (SS[bothexog].size>1) oxrunerror("1-d model does not allow exogenous variables");	
 	}
 
-/** The default indicator whether a continuous choice is made at &theta;.
-The user's model can replace this to return FALSE if ordinary discrete choice occurs at the state.
+/** The default indicator whether a continuous choice is made at $\theta$.
+The user's model can replace this to return FALSE if ordinary discrete choice (or no choice) occurs at the state.
+
+The user-supplied replacement is called for each $\theta$ during ReservationValue solving.  That means whether a choice
+is made at $\theta$ can depend on fixed values.
+
 The answer is stored in <code>solvez</code>.
-<h3>NOTE: not tested yet!.</h3>
 
 @return TRUE
 **/
 OneDimensionalChoice::Continuous() { return TRUE;   }
+
+/**Dynamically update whether reservation values should be computed at this state.
+    This allows the option to depend on fixed effects.
+**/
+OneDimensionalChoice::HasChoice() {
+    decl nowz = Continuous();
+    if (solvez==nowz) return;
+    solvez = nowz;
+    if (solvez) {
+        decl nz = N::Options[Aind]-1;
+        if (nz) {
+            zstar = ones(nz,1);
+            pstar = <.NaN>;
+            }
+        else {
+            zstar = <.NaN>;
+            pstar = <1.0>;
+            }
+        }
+    else {
+        pstar = zstar = .NaN;
+        }
+    }
 
 /** .
 @internal
 **/
 OneDimensionalChoice::SetTheta(state,picked) {
     Bellman(state,picked);
-    solvez = Continuous();
-    decl nz = N::Options[Aind]-1;
-    if (solvez) {
-        if (nz)
-            zstar = ones(nz,1);
-        else {
-            zstar = <.NaN>;
-            pstar = <1.0>;
-            }
-        }
+    solvez = UnInitialized;
+    HasChoice();
     }
 
 /** Smoothing in 1d models.

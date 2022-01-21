@@ -199,10 +199,9 @@ RandomEffectBlock::Distribution() {
 /** Create a permanent discretized normal random effect.
 @param L label
 @param N number of points
-@param mu `AV`()-compatible mean of the effect, &mu;<br>Default = 0.0
-@param sigma `AV`()-compatible standard deviation, &sigma;<br>Default = 1.0
+@param pars `AV`()-compatible `NormalParams` vector/array containing mean and standard deviation
 
-The probabilities of each discrete value is 1/N.  The distribution is captured by adjusting the
+The probabilitY of each discrete value is 1/N.  The distribution is captured by adjusting the
 actual values to be at the quantiles of the distribution.
 
 **/
@@ -220,17 +219,10 @@ NormalRandomEffect::Distribution() {
 @param L label
 @param N number of points
 @param M number of standard deviations to set the largest value as
-@param pars 2x1 vector or array of `AV`()-compatible Normal distribution parameters<br/>
-<pre>
-    i: Parameter (default)
-    0: mean (&mu;=0.0)<br/>
-    1: st. dev.    (&sigma;=1.0)
-</pre>
-
+@param pars 2x1 vector or array of `AV`()-compatible Normal distribution parameters, see `NormalParams`
 actual values are equally spaced between -M&sigma; and M&sigma;.
 
-The probabilities of not uniform but are constant and depend only on
-N and M.
+The probabilities are not uniform.  They are constant and depend only on N and M.
 
 **/
 TauchenRandomEffect::TauchenRandomEffect(L,N,M,pars) {

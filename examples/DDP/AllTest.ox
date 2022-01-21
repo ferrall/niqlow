@@ -1,6 +1,7 @@
 #include "AllTest.h"
 /* This file is part of niqlow. Copyright (C) 2011-2021 Christopher Ferrall */
 
+/** This creates and returns a menu for the test programs, called in examples/DDP/examples. **/
 TestRun() {
     decl tmenu = new CallMenu("DDP Tests",TRUE,FALSE);
     tmenu->add(

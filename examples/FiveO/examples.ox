@@ -3,6 +3,7 @@
 #include "examples.h"
 #include "GetStartedFiveO.ox"
 
+/**Create a menu for choosing examples, called from examples/main. **/
 FiveOmenu() {
     decl mm = new CallMenu("FiveO Tests and Demos",TRUE,FALSE);
     mm -> add(

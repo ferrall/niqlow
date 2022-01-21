@@ -1,22 +1,27 @@
-/** Run Various tests programs for DDP.
+/** Various tests programs for basic Bellman models.
+These programs are run to check for new bugs when changing the code.
+Code is added when adding new features.  None of these involve estimation or FiveO methods.
 **/
 #import "niqlow"
 #import "menu"
 
 TestRun();
 
+/** Bellman model, NormalAging, Fixed Effects.**/
 struct Test1 : Bellman {
 	static Run();
 	static RunA(UseList);
 	Utility();
 	}
 
+/** Normal IID Smoothing Shocks, Normal Aging.**/
 struct Test1a : NIID {
     static decl a;
 	static Run();
 	Utility();
 	}
 
+/** Extreme Value shocks, Uncertain Longevity, renewal state space.**/
 struct Test2 : ExtremeValue	{
 	/** tags for estimated parameters. @name Zparams **/
 	enum{disc,RC,theta1,theta3,Nparams}
@@ -44,6 +49,7 @@ struct Test2 : ExtremeValue	{
 	}
 
 
+/** Expost Smoothing, Normal Aging, Setting Actual values, jump states, Keane-Wolpin approx .**/
 struct Test3 : ExPostSmoothing {
 	static decl a, d, s0, s1, U0;
 	static Run();
@@ -72,23 +78,25 @@ struct Test3a : ExPostSmoothing	{
             ThetaUtility();
 	}
 
-	
+/** Normal Correlated (notIID) smoothing shocks, Normal Aging.**/	
 struct Test5 : NnotIID {
 	static Run();
 	Utility();
 	}
 
+/** Normal IID smoothing shocks, Normal Aging .  **/
 struct Test4 : NIID {
 	static Run();
 	Utility();
 	}
-
+/**Bellman, Ergodic Time, offer-with-layoff state variable, simulation of a Panel and Prediction.**/
 struct Test6 : Bellman {
 	static decl acc, job;
 	static Run();
 	Utility();
 	}
 
+/** Rust-baseed model with stationary distribution, outcome data set.**/
 struct Test7 : Rust  {
 	enum{RC,XT,NDGP}
     static const  decl  NX  =   12,
@@ -97,13 +105,15 @@ struct Test7 : Rust  {
     static  Run();
             Utility();
         }
-
+/** Bellman, Static Program, random and fixed effects. **/
 struct Test8 : Bellman {
 	static 	decl r, g, d;
 	static	Run();
 			Utility();
 	}
-	
+
+/** Bellman, Uncertain Longevity, fixed and and random effects, terminal states, Panel Prediction and
+    PanelDataSet.**/	
 struct Test9 : Bellman	{
 	enum{Noff=10}
 	static decl p, d, a, meth, sk,fem, lam;
@@ -111,7 +121,7 @@ struct Test9 : Bellman	{
 	Utility();
 	}
 
-/** A simple search over normally distributed offers. **/
+/** OneDimensionalChoice, search over normally distributed offers, random and fixed effects, RVSolve. **/
 struct Test10 : OneDimensionalChoice	{
     static const decl eta = 0.25;
 	static decl done;
@@ -121,7 +131,8 @@ struct Test10 : OneDimensionalChoice	{
     Uz(z);
 	}
 
-/** A simple search over normally distributed offers. **/
+/** OneDim Choice, Agin, normal offers, offer probability, non-choice states, Auxiliary Outcome,
+    PanelPrediction.**/
 struct Test11 : OneDimensionalChoice	{
     static const decl T=27, b = .1, delta=.99, pd=1/(1-delta);
     static decl  alpha = 1.2, pi0=<0.85,.01>;

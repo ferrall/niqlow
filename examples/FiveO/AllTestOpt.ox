@@ -1,6 +1,7 @@
 #include "AllTestOpt.h"
 /* This file is part of niqlow. Copyright (C) 2011-2021 Christopher Ferrall */
 
+/** Produce menu of simple uses of FiveO.**/
 OptTestRun() {
     decl omenu = new CallMenu("FiveO Tests",TRUE,FALSE);
     omenu->add( {"Explore Test ",Nothing::Run},

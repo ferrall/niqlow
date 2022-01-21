@@ -362,6 +362,7 @@ struct OneDimensionalChoice : ExPostSmoothing {
     virtual Continuous();
             SysSolve(RVs); //VV
             Getz();
+            HasChoice();
     virtual Setz(z);
 	}
 

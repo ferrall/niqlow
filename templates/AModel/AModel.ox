@@ -11,6 +11,7 @@ AModel::Create() {
 	}
 
 AModel::Build() {
+
 //	SetClock();
 
 //	Actions(«ALIST»);
@@ -25,7 +26,7 @@ AModel::Build() {
 //AModel::Utility()  {	}	
 
 /*
-«MyModel» :: Reachable()	{
+AModel :: Reachable()	{
             // Create as many separate conditions as required.
     if («endogenous state condition») return FALSE;     //NOT Reachable
     if («endogenous state condition») return TRUE;      //REACHABLE
@@ -35,7 +36,7 @@ AModel::Build() {
 
 
 /*
-«MyModel»::FeasibleActions() {
+AModel::FeasibleActions() {
     // column vector of 0s and 1s indicating which rows of A are feasible at the current state
     // Create as many as needed
     if («endogenous state condition»)

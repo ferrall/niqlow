@@ -8,7 +8,7 @@ vpath %.h .:$(INC):replications:DDzP:FiveO:CFMPI:misc
 vpath %.oxo .:$(INC):replications:DDP:FiveO:CFMPI:misc
 vpath %.ox.html $(DOC)
 
-imports = DDP/examples. FiveO/examples. replications. MPItests. misc/examples.
+imports = DDP/examples. FiveO/examples. replications. MPItests. misc/examples. C4E
 exoxo = $(imports:.=.oxo)
 exdoc = main.ox
 
