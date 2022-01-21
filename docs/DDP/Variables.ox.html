@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><link rel="icon" href="icons/favicon16.png" type="image/png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js"></script><link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><link rel="icon" href="icons/favicon16.png" type="image/png">
 <link rel="stylesheet" type="text/css" href="../oxdoc.css">
 <link rel="stylesheet" type="text/css" media="print" href="../print.css">
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
@@ -8815,15 +8815,10 @@ Create a permanent discretized normal random effect.
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">mu</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible mean of the effect, &mu;<br>Default = 0.0
-</td>
-</tr>
-<tr>
-<td class="declaration" valign="baseline">sigma</td>
-<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible standard deviation, &sigma;<br>Default = 1.0
+<td class="declaration" valign="baseline">pars</td>
+<td class="description" valign="baseline"><a href="Shared.ox.html#AV">AV</a>()-compatible <a href="Shared.ox.html#NormalParams">NormalParams</a> vector/array containing mean and standard deviation
 <P/>
-The probabilities of each discrete value is 1/N.  The distribution is captured by adjusting the
+The probabilitY of each discrete value is 1/N.  The distribution is captured by adjusting the
 actual values to be at the quantiles of the distribution.</td>
 </tr>
 </table>
@@ -11007,17 +11002,10 @@ Create a permanent discretized normal random effect.
 </tr>
 <tr>
 <td class="declaration" valign="baseline">pars</td>
-<td class="description" valign="baseline">2x1 vector or array of <a href="Shared.ox.html#AV">AV</a>()-compatible Normal distribution parameters<br/>
-<pre>
-    i: Parameter (default)
-    0: mean (&mu;=0.0)<br/>
-    1: st. dev.    (&sigma;=1.0)
-</pre>
-<P/>
+<td class="description" valign="baseline">2x1 vector or array of <a href="Shared.ox.html#AV">AV</a>()-compatible Normal distribution parameters, see <a href="Shared.ox.html#NormalParams">NormalParams</a>
 actual values are equally spaced between -M&sigma; and M&sigma;.
 <P/>
-The probabilities of not uniform but are constant and depend only on
-N and M.</td>
+The probabilities are not uniform.  They are constant and depend only on N and M.</td>
 </tr>
 </table>
 </dd>
