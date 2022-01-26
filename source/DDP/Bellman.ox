@@ -452,7 +452,7 @@ Bellman::OnlyFeasible(myU) {
     }
 
 /** Return TRUE if full iteration to be carried out at this point (in submsample).
-
+@return <code>Type &ge; INSUBSAMPLE && Type!=LASTT</code>
 **/
 Bellman::InSS() { return Type>=INSUBSAMPLE && Type!=LASTT; }
 

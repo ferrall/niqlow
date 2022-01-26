@@ -39,6 +39,7 @@ struct Prediction : Data {
 		/** Expanded ch. prob.**/	                 ch,
         /** current ch. prob.**/                     chq,
         /** current p. **/                           pq,
+        /** mass hazard at t.**/                     haz,
         /** masked weight to put on distance.**/        W,
         /** accumulated predicted moments across r **/  accmom,
         /** (unmasked) predicted moment vector**/       predmom,

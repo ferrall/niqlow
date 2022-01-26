@@ -39,7 +39,7 @@ Prediction::Predict() {
         predmom[] = .NaN;
         return TRUE;
         }
-	decl k,tv,s,q,qi,pp=0.0,unrch=<>,allterm=TRUE;
+	decl k,tv,s,q,qi,pp=0.0,unrch=<>,allterm=TRUE,dying;
     foreach (q in sind[s]) {
         pq = p[s];
         if (!iseq(pq,0.0)) {        //changed to iseq() instead of isfeq()
@@ -47,10 +47,12 @@ Prediction::Predict() {
                 EOoE.state[left:right] = state[left:right] = ReverseState(q,tracking)[left:right];
                 I::Set(state,FALSE);
                 SyncStates(left,right);
+                dying = I::curth.Type>=LASTT;
                 chq  = pq*I::curth.pandv.*(NxtExog[Qprob]');
                 if ( I::curth->StateToStatePrediction(this) ) return  PredictFailure = TRUE;
                 foreach (tv in ctlist) tv.track->Distribution(this,tv);
-                allterm *= I::curth.Type>=LASTT;
+                haz += dying*pq;        // add up mass of states terminating this t
+                allterm *= dying;       // keep track if all states are dying
                 }
             else {      //q' is supposed to be unreachable!!!
                 qi = ReverseState(q,tracking)[left:right];
@@ -58,6 +60,7 @@ Prediction::Predict() {
                 }
             }
         }
+    //println(I::t," Hazard ",haz);
     foreach(tv in ctlist[k]) {
         if (tv.Volume>=LOUD) println(I::t," ",tv.L," ",tv.track.mean);
         predmom[k] = tv.track.mean;
@@ -80,7 +83,7 @@ Prediction::Predict() {
 	
 Prediction::Reset() {
 	p = sind = <>;
-    ch[] = 0.0;
+    haz =    ch[] = 0.0;
     }
 Prediction::GetAcc() { return accmom; }
 Prediction::IncAcc(inf,addmom) {
@@ -121,7 +124,7 @@ Prediction::Prediction(t){
 	this.t = t;
 	W = pnext = UnInitialized;
     ch = zeros(N::A,1);
-    predmom = empmom = 0;
+    haz = predmom = empmom = 0;
     Reset();
 	}
 
@@ -195,11 +198,11 @@ PathPrediction::ProcessContributions(cmat){
         if (flatify) flat[cur.t][] = fvals~cur.t~cur->GetAcc();
         if (HasObservations) {
             if (ismatrix(pathW)) {
-                dlabels |= suffix(mother.tlabels[1:],"_"+tprefix(cur.t));
-                vdelt ~= cur->Delta(mother.mask,Data::Volume>QUIET,mother.tlabels[1:]);
+                dlabels |= suffix(mother.tlabels[One:],"_"+tprefix(cur.t));
+                vdelt ~= cur->Delta(mother.mask,Data::Volume>QUIET,mother.tlabels[One:]);
                 }
             else {
-                 vdelt |= cur->Delta(mother.mask,Data::Volume>QUIET,mother.tlabels[1:]);
+                 vdelt |= cur->Delta(mother.mask,Data::Volume>QUIET,mother.tlabels[One:]);
                  }
             }
         if (aggexists) {
@@ -223,9 +226,9 @@ PathPrediction::ProcessContributions(cmat){
             : 0.0;
     if (flatify && HasObservations && isfile(Data::logf) ) {
         fprintln(Data::logf," Predicted Moments group ",f," ",L,
-        "%c",mother.tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:],
-        "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",mother.tlabels[1:],
-                ismatrix(pathW) ? reshape(vdelt,T,sizeof(mother.tlabels[1:])) : vdelt
+        "%c",mother.tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:],  //,"%6.4F"
+        "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",mother.tlabels[One:],
+                ismatrix(pathW) ? reshape(vdelt,T,sizeof(mother.tlabels[One:])) : vdelt
                 );
         }
     //flat |= constant(.NaN,this.T-rows(flat),columns(flat));
@@ -268,7 +271,7 @@ PathPrediction::Predict(inT,prtlevel){
         ProcessContributions();
         if (!Version::MPIserver && (Data::Volume>QUIET || prtlevel) ) {
             if (Version::HTopen) println("</pre><a name=\"Prediction\"/><pre>");
-            println(" Predicted Moments for fixed group: ",f,"%c",mother.tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:]);
+            println(" Predicted Moments for fixed group: ",f,"%c",mother.tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:]);  //,"%6.4F"
             }
         return TRUE;
         }
@@ -322,7 +325,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT,MaxT) {
         if ( any(negt)  ) {
             if (wght!=IGNOREINFLUENCE) {
                 influ = inNandMom[maxcindex(negt)][:C-2]  ;
-                if (report) fprintln(Data::logf,"Influence weights","%c",mother.tlabels[1:C-2],influ);
+                if (report) fprintln(Data::logf,"Influence weights","%c",mother.tlabels[One:C-2],influ);
                 }
             inNandMom = deleteifr(inNandMom,negt);
             }
@@ -330,7 +333,7 @@ PathPrediction::Empirical(inNandMom,hasN,hasT,MaxT) {
         if ( any( diff0(datat) .< 0) )
                 oxrunerror("DDP Error ??. t column in moments not ascending. Check data and match to fixed groups.");
         T = max(maxc(datat)+1,rows(inNandMom),MaxT);
-        if (report) MyMoments(inNandMom,mother.tlabels[1:],Data::logf);
+        if (report) MyMoments(inNandMom,mother.tlabels[One:],Data::logf);
         }
     else {
         T = max(rows(inNandMom),MaxT);
@@ -803,7 +806,7 @@ PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
     PathPrediction(this,aggexists ? AggGroup : 0,method,iDist,wght,0);	
     EverPredicted = FALSE;
     this.method = method;
-    tlabels = {"t"};
+    tlabels = {"t"};  //,"S"
     tlist = {};
     pcount = 0;
     label = isint(label) ? classname(userState) : label;
@@ -876,11 +879,11 @@ PanelPrediction::Predict(inT,prtlevel,outmat) {
             cur = this;  //processing aggregate moments over t
             do {
                 if (ismatrix(pathW)) {
-                    dlabels |= suffix(tlabels[1:],"_"+tprefix(cur.t));
-                    vdelt ~= Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+                    dlabels |= suffix(tlabels[One:],"_"+tprefix(cur.t));
+                    vdelt ~= Delta(mask,Data::Volume>QUIET,tlabels[One:]);
                     }
                 else
-                    vdelt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[1:]);
+                    vdelt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[One:]);
                 cur    =    cur.pnext;
   	            } while(isclass(cur));
             L = ismatrix(pathW) ? outer(vdelt,pathW) : norm(vdelt,'F') ;
@@ -888,8 +891,8 @@ PanelPrediction::Predict(inT,prtlevel,outmat) {
             if (!Version::MPIserver && HasObservations && Data::Volume>QUIET && isfile(Data::logf) ) {
                 fprintln(Data::logf," Predicted Moments group ",f," ",L,
                     "%c",mother.tlabels,"%cf",{"%5.0f","%12.4f"},flat[][Fcols:],
-                    "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",mother.tlabels[1:],
-                    ismatrix(pathW) ? reshape(vdelt,T,sizeof(mother.tlabels[1:])) : vdelt
+                    "Diff between Predicted and Observed","%cf",{"%12.4f"},"%c",mother.tlabels[One:],
+                    ismatrix(pathW) ? reshape(vdelt,T,sizeof(mother.tlabels[One:])) : vdelt
                     );
                 }
             }
