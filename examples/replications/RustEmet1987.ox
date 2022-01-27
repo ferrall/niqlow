@@ -66,12 +66,17 @@ Zurcher::Output(chprob) {
 	   SetDraw(SET_MARGIN,1000,1000);
 	   SetDraw(SET_PRINTPAGE,PAGE_LETTER,PAGE_PORTRAIT);
 	   DrawTitle(0,"Replication of Figure 3, Rust 1987 Using DDP");
-	   DrawText(0,"\\delta=0.0",85,chprob[1][85]);
-	   DrawText(0,"\\delta=0.9999",85,chprob[0][85]-.01);
+	   DrawText(0,"\\delta=0.0",84*5,chprob[1][84]-.01);
+	   DrawText(0,"\\delta=0.9999",82*5,chprob[0][82]-.01);
 	   DrawText(0,"Probability of Engine Replacement",0,0,-1,-1,TEXT_YLABEL);
-	   SetDraw(SET_LINE,2,TP_SOLID,500,0,0);
-	   SetDraw(SET_LINE,3,TP_SOLID,500,0,0);
-	   Draw(0,chprob);
+       //DrawAxis(0,1,0,0.0,0.16,.01,0.1,0,0);
+	   SetDraw(SET_LINE,2,TP_SOLID,80,0,0);
+	   SetDraw(SET_LINE,3,TP_SOLID,80,0,0);
+       DrawLine(0,0.0,0.16,450,0.16,1);
+       DrawLine(0,450,0,450,0.16,1);
+       DrawLine(0,300,0,300,chprob[1][60],1);
+	   Draw(0,chprob,0,5);
+       println("Saving the graph");
 	   SaveDrawWindow("Zurcher-Figure3-Replication.pdf");
 //       }
     }

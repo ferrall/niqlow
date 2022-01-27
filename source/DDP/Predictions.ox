@@ -482,7 +482,7 @@ PathPrediction::PathPrediction(mother,f,method,iDist,wght,myshare){
 	fnext = UnInitialized;
     Prediction(0);
     T = 1;
-    flat = pathW = inT = 0;
+    prtlevel = flat = pathW = inT = 0;
     pstate = ReverseState(f,onlyfixed);
     fvals = N::F>1 ? f~pstate[S[fgroup].M:S[fgroup].X]' : matrix(f); //f must be a matrix so Fcols is correct
     Fcols = columns(fvals);
