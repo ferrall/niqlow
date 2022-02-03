@@ -128,6 +128,7 @@ struct DP {
 		static 	GetAind(i);
 		static 	GetPstar(i);
 		static 	GetTrackTrans(i, h);
+        static  GetUseEps(i);
 
 		static 	MakeGroups();
 		static  UpdateDistribution();
@@ -354,6 +355,7 @@ struct ExogUtil : 	ExTask {
 struct SemiExTask : ExTask {
     const decl
         /**indicate there are $\eta$ variables so loop is required.**/ AnyEta;
+    decl CurrExogWidth;
     SemiExTask();
     Compute(HowMany=DoAll);
     virtual Run();

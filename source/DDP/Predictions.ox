@@ -39,7 +39,7 @@ Prediction::Predict() {
         predmom[] = .NaN;
         return TRUE;
         }
-	decl k,tv,s,q,qi,pp=0.0,unrch=<>,allterm=TRUE,dying;
+	decl k,tv,s,q,qi,pp=0.0,unrch=<>,allterm=TRUE,dying, ue;
     foreach (q in sind[s]) {
         pq = p[s];
         if (!iseq(pq,0.0)) {        //changed to iseq() instead of isfeq()
@@ -47,8 +47,9 @@ Prediction::Predict() {
                 EOoE.state[left:right] = state[left:right] = ReverseState(q,tracking)[left:right];
                 I::Set(state,FALSE);
                 SyncStates(left,right);
+                ue = I::curth->UseEps();
                 dying = I::curth.Type>=LASTT;
-                chq  = pq*I::curth.pandv.*(NxtExog[Qprob]');
+                chq  = pq*I::curth->GetPandV().*( ue ? NxtExog[Qprob]' : 1.0);
                 if ( I::curth->StateToStatePrediction(this) ) return  PredictFailure = TRUE;
                 foreach (tv in ctlist) tv.track->Distribution(this,tv);
                 haz += dying*pq;        // add up mass of states terminating this t
@@ -60,7 +61,6 @@ Prediction::Predict() {
                 }
             }
         }
-    //println(I::t," Hazard ",haz);
     foreach(tv in ctlist[k]) {
         if (tv.Volume>=LOUD) println(I::t," ",tv.L," ",tv.track.mean);
         predmom[k] = tv.track.mean;

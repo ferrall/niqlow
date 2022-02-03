@@ -120,8 +120,11 @@ Bellman::Bellman(state,picked) {
   IsT = FALSE;  //check if any endogenous states are at terminal values
   do { IsT = any(state[s].==States[s].TermValues);    } while (!IsT && s++<S[endog].X);
 
+
   N::TerminalStates += IsT;
-  Type = TERMINAL*IsT + LASTT * counter->Last();  //set the type of this theta.
+  Type = IsT ? TERMINAL
+             :  counter->Last() ? LASTT
+                                : ORDINARY ;  //set the type of this theta.  DEFAULT = ORDINARY
   Aind = 0; //initializing this means CV(act) and AV(act) will work.
   Aind = Alpha::AddA(  IsT
                            ? 1|zeros(N::Options[0]-1,1)  //terminal states have exactly 1 feasible action
@@ -131,13 +134,25 @@ Bellman::Bellman(state,picked) {
     oxrunerror("DP ERROR in Bellman");
     }
   pandv = UnInitialized;
-  Allocate(picked,TRUE);
+  Allocate( picked , TRUE);
   EV = 0.0;
   }
 
 /** Return TRUE: Default indicator function for whether the current state is reachable from initial conditions or not.
+
+The built-in version returns TRUE.  The user can provide a replacement for this virtual method to trim the state
+space at the point of creating the state space.  Many state variables will trim the state space automatically
+with a non-stationary clock assuming initial values are 0.
 **/
 Bellman::Reachable() {    return TRUE;     }
+
+/** Return FALSE: Elements of the exogenous vector are looped over when computing U and EV.
+
+The user can replace this virtual method to skip iterating over the exogenous state vector at different points
+in the the endogenous state space $\theta.$
+**/
+Bellman::IgnoreExogenous() {    return FALSE;     }
+
 
 /** Create space for $U()$ and $P(\alpha;\eta)$ at this $\theta$, accounting for random subsampling.
 @param picked TRUE insubample (always true if not subsampling)
@@ -146,15 +161,14 @@ Bellman::Reachable() {    return TRUE;     }
 @internal
 **/
 Bellman::Allocate(picked,CalledFromBellman) {
-  decl OldSS = InSS(),NewSS;
-  Type-=(Type==INSUBSAMPLE||Type==LASTT+INSUBSAMPLE);
-  Type += INSUBSAMPLE*picked;  //TERMINAL always in subsample
-  NewSS = InSS();               //new status
+  decl vecval = !IgnoreExogenous() && picked, OldSS=UseEps(), change = vecval-OldSS, NewSS;
+  Type -= change;
+  NewSS = UseEps();               //new status
   N::Approximated += !NewSS;
-  if (CalledFromBellman||(OldSS!=NewSS)) {     //re-allocation required
-    //if (!CalledFromBellman) {delete Nxt, delete pandv; } //, U;
+  if (CalledFromBellman||change) {     //re-allocation required
+    if (!CalledFromBellman) {delete Nxt, delete pandv; }
     Nxt = new array[TransStore+N::DynR-1][NewSS ? SS[onlysemiexog].size : One];
-    pandv = new matrix[N::Options[Aind]][NewSS ? SS[bothexog].size : One];//constant(.NaN,U);
+    pandv = new matrix[N::Options[Aind]] [NewSS ? SS[bothexog].size : One    ];
     }
   }
 
@@ -233,7 +247,7 @@ Bellman::ThetaUtility() { return .NaN; }
 
 .**/
 Bellman::MyopicActVal() {
-    XUT->ReCompute(DoAll);
+    XUT->ReCompute( UseEps() ? DoAll : Zero );
     pandv[][] = XUT.U;
     }
 
@@ -243,9 +257,9 @@ Bellman::MyopicActVal() {
 **/
 Bellman::ActVal() {
     MyopicActVal();
-	if (Type>=LASTT) return;
+	if (Type>=LASTT) return;    //No tomorrow if last t or a terminal state
     IOE.state[] = XUT.state[];
-    IOE->Compute();
+    IOE->Compute( UseEps() ? DoAll : Zero );
     }
 
 /** KeaneWolpin: Computes v() and V for out-of-sample states.
@@ -254,11 +268,11 @@ Bellman::ActVal() {
 **/
 Bellman::MedianActVal() {
         //Note Since Action values not computed for terminal states, Type same as IsLast
-        //XUT->ReCompute(UseCurrent);  Removed Oct. 2019.  Replaced by call to ThetaUtility
     pandv[][0] = this->ThetaUtility() + (Type>= LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][Zero].*N::VV[I::later][Nxt[Qit][Zero]]));
 	V[] = maxc( pandv[][0] );
 	}
-	
+Bellman::GetPandV(col)	{    return (col==DoAll) ? pandv : pandv[][col];    }
+
 /**Default <code>Emax</code> operator at $\theta.$
 <mark>Not called by User code directly</mark>
 
@@ -276,7 +290,7 @@ Derived DP problems replace this routine to account for $\zeta$ or alternatives 
 
 **/
 Bellman::thetaEMax() {
-	return EV = sumc( (V[] = maxc(pandv) )*NxtExog[Qprob] );
+	return EV = sumc( (V[] = maxc(pandv) )* ( UseEps() ? NxtExog[Qprob] : 1.0 ) );
     }
 
 /** Compute endogenous state-to-state transition $P^\star(\theta'|\theta)$ for the current
@@ -290,7 +304,8 @@ If `Flags::StorePA` is also true then `Group::Palpha` is also updated.
 
 **/
 Bellman::UpdatePtrans() {
-	hagg = aggregater(pandv .* NxtExog[Qprob]',SS[onlyexog].size)';
+    decl ue = UseEps();
+	hagg = aggregater(pandv .* (UseEps() ? NxtExog[Qprob]' : 1.0),SS[onlyexog].size)';
     if (!Flags::IsErgodic && Flags::NKstep) {
         decl nki = NKvindex[I::all[iterating]];
         for (et=0;et<sizeof(Nxt[Qit]);++et)
@@ -299,11 +314,16 @@ Bellman::UpdatePtrans() {
                         + (hagg[et][]*Nxt[Qrho][et])';
             }
     else { //store in the usual place
-        for (et=0;et<sizeof(Nxt[Qit]);++et) //{
+        if (ue)
+            for (et=0;et<sizeof(Nxt[Qit]);++et) //{
                 I::curg->IncPtrans( Nxt[Qit][et],(hagg[et][]*Nxt[Qrho][et])');
+        else {
+                oxwarning("Uncomfirmed change when not using exogenous vector at a state");
+                I::curg->IncPtrans( Nxt[Qit][0],(hagg[0][]*Nxt[Qrho][0])');   // ??? NOT CONFIRMED
+             }
             //}
         if (Flags::StorePA)
-            I::curg.Palpha[][I::all[tracking]] = ExpandP(Aind,pandv*NxtExog[Qprob]);
+            I::curg.Palpha[][I::all[tracking]] = ExpandP(Aind,pandv* (ue ? NxtExog[Qprob] : 1.0) );
         }
 	}
 
@@ -322,7 +342,7 @@ Stores results in `Bellman::Nxt` array of feasible indices of next period states
 @see DP::ExogenousTransition
 **/
 Bellman::ThetaTransition() {
-	 ios = InSS() ? I::all[onlysemiexog] : 0;
+	 ios = UseEps() ? I::all[onlysemiexog] : Zero;
 
      // No transition if this state is last or terminal
 	 if (Type>=LASTT) {
@@ -451,11 +471,18 @@ Bellman::OnlyFeasible(myU) {
     return selectifr(myU,Alpha::Sets[Aind]);
     }
 
-/** Return TRUE if full iteration to be carried out at this point (in submsample).
+/** Return TRUE if full iteration over exogenous values and transitions to be carried out at this point (in subsample).
 @return <code>Type &ge; INSUBSAMPLE && Type!=LASTT</code>
 **/
-Bellman::InSS() { return Type>=INSUBSAMPLE && Type!=LASTT; }
+Bellman::InSS() {
+    return UseEps();        //Type==INSUBSAMPLE || Type==TERMINAL ;
+    }
 
+/** Return TRUE if Utility depends on exogenous vector at this state.
+    **/
+Bellman::UseEps() {
+    return Type==ORDINARY || Type==TERMINAL || Type==LASTT;
+    }
 /** .
 @internal
 **/
@@ -497,7 +524,7 @@ Bellman::ExogStatetoState() {
 Bellman::StateToStatePrediction(intod) {
     tod = intod;
     tom = tod.pnext;
-    EOoE->ExpectedOutcomes(DoAll,tod.chq);
+    EOoE->ExpectedOutcomes(UseEps() ? DoAll : Zero,tod.chq);
     tod.ch  +=  ExpandP(Aind,tod.chq);
     if (isclass(tom)) {
         EStoS->Compute();
@@ -789,7 +816,7 @@ ExtremeValue::thetaEMax(){
 	rh = CV(rho);
     pandv[][] = exp(setbounds( rh*pandv,lowb,hib ) );
 	V[] = sumc(pandv);
-	return EV = log(V)*(NxtExog[Qprob]/rh);  //M_EULER+
+	return EV = log(V)*(UseEps() ? NxtExog[Qprob]/rh : 1.0/rh );  //M_EULER+
     }
 
 /**  Initialize the normal-smoothed model.
@@ -817,6 +844,8 @@ NIID::ExogExpectedV() {
 	decl j,choicep,vv, et = I::all[onlysemiexog];
 	pandv[][I::elo:I::ehi] += (Type>=LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]));
     vv = pandv[][I::elo:I::ehi]';
+    if (!UseEps())
+        oxrunerror(" niqlow development error: NIID EXogExpected not updated to handle ignoring epsilon yet");
 	for (j=0;j<rows(pandv);++j) {
 		choicep = prodr(probn(GQNODES[Aind][j] + vv*MM[Aind][j] ));  ///M_SQRT2PI
 		EV +=   NxtExog[Qprob][et]*(GQH::wght * (choicep.*(Chol[Aind][j]*GQH::nodes+ pandv[j][I::elo:I::ehi]))) ;
@@ -829,17 +858,18 @@ NIID::ExogExpectedV() {
 **/
 NIID::ActVal() {
 //    this->ThetaUtility();
-    XUT->ReCompute(DoAll);  //ZZZZ
-	decl J=rows(XUT.U);
-	if (Type<TERMINAL && J>1)	{
+    decl ue = UseEps(), J ;
+    XUT->ReCompute( ue ? DoAll : Zero );
+	J=rows(XUT.U);
+	if (Type<LASTT )	{
         EV = 0.0;
         pandv[][] = XUT.U;
         IOE.state[] = XUT.state[];
-        IOE->Compute();
+        IOE->Compute( ue ? DoAll : Zero );
 		if (Flags::setPstar) pandv += (1-sumc(pandv))/J;
 		}
 	else	{
-		EV = meanc(XUT.U)*NxtExog[Qprob];
+		EV = meanc(XUT.U)* ( ue ? NxtExog[Qprob] : 1.0);
 		if (Flags::setPstar) pandv[][] = 1/J;
 		}
 	}
@@ -1011,6 +1041,8 @@ NnotIID::ExogExpectedV() {
     if (R==UnInitialized) SetIntegration();
 	[V,prob] = ghk[Aind]->SimDP(pandv[][et]);
     prob /= sumc(prob);  //normalize to 1 because all choices simulated, may not equate to 1
+    if (!UseEps())
+        oxrunerror(" niqlow development error: NIID EXogExpected not updated to handle ignoring epsilon yet");
     EV +=   NxtExog[Qprob][et]*(V*prob) ;
 	if (Flags::setPstar) pandv[][et] = prob;
     }
@@ -1021,12 +1053,12 @@ NnotIID::ExogExpectedV() {
 
 **/
 NnotIID::ActVal() {
-    XUT->ReCompute(DoAll);  //ZZZZ
+    XUT->ReCompute( UseEps() ? DoAll : Zero );
 	decl J=rows(XUT.U);
 	if (Type<TERMINAL && J>1)	{
         pandv[][] = XUT.U;
         IOE.state[] = XUT.state;
-        IOE->Compute();
+        IOE->Compute( UseEps() ? DoAll : Zero );
 		}
 	else {
 		if (Flags::setPstar) pandv[][] = 1/J;
@@ -1154,7 +1186,7 @@ OneDimensionalChoice::thetaEMax(){
 	   V[] = pstar*(EUstar+pandv);
        }
 	else {
-        V[] = maxc(I::curth.pandv);
+        V[] = maxc(pandv);  //I::curth.
         }
 	return EV=V;
 	}
@@ -1183,7 +1215,7 @@ OneDimensionalChoice::ActVal() {
                        ? 0.0
 	                   : I::CVdelta*Nxt[Qrho][0]*N::VV[I::later][Nxt[Qit][0]]';
     if (!solvez) {
-        XUT->ReCompute(DoAll);  //ZZZZ
+        XUT->ReCompute( UseEps() ? DoAll : Zero );
         pandv += XUT.U;
         }
 	}	

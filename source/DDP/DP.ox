@@ -211,6 +211,7 @@ DP::GetAind(i) {return isclass(Theta[i]) ? Theta[i].Aind : NoMatch; }
 @return $P*(\alpha;\epsilon,\eta,\theta,\gamma)$  (<code>Theta[i].pandv</code>)
 **/
 DP::GetPstar(i) {    return Theta[i].pandv;    }
+DP::GetUseEps(i) {    return Theta[i]->UseEps();    }
 
 /** Return tracking transition at a given $\eta,\theta$ combination.
 @param i index of $\theta$ in the state space $\Theta$
@@ -694,15 +695,22 @@ ExogUtil::ExogUtil() {
 
 **/	
 ExogUtil::ReCompute(howmany) {
-    if (SameDims(U,I::curth.pandv)) U[][] = .NaN;
-    else  U = constant(.NaN,I::curth.pandv);
+    if ( SameDims(U,I::curth->GetPandV()) )
+        U[][] = .NaN;
+    else  U = constant(.NaN,I::curth->GetPandV());
     if (AnyExog && howmany==DoAll)
         this->ExTask::loop();
-    else
+    else {
+        state[left:right] = 0;
+        SyncStates(left,right);
+        I::SetExogOnly(state);
         Run();
+        }
     }
 
-ExogUtil::Run() { U[][I::all[bothexog]] = I::curth->Utility();  }
+ExogUtil::Run() {
+    U[][I::all[bothexog]] = I::curth->Utility();
+    }
 
 /** Loop over $\eta$ space.
 @internal
@@ -731,13 +739,14 @@ It calls the virtual `Bellman::ExogExpectedV`(). So it modifies the matrix as
 
 **/
 SemiExTask::Compute(HowMany) {
+    CurrExogWidth = I::curth->UseEps() ? N::Ewidth : One;
     if (AnyEta && HowMany==DoAll) {
         I::elo = 0;
         I::ehi = I::elo-1;
         this->ExTask::loop();
         }
     else {
-        I::elo = I::all[onlysemiexog]*N::Ewidth;
+        I::elo = I::all[onlysemiexog]*CurrExogWidth;
         I::ehi = I::elo-1;
         this->Run();
         }
@@ -745,16 +754,16 @@ SemiExTask::Compute(HowMany) {
 
 /** . @internal **/
 SemiEV::Run() {
-    I::ehi += N::Ewidth;
+    I::ehi += CurrExogWidth;
     I::curth->ExogExpectedV();
-	I::elo += N::Ewidth;
+	I::elo += CurrExogWidth;
     }
 
 /** . @internal **/
 SemiTrans::Run() {
-    I::ehi += N::Ewidth;
+    I::ehi += CurrExogWidth;
     I::curth->ExogStatetoState();
-	I::elo += N::Ewidth;
+	I::elo += CurrExogWidth;
     }
 
 /** . @internal **/
@@ -769,7 +778,9 @@ ExogOutcomes::ExpectedOutcomes(howmany,chq) {
     if (howmany==DoAll)
         loop();
     else {
-        oxrunerror("make sure eps synched");
+        state[left:right] = 0;
+        SyncStates(left,right);
+        I::SetExogOnly(state);
         Run();
         }
     }
@@ -1476,7 +1487,7 @@ ReSubSample::ReSubSample() {
 ReSubSample::Run() {  I::curth->Allocate(N::picked());     }
 
 CreateTheta::loop() {
-    decl v,vk;
+    decl v,vk,ign;
 	trips = iter = 0;
 	Reset();					// (re-)initialize variables in range
 	SyncStates(0,N::S-1);
@@ -2181,10 +2192,10 @@ SaveV::Run() {
 	if ((TrimTerminals && I::curth.Type>=TERMINAL) || (TrimZeroChoice && N::Options[I::curth.Aind]<=1) ) return;
     decl mxi, p, oned=isclass(I::curth,"OneDimensionalChoice");
 	stub=I::all[tracking]~I::curth.Type~ai~state[S[endog].M:S[clock].M]';
-
-    p = columns(I::curth.pandv)==rows(NxtExog[Qprob])
-            ?  /* ExpandP (ai, */ I::curth.pandv*NxtExog[Qprob] /*)*/
-            :  /* ExpandP(ai,  */ I::curth.pandv /*)*/ ;
+    decl pv = I::curth->GetPandV();
+    p = columns(pv)==rows(NxtExog[Qprob])
+            ?  /* ExpandP (ai, */ pv*NxtExog[Qprob] /*)*/
+            :  /* ExpandP(ai,  */ pv /*)*/ ;
     mxi = maxcindex(p);
     oxprintlevel(-1);
     r =stub~I::r~I::f~I::curth.EV; //N::VV[I::later][I::all[iterating]]

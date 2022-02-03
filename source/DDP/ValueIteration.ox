@@ -317,7 +317,6 @@ value across all exogenous states.</DD>
 **/
 KWGSolve::Run() {
     decl notinss = ! I::curth->InSS();
-    //println("#### ",I::all[tracking]," ",classname(I::curth)," ",I::curth.pandv);
     XUT.state[] = state;
     if (firstpass) {
         if (notinss) return;
@@ -325,11 +324,11 @@ KWGSolve::Run() {
 	    I::curth->ActVal();
 	    N::VV[I::now][I::all[iterating]] = I::curth->thetaEMax();
 	    if (!onlypass)  // there is subsampling add to approx sample
-            Specification(AddToSample,V[0],(V[0]-I::curth.pandv[][0])');
+            Specification(AddToSample,V[0],(V[0]-I::curth->GetPandV(0))');
 		}
     else if (notinss) {
     	I::curth->MedianActVal();
-	    I::curth.EV = Specification(PredictEV,V[0],(V[0]-I::curth.pandv[][0])'); //N::VV set in Specification
+	    I::curth.EV = Specification(PredictEV,V[0],(V[0]-I::curth->GetPandV(0))'); //N::VV set in Specification
 		}
     else return;
 	this->PostEMax();
@@ -354,6 +353,7 @@ KWGSolve::Solve(instate) {
 	state[] = instate;
     ZeroTprime();
 	Flags::setPstar = TRUE;	
+    warned = FALSE;
     curlabels = xlabels0|xlabels1|xlabels2;  //This should depend on feasible set!
 	for (myt=N::T-1;myt>=0;--myt) {
 		state[cpos] = XUT.state[cpos] = myt;
@@ -434,6 +434,7 @@ KWGSolve::Specification(kwstep,maxEV,Vdelta) {
 				Bhat[I::t] = xrow;
 				if (Volume>QUIET) {
 					println("\n Keane-Wolpin Approximation t= ",I::t," N = ",sizer(EMax));
+                    // println(EMax~maxE~Xmat);
 					EMaxHat = maxE + Xmat*Bhat[I::t];
 					MyMoments(EMax~maxE~(EMaxHat)~Xmat,{"EMax","EMaxHat"}|curlabels);
 					println("%r","Bhat=","%c",curlabels,Bhat[I::t]',"Correlation(Y,Yhat)=",correlation(EMax~EMaxHat)[0][1]);

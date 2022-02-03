@@ -17,7 +17,8 @@ TestRun() {
 	        {"Random-Fixed-Effects",Test8::Run},
 	        {"Data-Prediction",Test9::Run},
 	        {"Reservation-Values",Test10::Run},
-	        {"Non-Stationary Search",Test11::Run}
+	        {"Non-Stationary Search",Test11::Run},
+            {"Ignore Epsilon Predictions",Test12::Run}
             );		
     return tmenu;
 	}
@@ -338,3 +339,32 @@ Test11::EUtility()    {
     decl pstar = 1-probexp(zstar,1/alpha);
 	return {  ( b | (zstar + alpha)*pd ) , (1-pstar)~pstar};
 	}	
+
+Test12::Build() {
+     SetClock(NormalAging,12);
+     e = new Nvariable ("e",27);
+     m = new BinaryChoice("m");
+     Actions(m);
+     ExogenousStates(e);
+     InLM = new IIDBinary("in",0.7);
+     M = new ActionCounter("M",12,m);
+     EndogenousStates(InLM,M);
+     SetDelta(0.95);
+     beta =<1.2 ; 0.09 ; -0.1 ; 0.2>;
+     pi = 1.1;
+    }
+Test12::Run() {
+    ign = 0;
+    do {
+        Initialize(new Test12());
+        Build();
+        CreateSpaces();
+        VISolve();
+        ComputePredictions();
+        Delete();
+       } while(++ign<2);
+    }
+Test12::Earn()    { return  exp( (1~CV(M)~sqr(CV(M))~AV(e)) * CV(beta) ) ; }
+Test12::Utility() { return CV(m)*(Earn()-pi) + pi;  }
+Test12::FeasibleActions() { return One | CV(InLM); }
+Test12::IgnoreExogenous() { return   ign*(1-CV(InLM));    }

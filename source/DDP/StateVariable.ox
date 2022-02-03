@@ -876,7 +876,7 @@ LaggedAction::Transit()	{
 @param Prune TRUE [default], prune unreachable states (non-zero values) before Tbar
 
 $$s' = \cases{ 0 & if t less than Tbar\cr
-               Target.v & if t equals Tbar\cr
+               CV((Target) & if t equals Tbar\cr
                s & if t greater than Tbar\cr}$$
 
 @example
@@ -933,8 +933,8 @@ StateAtTbar::IsReachable() {
 @param L label
 @param Target `ActionVariable` to track.
 
-$$s' = \cases{ 0 & if Target.v==0\cr
-               Target.v & if s==0 and Target.v greater than 0\cr
+$$s' = \cases{ 0 & if CV(Target)==0\cr
+               CV(Target) & if s==0 and CV(Target) greater than 0\cr
                s & if s greater than 0\cr}$$
 
 @example
@@ -1758,7 +1758,7 @@ KeptZeta::InitDynamic(cth,VV) {
     myVV =VV';
     isheld = CV(held);
     addst = I::OO[iterating][keep.pos]*vals;
-    decl myios = cth->InSS() ? I::all[onlysemiexog] : 0;
+    decl myios = cth->UseEps() ? I::all[onlysemiexog] : Zero;
     NxtI = cth.Nxt[Qit][myios];
     NxtR = cth.Nxt[Qrho][myios];
     NOth= columns(NxtR)-1;

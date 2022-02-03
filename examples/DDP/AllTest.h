@@ -147,3 +147,15 @@ struct Test11 : OneDimensionalChoice	{
 	EUtility();
     Uz(z);
 	}
+
+struct Test12 : ExPostSmoothing {
+    static decl InLM, m, M, e, beta, pi, ign;
+    static      Build();
+    static      Create();
+    static      Earn();
+    static      Run();
+                IgnoreExogenous();
+                Utility();
+                FeasibleActions();
+
+    }

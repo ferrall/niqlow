@@ -128,7 +128,7 @@ StaticAux::Realize(y) {
 @param truevalue `AV`()-compatible object
 @param sigma    `CV`()-compatible standard deviation
 @param Linear TRUE error is additive<br/>FALSE error is multiplicative and log-normal
-@param Label if truevalue does not have a L member this will be used 
+@param Label if truevalue does not have a L member this will be used
 **/
 Noisy::Noisy(truevalue,sigma,Linear,Label) {
     AuxiliaryValue("noisy-"+ (ismember(truevalue,"L") ? truevalue.L : Label ) );

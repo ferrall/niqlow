@@ -88,16 +88,16 @@ enum{LINEAR,LOGLINEAR,MULTIPLICATIVE,MINUSSUMOFSQUARES,SUMOFSQUARES,Aggregators}
         /** Codes for `Bellman::Type`.  These codes (and their order) determine what calculations to do
             at the endogenous state $\theta$.
         <table>
-        <tr><th>Tag</th><td>Value</td><th>$\theta$ Type</th></tr>
-        <tr><td>ORDINARY</td>   <td>0</td><td></td></tr>
-        <tr><td>INSUBSAMPLE</td><td>1</td><td>randomly selected for first stage of KW approximation</td></tr>
-        <tr><td>LASTT</td>      <td>2</td><td>not subsampled AND last period of decision-making</td></tr>
-        <tr><td>INSUBANDLAST</td>   <td>3</td><td>LASTT AND INSUBSAMPLE</td></tr>
+        <tr><th>Tags</th><td>Value</td><th>$\theta$ Type</th></tr>
+        <tr><td>ORDINARY,INSUBSAMPLE</td>   <td>0</td><td></td></tr>
+        <tr><td>NOTSASMPLED,IGNOREEXOG</td><td>1</td><td>randomly selected for first stage of KW approximation</td></tr>
+        <tr><td>LASTT</td>      <td>2</td><td>subsampled AND last period of decision-making</td></tr>
+        <tr><td>LASTNOTSAMPLED</td>   <td>3</td><td>LASTT AND NOTSAMPLED</td></tr>
         <tr><td>TERMINAL</td>   <td>4</td><td>Terminal state</td></tr>
         </table>
         @see StateVariable::MakeTerminal, DP::SubSampleStates
         @name StateTypes **/
-enum{ORDINARY,INSUBSAMPLE,LASTT,INSUBANDLAST,TERMINAL,StateTypeCutoffs}
+enum{ORDINARY,INSUBSAMPLE=ORDINARY,NOTSAMPLED,IGNOREEXOG=NOTSAMPLED,LASTT,LASTNOTSAMPLED,TERMINAL,TERMNOTSAMPLED,StateTypeCutoffs}
 
 /** Tags for parameter vectors of normal distribution.
     @name NormalParams **/	

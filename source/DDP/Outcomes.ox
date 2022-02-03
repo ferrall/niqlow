@@ -568,18 +568,20 @@ $$L(\theta) = \sum_{\eta} \sum_{\alpha} P*() P()$$
 </dd>
 **/
 Outcome::PartialObservedLikelihood() {
-	decl h, ep, q, PS, bothrows, curprob, totprob,
+	decl h, ep, q, PS, bothrows, curprob, totprob, ue,
 		dosemi = ind[onlysemiexog]==DoAll ? range(0,S[onlysemiexog].N-1)' : ind[onlysemiexog],
-		einds =  ind[onlyexog]    ==DoAll ? range(0,N::Ewidth-1)          :	ind[onlyexog];
+		einds =  ind[onlyexog]    ==DoAll ? range(0,N::Ewidth-1)          :	ind[onlyexog],
+        nh = sizeof(dosemi);
 	viinds[now] = vecr(ind[tracking])';
 	vilikes[now] = zeros(viinds[now]);
 	for(q=0;q<columns(viinds[now]);++q) {                  //loop over current states consistent with data so far
 		arows=ind[onlyacts][Ainds[q]];                    //action rows consistent with this state
 		PS = GetPstar(viinds[now][q])[arows][];         //choice probabilities of consistent actions
-		for (h = 0,totprob = 0.0;h<sizeof(dosemi);++h) {      //loop over semi-exogenous values
+        ue = GetUseEps(viinds[now][q]);
+		for (h = 0,totprob = 0.0;h<nh;++h) {      //loop over semi-exogenous values
 			bothrows = dosemi[h]*N::Ewidth + einds;                       //combination of consistent epsilon and eta values
-			curprob = sumr( PS[][ bothrows ].*NxtExog[Qprob][ bothrows ]' )';  //combine cond. choice prob. and iid prob. over today's shocks
-			totprob += sumc(NxtExog[Qprob][ bothrows ]);                      //prob. over consistent iid shocks
+			curprob = sumr( PS[][ bothrows ].*(ue ? NxtExog[Qprob][ bothrows ]' : 1.0/nh ) )';  //combine cond. choice prob. and iid prob. over today's shocks
+			totprob += ue ? sumc(NxtExog[Qprob][ bothrows ]) : 1.0/nh ;                      //prob. over consistent iid shocks
 			vilikes[now][q] +=       // add to today's conditional probability
                     TomIndices(viinds[now][q],dosemi[h])
 					? curprob*sumr(TP[arows][icol[1][]] .* vilikes[tom][icol[0][]]) // combine tomorrow's prob. with todays iid & choice prob.
@@ -595,17 +597,19 @@ $$L(\theta) = $$
 </dd>
 **/
 Outcome::IIDLikelihood() {
-    decl ep, lo, curprob, hi;
+    decl ep, lo, curprob, hi,ue;
     viinds[now] = ind[tracking];
     arows=ind[onlyacts][Ainds[0]];
     lo = ind[onlysemiexog]*N::Ewidth;
     hi = lo + N::Ewidth-1;
-    curprob =NxtExog[Qprob][ lo:hi ] ;  //need to get conditional prob. of eta
+    ue = GetUseEps(viinds[now]);
+    curprob = ue ? NxtExog[Qprob][ lo:hi ] : 1.0 ;  //need to get conditional prob. of eta
     vilikes[now] =     vilikes[!now]          //future like
                     *  curprob                // distn of exogenous variables
                     .* (OnlyTransitions
                         ? 1.0
-                        : GetPstar(viinds[now])[arows][lo:hi]'  //CCP
+                        : (ue ? GetPstar(viinds[now])[arows][lo:hi]'  //CCP
+                              : GetPstar(viinds[now])[arows][]' )
                         );
     vilikes[now] .*= AuxLikelihood(DoAll);
     vilikes[now] *= TomIndices(viinds[now],ind[onlysemiexog])

@@ -64,6 +64,7 @@ struct  Bellman : DP {
             virtual Reachable();
             virtual ThetaUtility();
             virtual OutcomesGivenEpsilon();
+            virtual IgnoreExogenous();
 
                     //Solution Methods replace these
             virtual ExogExpectedV();
@@ -77,6 +78,7 @@ struct  Bellman : DP {
 			virtual KernelCCP(task);
 			virtual	AutoVarPrint1(task);
             virtual SetTheta(state=0,picked=0);
+            virtual InSS();
 
                     OnlyFeasible(myU);
 					Bellman(state,picked);
@@ -87,7 +89,8 @@ struct  Bellman : DP {
 					UpdatePtrans();
                     StateToStatePrediction(intod);
 					MedianActVal();
-                    virtual InSS();
+                    UseEps();
+                    GetPandV(ind=DoAll);
 	}																																				
 
 /** Base class for DP problem when choice probabilities are smoothed ex-post.
