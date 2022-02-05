@@ -388,8 +388,11 @@ DP::Actions(...
 	}
 
 /** Add `AuxiliaryValue`s to $\chi$.
-@param ... `AuxiliaryValue`s or array of auxiliary variables to add to $\chi$
-@see DP::Chi
+@param ... `AuxiliaryValue`s <br\>
+            or static function(s) that take no arugment, which will be sent to StaticAux<br/>
+            or arrays of auxiliary variables and static functions to add to $\chi$
+
+@see DP::Chi, StaticAux
 **/
 DP::AuxiliaryOutcomes(...
     #ifdef OX_PARALLEL
@@ -397,11 +400,12 @@ DP::AuxiliaryOutcomes(...
     #endif
 ) {
 	if (!isarray(SubVectors)) oxrunerror("DDP Error 40. Error: can't add auxiliary before calling Initialize()",0);
-	//if (Flags::ThetaCreated) oxrunerror("DDP Error 36a. Error: can't add auxiliary after calling DP::CreateSpaces()");
 	decl pos = sizeof(Chi), i,j,s;
     foreach(s in va) {
         if (isarray(s))
             { foreach (j in s) AuxiliaryOutcomes(j); }
+        else if (isfunction(s))
+             AuxiliaryOutcomes(new StaticAux(sprint(s),s));
         else {
 	       TypeCheck(s,"AuxiliaryValue");
 	       Chi |= s;
