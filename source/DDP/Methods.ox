@@ -212,7 +212,7 @@ GSolve::Solve(instate) {
 	Flags::setPstar = counter->setPstar(TRUE) ||  (MaxTrips==1);   // if first trip is last;
     dff = 0.0;
     succeed = TRUE;
-    warned = FALSE;
+    AuxRun = warned = FALSE;
     this->Traverse() ;   //this does the iteration see GSolve::Run()
 	if (!(I::all[onlyrand])  && isclass(counter,"Stationary")&& I::later!=LATER)
         N::VV[LATER][] = N::VV[I::later][];    //initial value next time
@@ -261,4 +261,14 @@ GSolve::PostEMax() {
         Hooks::Do(PostSmooth);
         if (Flags::IsErgodic||Flags::NKstep) I::curth->UpdatePtrans();
 		}
+    }
+
+GSolve::AuxiliaryRun(instate) {
+    AuxRun = TRUE;
+	this.state[] = instate;
+    ZeroTprime();
+    Flags::setPstar = FALSE;
+    succeed = TRUE;
+    I::later = !LATER;
+    this->Traverse() ;
     }

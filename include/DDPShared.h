@@ -330,6 +330,7 @@ A user's code can reference these variables but should never change them.
 struct N : DDPauxiliary {
     static decl
 	    /** Scratch space for value iteration. **/                    VV,
+        /** storage for (I-Lam) inverse.**/                           invLam,
 		/** uninitialized state.   **/  			  	              All,
 		/** number of groups, &Gamma;.D      **/				      G,
 		/** number of fixed effect groups.   **/					  F,

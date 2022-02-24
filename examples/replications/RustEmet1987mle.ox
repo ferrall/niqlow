@@ -1,10 +1,12 @@
 #include "RustEmet1987mle.h"
 /* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
 
-
+RustEstimates::menu() {
+    targ = new ParamMenu("Rust1987 estimation",TRUE,Run);
+    targ->add( {"Disc w Month/Mileage 0/1",Zero},{"Table (NX) 0/1",Zero},{"Column (sample) 0/1/2",One},{"Row (disc. factor) 0/1",Zero});
+    return targ;
+    }
 RustEstimates::SetTarget(CmdLine) {
-    decl targ = new ParamMenu("Rust1987 estimation",TRUE);
-    targ->add( {"Table (NX) 0/1",Zero},{"Column (sample) 0/1/2",One},{"Row (disc. factor) 0/1",Zero});
     if (CmdLine)
         targ->CmdLine(Run);
     else
@@ -43,14 +45,14 @@ RustEstimates::Run(target) {
         nfxp->Save("All9999");
         nfxp->Jacobian();
         nfxp.vcur.H = -outer(nfxp.vcur.J,<>,'o');
-    println("OPG inverse ",invert(nfxp.vcur.H),"OPG SE ",sqrt(-diagonal(invert(nfxp.vcur.H))));
+    //println("OPG inverse ",invert(nfxp.vcur.H),"OPG SE ",sqrt(-diagonal(invert(nfxp.vcur.H))));
     delete mle, delete mle2, delete nfxp, delete EMax;
     Bellman::Delete();
 
 	}
 
 /** Setup the DP model and first stage estimation.
-@param row 0 or 1, row of Rust table to replicate (&delta;=0.0 or &delta;=0.999)
+row 0 or 1, row of Rust table to replicate (&delta;=0.0 or &delta;=0.999)
 **/	
 EZ::SetUp()	{
 	Initialize(new EZ());
@@ -63,6 +65,7 @@ EZ::SetUp()	{
   	SetDelta(dfactor[ROW]);
   	EndogenousStates(x = new Renewal("x",NX,d,hat[theta3]) );
 	CreateSpaces();
+    println("Original parameters,log-like and SEs",pars[ROW]);
     return {{},hat[theta3],{hat[RC],hat[theta1]}};
 	}
 
@@ -74,7 +77,7 @@ BusData::BusData(method) {
     MatchToColumn(Zurcher::d,"d");
 	IDColumn("id");
     tColumn("t");
-    filename = "RustEmet1987_col"+sprint(Zurcher::COL+1)+"_ALL"; //ADD 1 to column!!!!
+    filename = "RustEmet1987_type"+sprint(Zurcher:: DMETH)+"_col"+sprint(Zurcher::COL+1)+"_ALL"; //ADD 1 to column!!!!
 	Read(filename+".dta");	
 	}
 

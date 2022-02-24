@@ -33,6 +33,8 @@ struct Objective	{
     /** log file **/                                            logf,
     /** Set in CheckMax(), TRUE if latest check was new max.**/ newmax,
     /** This objective uses raw parameter values. **/           DoNotConstrain,
+    /** TRUE when computing Gradient, can be used by semi-closed
+        form gradient methods.**/                               INGRADIENT,
     /** TRUE (default): exit if NaNs encountered during iteration<br>
             FALSE: exit with <code>IterationFailed</code> **/
                                                                 RunSafe,

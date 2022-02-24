@@ -188,6 +188,7 @@ This is called after one complete iteration of `ValueIteration::GSolve`().
 
 **/
 GSolve::Update() {
+    if (AuxRun) return TRUE;
 	++trips;
     decl mefail;
 	dff= counter->Vupdate();
@@ -214,6 +215,7 @@ GSolve::Update() {
 @internal
 **/
 NKSolve::Update() {
+    if (AuxRun) return TRUE;
 	++trips;
     decl mefail,oldNK = Flags::NKstep, start, v;
     prevdff = dff;
@@ -259,23 +261,27 @@ NKSolve::Update() {
     else if (Flags::NKstep) {   //ongoing N-K iteration
 //        scan("Point A %u",&NKpause);  memory leak
         if (Flags::IsErgodic) {
-            ip = -I::CVdelta*I::curg.Ptrans';
+            ip = -I::CVdelta*I::curg.Ptrans';     //See Rust Siam 1988 equation 4.3
             I::curg.Ptrans[][] = 0.0;
             }
         else {
             ip = -I::CVdelta*NKptrans';
             NKptrans[][] = 0.0;
             }
-        declu( setdiagonal(ip,1+diagonal(ip)),&L,&U,&P);
+        declu( setdiagonal(ip,1+diagonal(ip)),&L,&U,&P);    // Rust Siam 1988 (I-\Lambda^\prime)^{-1}
         if (Flags::IsErgodic) {   //whole V
-          N::VV[I::now][] = N::VV[I::later][]-solvelu(L,U,P,(N::VV[I::later][]-N::VV[I::now][])' )';
+          N::VV[I::now][] = N::VV[I::later][]-solvelu(L,U,P,(N::VV[I::later][]-N::VV[I::now][])' )';//Rust Siam 1988 4.6
           }
         else {      //only active states in this ergodic phase
           itstep =solvelu(L,U,P,(N::VV[I::later][NK.onlyactive]-N::VV[I::now][NK.onlyactive])' )' ;
           N::VV[I::now][NK.onlyactive] = N::VV[I::later][NK.onlyactive] - itstep;
           }
         dff = counter->Vupdate();
-        if (dff<vtoler) Flags::NKstep = FALSE;   //we're done, one more step
+        if (dff<vtoler) {
+            Flags::NKstep = FALSE;   //we're done, one more step
+            if (Flags::IsErgodic)   //compute inverse
+               N::invLam  = solvelu(L,U,P,unit(rows(L)));
+            }
         }
     mefail = isnan(dff);
     succeed *= !mefail;

@@ -11,12 +11,14 @@ This avoids global variables, which may be ambiguous when multiple models are in
 **/
 struct RustEstimates {
 	static decl
+    /** OxMenu menu for setting parameters interactively.**/ targ,
     /** Value function iteration method. **/            EMax,
     /** bus data as a DataSet. **/                      buses,
     /** Panel Black Box objective using buses data. **/ nfxp,
     /** Parameter lists by stage.**/                    plist,
     /** Optimization algorithm applied to nfxp. **/     mle;
-	static Run(pars);
+	static menu();
+    static Run(pars);
     static SetTarget(CmdLine=FALSE);
 	}
 

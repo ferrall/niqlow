@@ -15,6 +15,7 @@ Objective::SetVersion(v) {
 
 /** Create a new objective.
 @param L string, label for the objective.
+@param CreateCur create a new Point in vcur
 
 **/
 Objective::Objective(L,CreateCur)	{	
@@ -36,14 +37,8 @@ Objective::Objective(L,CreateCur)	{
     logf = fopen(lognm,"av");
 	if (CreateCur) vcur = new Point();
 	fshold = hold = maxpt = NvfuncTerms  = UnInitialized;
+	p2p = once = nstruct = INGRADIENT = DoNotConstrain = FALSE;
 	FinX = <>;
-	p2p = once = FALSE;
-	nstruct = 0;
-    DoNotConstrain = FALSE;
-	// if (Parameter::DoNotConstrain) {
-	//	Parameter::DoNotConstrain = FALSE;
-	//	oxwarning("FiveO Warning 04.\n Each new objective resets Parameter::DoNotConstrain to FALSE.\n User must reset it after adding additional objectives.\n");
-	//	}
 	}
 
 /** Reset the value of the current and maximum objective. **/
@@ -152,6 +147,7 @@ Objective::Load(fname)	{
 	}
 
 /** Set the formula .
+@param AggType
 @see AggregatorTypes
 **/
 Objective::	SetAggregation(AggType) {
@@ -188,6 +184,9 @@ Constrained::CheckPoint(f,saving)	{
 	}
 
 /**Compare v to maxpt.
+@param v value of objective
+@param fn file name to print to
+Output is determined by `Objective::Volume`
 **/
 Objective::CheckMaxV(v,fn) {
     decl suffx = newmax ? "*" : " ";
@@ -202,7 +201,9 @@ Objective::CheckMaxV(v,fn) {
     }	
 
 /** If <code>vcur.v &gt; maxpt.v</code> call `Objective::Save`() and update <code>maxpt</code>.
+@param fn file name
 @return TRUE if maxval was updated<br>FALSE otherwise.
+@see Objective::CheckMaxV
 **/
 Objective::CheckMax(fn)	{
     newmax = vcur.v>maxpt.v;
@@ -215,6 +216,7 @@ Objective::CheckMax(fn)	{
 	}
 
 /** If <code>scur.v &gt; maxpt.v</code> call `Objective::Save` and update <code>maxpt</code>.
+@param fn file name
 @return TRUE if maxval was updated<br>FALSE otherwise.
 **/
 Separable::CheckMax(fn)	{
@@ -228,6 +230,7 @@ Separable::CheckMax(fn)	{
 	}
 
 /** If <code>scur.v &gt; maxpt.v</code> call `Objective::Save` and update <code>maxpt</code>.
+@param fn file name
 @return TRUE if maxval was updated<br>FALSE otherwise.
 **/
 Mixture::CheckMax(fn)	{
@@ -240,7 +243,9 @@ Mixture::CheckMax(fn)	{
 	return newmax;
 	}
 
-/** This is misnamed. It checks whether the 1-D system is closer to 0.**/
+/** This is misnamed. It checks whether the 1-D system is closer to 0.
+@param fn file name
+**/
 OneDimSystem::CheckMax(fn)	{
     newmax = vcur.v<maxpt.v;
     CheckMaxV(vcur.v,fn);
@@ -268,10 +273,18 @@ Objective::Print(orig,fn,toscreen){
     println(note, toscreen ? details : "");
 	}
 
+/** Create an unconstrained objective.
+@param L label
+**/
 UnConstrained::UnConstrained(L) {
 	Objective(L,TRUE);
 	}
 
+/** Create a constrained objective.
+@param L label
+@param ELorN  Number of equality constraints (integer, array of strings, string list of names)<br/>
+@param IELorN Number of inequality constraints
+**/
 Constrained::Constrained(L,ELorN,IELorN) {
 	Objective(L,FALSE);
 	vcur = new CPoint(ELorN,IELorN);
@@ -282,9 +295,9 @@ Constrained::Constrained(L,ELorN,IELorN) {
 
 /** Create a new system of equations object.
 @param L label for the system.
-@param LorN  The size of the system indicated in 1 of 3 ways:<br>
-integer [default = 1], N the size of the system<br>
-array of length N, where each element is a string, the label for the equation.<br>
+@param LorN  The size of the system indicated in 1 of 3 ways:<br/>
+integer [default = 1], N the size of the system<br/>
+array of length N, where each element is a string, the label for the equation.<br/>
 string with N space-separate labels, the labels
 of the equations parsed by `varlist`.
 
@@ -328,8 +341,8 @@ OneDimSystem::OneDimSystem(L,msys) {
     }
 
 /**
-@param insys     if msys an object then the equation index to select [default=0]
-@param inpar     if msys an object the parameter or parameter index to vary.
+@param insys     if eq1 an object then the equation index to select [default=0]
+@param inpar     if eq1 an object the parameter or parameter index to vary.
 **/
 System::SetOneDim(insys,inpar) {
     if (isclass(eq1)) {
@@ -338,6 +351,10 @@ System::SetOneDim(insys,inpar) {
         }
     }
 
+/**
+@param insys
+@param inpar
+**/
 OneDimSystem::SetOneDim(insys,inpar) {
     if (isys==UnInitialized) {
         Psi = msys.Psi;
@@ -432,7 +449,7 @@ Objective::ToggleParams(...
     this->Recode(FALSE);
     }
 
-/** Preserve the state of free of fixed status of the parameter vector.
+/** Preserve the state of free or fixed status of the parameter vector.
 @param Store TRUE, store the current status <br/>FALSE restore after a previous store
 
 @see Objective::ToggleParams, Objective::ToggleBlockElements
@@ -681,18 +698,22 @@ $$\nabla f(\psi)$$
 Stored in <code>vcur.G</code>
 
 Any derived Objective can replace this virtual method with one that computes analytic gradients or other
-approaches.  
+approaches.
 
 @return vcur.G
 **/
 Objective::Gradient(extcall) {
-    if (Version::MPIserver)
+    INGRADIENT = TRUE;
+    if (Version::MPIserver) {
        p2p.server->Loop(rows(vcur.F),"gradient"); //Gradient won't get called if already in loop
+       INGRADIENT = FALSE;
+       }
     else {
 	   this->Jacobian();
 	   vcur.G = sumc(vcur.J);
        if (Volume>QUIET && isfile(logf) ) fprintln(logf,"%r",{"Gradient: "},"%c",PsiL[FinX],vcur.G);
        if (extcall && isclass(p2p)) p2p.client->Stop();
+       INGRADIENT = FALSE;
        return vcur.G;
        }
 	}
@@ -1293,11 +1314,16 @@ DataObjective::AggSubProbMat(submat) {
     return data.M;
     }
 
-/** Calls and returns <code>data-&gt;EconometricObjective()</code>.
+/** Calls and returns <code>data-&gt;EconometricObjective()</code> or uses SemiClosedForm() if in Gradient
+    calculation.
 **/
 DataObjective::vfunc(subp) {
-    return data->EconometricObjective(subp); 	
+    if (INGRADIENT && ismember(data,"SemiClosedForm")==Two )
+        return data->SemiClosedForm(subp); 	
+    else
+        return data->EconometricObjective(subp); 	
     }
+
 
 /**  A wrapper that acts like an objective but just calls a model's Solve method and returns 1.0.
 @param model Object with a method named <code>Solve()</code> <em>or</em> a member named <code>method</code> with

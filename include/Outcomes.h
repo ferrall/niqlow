@@ -215,3 +215,11 @@ struct OutcomeDataSet : Panel {
     Simulate(N,T,ErgOrStateMat=0,DropTerminal=FALSE,pathpred=UnInitialized);
     virtual EconometricObjective(subp=DoAll);
 	}
+
+/** An outcome data set for Ergodic DP models with semi-closed form gradients.
+
+**/
+struct ErgodicOutcomeDataSet : OutcomeDataSet  {
+    ErgodicOutcomeDataSet(label=UseDefault,method=UnInitialized);
+    SemiClosedForm(subp=DoAll);
+    }

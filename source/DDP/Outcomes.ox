@@ -1018,6 +1018,9 @@ OutcomeDataSet::EconometricObjective(subp) {
         }
 	}
 
+ErgodicOutcomeDataSet::ErgodicOutcomeDataSet(label,method) {    OutcomeDataSet(label,method);    }
+ErgodicOutcomeDataSet::SemiClosedForm(subp) { oxrunerror("NOT CODED YET");    }
+
 /** Produce a Stata-like summary statistics table.
 @param data <em>matrix</em>, data to summarize<br><em>integer</em>, summarize `Panel::flat`
 @param rlabels [default=0], array of labels

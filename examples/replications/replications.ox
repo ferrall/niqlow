@@ -7,7 +7,7 @@
 rust87menu() {
     decl rust87 = new CallMenu("Rust Based Estimation",TRUE,FALSE);
     rust87->add( {"Emet 87 Figure 3",	Zurcher::Run},
-    			 {"Estimation", 		RustEstimates::SetTarget},
+    			 {"Estimation", 		RustEstimates::menu()},
 			     {"KennetJAE1994", 		PrattWhitney::Run}
                 );
     return rust87;

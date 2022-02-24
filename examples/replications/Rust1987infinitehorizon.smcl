@@ -1,0 +1,185 @@
+{smcl}
+{txt}{sf}{ul off}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\Rust1987infinitehorizon.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}21 Feb 2022, 11:19:14
+{txt}
+{com}. use `rf', clear
+{txt}(OxMetrics data)
+
+{com}. format %5.0f _all
+{txt}
+{com}. format %8.0f mi
+{txt}
+{com}. sort id s
+{txt}
+{com}. rename t tniqlow
+{res}{txt}
+{com}. gen n = _n
+{txt}
+{com}. sort id n
+{txt}
+{com}. qui by id: gen t = _n-1
+{txt}
+{com}. sort id t
+{txt}
+{com}. merge 1:1 id s using `rp' 
+{res}
+{txt}{col 5}Result{col 38}# of obs.
+{col 5}{hline 41}
+{col 5}not matched{col 30}{res}               0
+{txt}{col 5}matched{col 30}{res}           8,260{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. tab d d_ruspy
+
+           {txt}{c |}        d_ruspy
+         d {c |}         0          1 {c |}     Total
+{hline 11}{c +}{hline 22}{c +}{hline 10}
+         0 {c |}{res}     8,200          0 {txt}{c |}{res}     8,200 
+{txt}         1 {c |}{res}         0         60 {txt}{c |}{res}        60 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+     Total {c |}{res}     8,200         60 {txt}{c |}{res}     8,260 
+{txt}
+{com}. qui by id : gen dx90_ruspy = x90_ruspy[_n+1] - (1-d_ruspy)*x90_ruspy
+{txt}
+{com}. tab dx90 if group==4
+
+       {txt}dx90 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      1,715       39.96       39.96
+{txt}          1 {c |}{res}      2,522       58.76       98.72
+{txt}          2 {c |}{res}         55        1.28      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      4,292      100.00
+{txt}
+{com}. tab dx90_ruspy if group==4
+
+ {txt}dx90_ruspy {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      1,715       39.96       39.96
+{txt}          1 {c |}{res}      2,522       58.76       98.72
+{txt}          2 {c |}{res}         55        1.28      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      4,292      100.00
+{txt}
+{com}. tab dx90 dx90_ruspy if group==4
+
+           {txt}{c |}            dx90_ruspy
+      dx90 {c |}         0          1          2 {c |}     Total
+{hline 11}{c +}{hline 33}{c +}{hline 10}
+         0 {c |}{res}     1,715          0          0 {txt}{c |}{res}     1,715 
+{txt}         1 {c |}{res}         0      2,522          0 {txt}{c |}{res}     2,522 
+{txt}         2 {c |}{res}         0          0         55 {txt}{c |}{res}        55 
+{txt}{hline 11}{c +}{hline 33}{c +}{hline 10}
+     Total {c |}{res}     1,715      2,522         55 {txt}{c |}{res}     4,292 
+{txt}
+{com}. 
+. 
+. 
+. 
+{txt}end of do-file
+
+{com}. descr
+
+{txt}Contains data from {res}RustEmet1987_type1_col3_ALL.dta
+{txt}  obs:{res}         8,260                          OxMetrics data
+{txt} vars:{res}            18                          
+{txt}{hline}
+              storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:group          }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:id             }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:s              }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:tniqlow        }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mi             }{txt}{bind: double  }{bind:{txt}%8.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:d              }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x90            }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:dx90           }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x175           }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:dx175          }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:n              }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:t              }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x90_ruspy      }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mi_ruspy       }{txt}{bind: long    }{bind:{txt}%12.0g    }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:usage          }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:d_ruspy        }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:_merge         }{txt}{bind: byte    }{bind:{txt}%23.0g    }{space 1}{bind:_merge   }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:dx90_ruspy     }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{txt}{hline}
+Sorted by: {res}id  s
+     Note: Dataset has changed since last saved.
+
+{com}. tab dx90 dx90_ruspy if group==4 && s>0
+{err}4& invalid name
+{txt}{search r(198), local:r(198);}
+
+{com}. tab dx90 dx90_ruspy if group==4 & s>0
+
+           {txt}{c |}            dx90_ruspy
+      dx90 {c |}         0          1          2 {c |}     Total
+{hline 11}{c +}{hline 33}{c +}{hline 10}
+         0 {c |}{res}     1,685          0          0 {txt}{c |}{res}     1,685 
+{txt}         1 {c |}{res}         0      2,515          0 {txt}{c |}{res}     2,515 
+{txt}         2 {c |}{res}         0          0         55 {txt}{c |}{res}        55 
+{txt}{hline 11}{c +}{hline 33}{c +}{hline 10}
+     Total {c |}{res}     1,685      2,515         55 {txt}{c |}{res}     4,255 
+
+{com}. tab dx90 if group==4 & s>0
+
+       {txt}dx90 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      1,685       39.60       39.60
+{txt}          1 {c |}{res}      2,515       59.11       98.71
+{txt}          2 {c |}{res}         55        1.29      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      4,255      100.00
+
+{com}. summ s
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 11}s {c |}{res}      8,260    45.54552    31.05046          0        116
+
+{com}. tab dx90 dx90_ruspy
+
+           {txt}{c |}            dx90_ruspy
+      dx90 {c |}         0          1          2 {c |}     Total
+{hline 11}{c +}{hline 33}{c +}{hline 10}
+         0 {c |}{res}     2,904          0          0 {txt}{c |}{res}     2,904 
+{txt}         1 {c |}{res}         0      5,157          0 {txt}{c |}{res}     5,157 
+{txt}         2 {c |}{res}         0          0         95 {txt}{c |}{res}        95 
+{txt}{hline 11}{c +}{hline 33}{c +}{hline 10}
+     Total {c |}{res}     2,904      5,157         95 {txt}{c |}{res}     8,156 
+
+{com}. di 1/3864
+{res}.0002588
+
+{com}. di (.0049)*(1/3864)
+{res}1.268e-06
+
+{com}. di (.0049/3864)
+{res}1.268e-06
+
+{com}. di (.0049)/(1/3864)
+{res}18.9336
+
+{com}. di (.0052)/(1/3864)
+{res}20.0928
+
+{com}. di (.0106)/(1/3864)
+{res}40.9584
+
+{com}. di (.0003)/(1/3864)
+{res}1.1592
+
+{com}. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\Rust1987infinitehorizon.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}21 Feb 2022, 15:03:04
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}

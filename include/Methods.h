@@ -47,6 +47,8 @@ struct GSolve : ThetaTask {
     /** . @internal**/                                      warned,
     /** Amount of ouptut to produce @see NoiseLevels**/     Volume,
     /** Fixed limit on number of iterations.**/             MaxTrips,
+    /** Flag set if extra loop after converging,
+        e.g. when computing semi-closed-form derivatives.**/ AuxRun,
 	/** Tolerance on value function convergence in stationary
         environments.  Default=`Method::DefTolerance`.**/   vtoler;
 
@@ -57,6 +59,7 @@ struct GSolve : ThetaTask {
     virtual Run();
 	virtual Update();
     virtual PostEMax();
+    virtual AuxiliaryRun(instate);
 	}
 
 #ifdef OX_PARALLEL

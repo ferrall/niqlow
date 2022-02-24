@@ -18,6 +18,7 @@ Zurcher::Utility()  {
 
 **/
 Zurcher::SetSpec(targ) {
+    DMETH = targ[DiscType];
     NX = bins[targ[Table]];
     COL = targ[Column];
     ROW = targ[Row];

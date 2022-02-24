@@ -204,7 +204,7 @@ Bellman::FeasibleActions()	{  	return ones(Alpha::N,1); 	}
 
 Smooth is called for each point in the state space during value function iteration, but only in the last iteration
 (deterministic aging or fixed point tolerance has been reached.)
-It uses `Bellman::EV` which should be set to the current value of the current state by thetaEmax()
+It uses `Bellman::EV` which should be set to the current value of the current state by thetaEMax()
 
 @comment This is virtual, so the user's model can provide a replacement to do tasks at each &theta; during iteration.
 

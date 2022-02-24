@@ -35,9 +35,9 @@ struct CallMenu : Menu {
 /** A class for reading in parameters interactively.**/
 struct ParamMenu : Menu {
     enum{RESET=-2,SEND,Value=1}
-    decl pars;
+    decl pars,TargFunc;
     add(...);
-    ParamMenu(name="Set Params",keeplog=FALSE);
+    ParamMenu(name="Set Params",keeplog=FALSE,TargFunc=0);
     SetPars(TargFunc=0);
     CmdLine(TargFunc=0,args=1);
     }

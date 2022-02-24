@@ -1,0 +1,1204 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\ruspy_data.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res} 8 Feb 2022, 16:16:14
+
+{com}. summ
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 6}bus_id {c |}{res}      4,329        5315    10.67831       5297       5333
+{txt}{space 6}period {c |}{res}      4,329          58    33.77766          0        116
+{txt}{space 7}state {c |}{res}      4,329    25.39593    18.94075          0         77
+{txt}{space 5}mileage {c |}{res}      4,329    129454.5    94712.23          5     387282
+{txt}{space 7}usage {c |}{res}      4,292    .6209226    .5109478          0          2
+{txt}{hline 13}{c +}{hline 57}
+{space 4}decision {c |}{res}      4,329     .007623    .0869865          0          1
+
+{com}. rename bus_id id
+{res}
+{com}. rename period t
+{res}
+{com}. descr using RustEmet1987_col2
+
+{txt}Contains data                                 {res}OxMetrics data
+{txt}  obs:{res}         4,329                          
+{txt} vars:{res}             7                          
+{txt}{hline}
+              storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:group          }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:id             }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:t              }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mi             }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:d              }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x90            }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x175           }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{txt}{hline}
+Sorted by: 
+
+{com}. rename state x90
+{res}
+{com}. rename decision d
+{res}
+{com}. rename d d_ruspy
+{res}
+{com}. rename x90 x90_ruspy
+{res}
+{com}. rename mileage mi_ruspy
+{res}
+{com}. descr
+
+{txt}Contains data
+  obs:{res}         4,329                          
+{txt} vars:{res}             6                          
+{txt}{hline}
+              storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:id             }{txt}{bind: int     }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}Bus_ID{p_end}
+{p 0 48}{bind:t              }{txt}{bind: int     }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x90_ruspy      }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mi_ruspy       }{txt}{bind: long    }{bind:{txt}%12.0g    }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:usage          }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:d_ruspy        }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{txt}{hline}
+Sorted by: 
+{res}     Note: Dataset has changed since last saved.
+
+{com}. sort id t
+
+. save ruspy_group4
+{txt}file ruspy_group4.dta saved
+
+{com}. use RustEmet1987_col2
+{txt}(OxMetrics data)
+
+{com}. descr
+
+{txt}Contains data from {res}RustEmet1987_col2.dta
+{txt}  obs:{res}         4,329                          OxMetrics data
+{txt} vars:{res}             7                          
+{txt}{hline}
+              storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:group          }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:id             }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:t              }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mi             }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:d              }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x90            }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x175           }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{txt}{hline}
+Sorted by: 
+
+{com}. sort id t
+
+. merge 1:1 id t using "C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\ruspy_group4.dta"
+{res}{err}{p 0 4 2}
+variable{err}s{err} id
+t
+do not uniquely identify observations in the
+master data
+{p_end}
+{txt}{search r(459), local:r(459);}
+
+{com}. descr
+
+{txt}Contains data from {res}RustEmet1987_col2.dta
+{txt}  obs:{res}         4,329                          OxMetrics data
+{txt} vars:{res}             7                          
+{txt}{hline}
+              storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:group          }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:id             }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:t              }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mi             }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:d              }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x90            }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x175           }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{txt}{hline}
+Sorted by: {res}id  t
+
+{com}. summ
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 7}group {c |}{res}      4,329           4           0          4          4
+{txt}{space 10}id {c |}{res}      4,329        5315    10.67831       5297       5333
+{txt}{space 11}t {c |}{res}      4,329           1           0          1          1
+{txt}{space 10}mi {c |}{res}      4,329    132576.2    95164.77          1     389300
+{txt}{space 11}d {c |}{res}      4,329     .007623    .0869865          0          1
+{txt}{hline 13}{c +}{hline 57}
+{space 9}x90 {c |}{res}      4,329    26.01871    19.03326          0         77
+{txt}{space 8}x175 {c |}{res}      4,329    51.05844    37.01248          0        151
+
+{com}. use RustEmet1987_col2 , clear
+{txt}(OxMetrics data)
+
+{com}. rename t tniqlow
+{res}
+{com}. list in 1/5
+{txt}
+     {c TLC}{hline 9}{c -}{hline 9}{c -}{hline 9}{c -}{hline 9}{c -}{hline 9}{c -}{hline 9}{c -}{hline 9}{c TRC}
+     {c |} {res}  group        id   tniqlow        mi         d       x90      x175 {txt}{c |}
+     {c LT}{hline 9}{c -}{hline 9}{c -}{hline 9}{c -}{hline 9}{c -}{hline 9}{c -}{hline 9}{c -}{hline 9}{c RT}
+  1. {c |} {res}4.0e+00   5.3e+03   1.0e+00   2.4e+03   0.0e+00   0.0e+00   0.0e+00 {txt}{c |}
+  2. {c |} {res}4.0e+00   5.3e+03   1.0e+00   6.3e+03   0.0e+00   1.0e+00   2.0e+00 {txt}{c |}
+  3. {c |} {res}4.0e+00   5.3e+03   1.0e+00   1.0e+04   0.0e+00   2.0e+00   4.0e+00 {txt}{c |}
+  4. {c |} {res}4.0e+00   5.3e+03   1.0e+00   1.5e+04   0.0e+00   3.0e+00   5.0e+00 {txt}{c |}
+  5. {c |} {res}4.0e+00   5.3e+03   1.0e+00   2.0e+04   0.0e+00   4.0e+00   7.0e+00 {txt}{c |}
+     {c BLC}{hline 9}{c -}{hline 9}{c -}{hline 9}{c -}{hline 9}{c -}{hline 9}{c -}{hline 9}{c -}{hline 9}{c BRC}
+
+{com}. descr
+
+{txt}Contains data from {res}RustEmet1987_col2.dta
+{txt}  obs:{res}         4,329                          OxMetrics data
+{txt} vars:{res}             7                          
+{txt}{hline}
+              storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:group          }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:id             }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:tniqlow        }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mi             }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:d              }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x90            }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x175           }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{txt}{hline}
+Sorted by: 
+{res}     Note: Dataset has changed since last saved.
+
+{com}. format %8.0f *
+
+. descr
+
+{txt}Contains data from {res}RustEmet1987_col2.dta
+{txt}  obs:{res}         4,329                          OxMetrics data
+{txt} vars:{res}             7                          
+{txt}{hline}
+              storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:group          }{txt}{bind: double  }{bind:{txt}%8.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:id             }{txt}{bind: double  }{bind:{txt}%8.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:tniqlow        }{txt}{bind: double  }{bind:{txt}%8.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mi             }{txt}{bind: double  }{bind:{txt}%8.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:d              }{txt}{bind: double  }{bind:{txt}%8.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x90            }{txt}{bind: double  }{bind:{txt}%8.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x175           }{txt}{bind: double  }{bind:{txt}%8.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{txt}{hline}
+Sorted by: 
+{res}     Note: Dataset has changed since last saved.
+
+{com}. list 1/4
+{err}1 invalid name
+{txt}{search r(198), local:r(198);}
+
+{com}. list in 1/4
+{txt}
+     {c TLC}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 7}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c TRC}
+     {c |} {res}group     id   tniqlow      mi   d   x90   x175 {txt}{c |}
+     {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 7}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c RT}
+  1. {c |} {res}    4   5297         1    2353   0     0      0 {txt}{c |}
+  2. {c |} {res}    4   5297         1    6299   0     1      2 {txt}{c |}
+  3. {c |} {res}    4   5297         1   10479   0     2      4 {txt}{c |}
+  4. {c |} {res}    4   5297         1   15201   0     3      5 {txt}{c |}
+     {c BLC}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 7}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c BRC}
+
+{com}. gen n = _n
+
+. sort id n
+
+. qui by id: gen t = _n-1
+
+. sort id t
+
+. list in 1/4
+{txt}
+     {c TLC}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 7}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 3}{c -}{hline 3}{c TRC}
+     {c |} {res}group     id   tniqlow      mi   d   x90   x175   n   t {txt}{c |}
+     {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 7}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 3}{c -}{hline 3}{c RT}
+  1. {c |} {res}    4   5297         1    2353   0     0      0   1   0 {txt}{c |}
+  2. {c |} {res}    4   5297         1    6299   0     1      2   2   1 {txt}{c |}
+  3. {c |} {res}    4   5297         1   10479   0     2      4   3   2 {txt}{c |}
+  4. {c |} {res}    4   5297         1   15201   0     3      5   4   3 {txt}{c |}
+     {c BLC}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 7}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 3}{c -}{hline 3}{c BRC}
+
+{com}. merge 1:1 id t using "C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\ruspy_group4.dta"
+{res}
+{txt}{col 5}Result{col 38}# of obs.
+{col 5}{hline 41}
+{col 5}not matched{col 30}{res}               0
+{txt}{col 5}matched{col 30}{res}           4,329{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. summ
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 7}group {c |}{res}      4,329           4           0          4          4
+{txt}{space 10}id {c |}{res}      4,329        5315    10.67831       5297       5333
+{txt}{space 5}tniqlow {c |}{res}      4,329           1           0          1          1
+{txt}{space 10}mi {c |}{res}      4,329    132576.2    95164.77          1     389300
+{txt}{space 11}d {c |}{res}      4,329     .007623    .0869865          0          1
+{txt}{hline 13}{c +}{hline 57}
+{space 9}x90 {c |}{res}      4,329    26.01871    19.03326          0         77
+{txt}{space 8}x175 {c |}{res}      4,329    51.05844    37.01248          0        151
+{txt}{space 11}n {c |}{res}      4,329        2165    1249.819          1       4329
+{txt}{space 11}t {c |}{res}      4,329          58    33.77766          0        116
+{txt}{space 3}x90_ruspy {c |}{res}      4,329    25.39593    18.94075          0         77
+{txt}{hline 13}{c +}{hline 57}
+{space 4}mi_ruspy {c |}{res}      4,329    129454.5    94712.23          5     387282
+{txt}{space 7}usage {c |}{res}      4,292    .6209226    .5109478          0          2
+{txt}{space 5}d_ruspy {c |}{res}      4,329     .007623    .0869865          0          1
+{txt}{space 6}_merge {c |}{res}      4,329           3           0          3          3
+
+{com}. tab d d_ruspy
+
+           {txt}{c |}        d_ruspy
+         d {c |}         0          1 {c |}     Total
+{hline 11}{c +}{hline 22}{c +}{hline 10}
+         0 {c |}{res}     4,271         25 {txt}{c |}{res}     4,296 
+{txt}         1 {c |}{res}        25          8 {txt}{c |}{res}        33 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+     Total {c |}{res}     4,296         33 {txt}{c |}{res}     4,329 
+
+{com}. list if d != d_ruspy
+{txt}
+      {c TLC}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c TRC}
+      {c |} {res}group     id   tniqlow       mi   d   x90   x175      n     t   x90_ru~y   mi_ruspy   usage   d_ruspy        _merge {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+ 281. {c |} {res}    4   5299         1   208342   0    41     81    281    46         41     208342       0         1   matched (3) {txt}{c |}
+ 283. {c |} {res}    4   5299         1   209200   1    41     81    283    48          0        100       0         0   matched (3) {txt}{c |}
+ 409. {c |} {res}    4   5300         1   213967   0    42     83    409    57         42     213967       0         1   matched (3) {txt}{c |}
+ 412. {c |} {res}    4   5300         1   222236   1    44     86    412    60          1       7236       1         0   matched (3) {txt}{c |}
+ 776. {c |} {res}    4   5303         1   285510   0    57    111    776    73         57     285510       1         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+ 778. {c |} {res}    4   5303         1   290888   1    58    113    778    75          0       4988       0         0   matched (3) {txt}{c |}
+ 895. {c |} {res}    4   5304         1   289491   0    57    112    895    75         57     289491       1         1   matched (3) {txt}{c |}
+ 897. {c |} {res}    4   5304         1   295512   1    59    114    897    77          1       5512       1         0   matched (3) {txt}{c |}
+1029. {c |} {res}    4   5305         1   387282   0    77    150   1029    92         77     387282       0         1   matched (3) {txt}{c |}
+1031. {c |} {res}    4   5305         1   389300   1    77    151   1031    94          0       2000       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1100. {c |} {res}    4   5306         1   235339   1    47     91   1100    46         47     235339       1         0   matched (3) {txt}{c |}
+1101. {c |} {res}    4   5306         1        1   0     0      0   1101    47         47     235339       0         1   matched (3) {txt}{c |}
+1236. {c |} {res}    4   5307         1   251191   0    50     97   1236    65         50     251191       1         1   matched (3) {txt}{c |}
+1238. {c |} {res}    4   5307         1   256827   1    51     99   1238    67          1       5627       1         0   matched (3) {txt}{c |}
+1339. {c |} {res}    4   5308         1   224348   0    44     87   1339    51         44     224348       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1341. {c |} {res}    4   5308         1   230010   1    46     89   1341    53          0       3910       0         0   matched (3) {txt}{c |}
+1488. {c |} {res}    4   5309         1   300017   0    60    116   1488    83         60     300017       1         1   matched (3) {txt}{c |}
+1489. {c |} {res}    4   5309         1   301789   1    60    117   1489    84          0       1689       1         0   matched (3) {txt}{c |}
+1583. {c |} {res}    4   5310         1   246523   0    49     95   1583    61         49     246523       0         1   matched (3) {txt}{c |}
+1585. {c |} {res}    4   5310         1   251896   1    50     97   1585    63          1       5296       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1707. {c |} {res}    4   5311         1   271517   0    54    105   1707    68         54     271517       0         1   matched (3) {txt}{c |}
+1709. {c |} {res}    4   5311         1   277413   1    55    107   1709    70          0       4913       0         0   matched (3) {txt}{c |}
+1861. {c |} {res}    4   5312         1   327939   0    65    127   1861   105         65     327939       0         1   matched (3) {txt}{c |}
+1863. {c |} {res}    4   5312         1   330508   1    66    128   1863   107          0       1908       0         0   matched (3) {txt}{c |}
+1939. {c |} {res}    4   5313         1   255712   0    51     99   1939    66         51     255712       1         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1942. {c |} {res}    4   5313         1   264237   1    52    102   1942    69          0       4237       0         0   matched (3) {txt}{c |}
+2100. {c |} {res}    4   5314         1   353283   0    70    137   2100   110         70     353283       0         1   matched (3) {txt}{c |}
+2104. {c |} {res}    4   5314         1   365726   1    73    142   2104   114          1       7126       0         0   matched (3) {txt}{c |}
+2168. {c |} {res}    4   5315         1   273010   0    54    106   2168    61         54     273010       0         1   matched (3) {txt}{c |}
+2170. {c |} {res}    4   5315         1   279367   1    55    108   2170    63          0       4667       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2414. {c |} {res}    4   5317         1   291402   0    58    113   2414    73         58     291402       0         1   matched (3) {txt}{c |}
+2416. {c |} {res}    4   5317         1   299281   1    59    116   2416    75          1       6881       1         0   matched (3) {txt}{c |}
+2639. {c |} {res}    4   5319         1   211207   0    42     82   2639    64         42     211207       1         1   matched (3) {txt}{c |}
+2642. {c |} {res}    4   5319         1   212915   1    42     82   2642    67          0       1415       0         0   matched (3) {txt}{c |}
+2803. {c |} {res}    4   5320         1   323722   0    64    125   2803   111         64     323722       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2805. {c |} {res}    4   5320         1   326111   1    65    126   2805   113          0       1211       0         0   matched (3) {txt}{c |}
+3015. {c |} {res}    4   5322         1   298262   0    59    115   3015    89         59     298262       0         1   matched (3) {txt}{c |}
+3017. {c |} {res}    4   5322         1   299216   1    59    116   3017    91          0         16       0         0   matched (3) {txt}{c |}
+3124. {c |} {res}    4   5323         1   267579   0    53    104   3124    81         53     267579       0         1   matched (3) {txt}{c |}
+3126. {c |} {res}    4   5323         1   270300   1    54    105   3126    83          0       2700       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+3351. {c |} {res}    4   5325         1   270472   0    54    105   3351    74         54     270472       1         1   matched (3) {txt}{c |}
+3353. {c |} {res}    4   5325         1   275779   1    55    107   3353    76          1       5179       1         0   matched (3) {txt}{c |}
+3470. {c |} {res}    4   5326         1   263239   0    52    102   3470    76         52     263239       0         1   matched (3) {txt}{c |}
+3472. {c |} {res}    4   5326         1   266945   1    53    103   3472    78          0       2845       0         0   matched (3) {txt}{c |}
+3716. {c |} {res}    4   5328         1   281082   0    56    109   3716    88         56     281082       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+3717. {c |} {res}    4   5328         1   283417   1    56    110   3717    89          0       1917       1         0   matched (3) {txt}{c |}
+3819. {c |} {res}    4   5329         1   256823   0    51     99   3819    74         51     256823       0         1   matched (3) {txt}{c |}
+3821. {c |} {res}    4   5329         1   260492   1    52    101   3821    76          0       3092       0         0   matched (3) {txt}{c |}
+4140. {c |} {res}    4   5332         1   176899   0    35     68   4140    44         35     176899       1         1   matched (3) {txt}{c |}
+4141. {c |} {res}    4   5332         1   181788   1    36     70   4141    45          0       4288       1         0   matched (3) {txt}{c |}
+      {c BLC}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c BRC}
+
+{com}. list if d != d_ruspy || (id[_n]==id[_n-1] & d[_n-1] != d_ruspy[_n-1])
+{err}d_ruspy| invalid name
+{txt}{search r(198), local:r(198);}
+
+{com}. list if d != d_ruspy || (id[_n]==id[_n-1] & d[_n-1] != d_ruspy[_n-1])
+{err}d_ruspy| invalid name
+{txt}{search r(198), local:r(198);}
+
+{com}. list if d != d_ruspy | (id[_n]==id[_n-1] & d[_n-1] != d_ruspy[_n-1])
+{txt}
+      {c TLC}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c TRC}
+      {c |} {res}group     id   tniqlow       mi   d   x90   x175      n     t   x90_ru~y   mi_ruspy   usage   d_ruspy        _merge {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+ 281. {c |} {res}    4   5299         1   208342   0    41     81    281    46         41     208342       0         1   matched (3) {txt}{c |}
+ 282. {c |} {res}    4   5299         1   209200   0    41     81    282    47          0        100       1         0   matched (3) {txt}{c |}
+ 283. {c |} {res}    4   5299         1   209200   1    41     81    283    48          0        100       0         0   matched (3) {txt}{c |}
+ 284. {c |} {res}    4   5299         1     1995   0     0      0    284    49          0       1995       0         0   matched (3) {txt}{c |}
+ 409. {c |} {res}    4   5300         1   213967   0    42     83    409    57         42     213967       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+ 410. {c |} {res}    4   5300         1   216947   0    43     84    410    58          0       1947       1         0   matched (3) {txt}{c |}
+ 412. {c |} {res}    4   5300         1   222236   1    44     86    412    60          1       7236       1         0   matched (3) {txt}{c |}
+ 413. {c |} {res}    4   5300         1     9514   0     1      3    413    61          1       9514       0         0   matched (3) {txt}{c |}
+ 776. {c |} {res}    4   5303         1   285510   0    57    111    776    73         57     285510       1         1   matched (3) {txt}{c |}
+ 777. {c |} {res}    4   5303         1   287625   0    57    111    777    74          0       1725       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+ 778. {c |} {res}    4   5303         1   290888   1    58    113    778    75          0       4988       0         0   matched (3) {txt}{c |}
+ 779. {c |} {res}    4   5303         1     7437   0     1      2    779    76          1       7437       1         0   matched (3) {txt}{c |}
+ 895. {c |} {res}    4   5304         1   289491   0    57    112    895    75         57     289491       1         1   matched (3) {txt}{c |}
+ 896. {c |} {res}    4   5304         1   290965   0    58    113    896    76          0        965       1         0   matched (3) {txt}{c |}
+ 897. {c |} {res}    4   5304         1   295512   1    59    114    897    77          1       5512       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+ 898. {c |} {res}    4   5304         1     8355   0     1      3    898    78          1       8355       0         0   matched (3) {txt}{c |}
+1029. {c |} {res}    4   5305         1   387282   0    77    150   1029    92         77     387282       0         1   matched (3) {txt}{c |}
+1030. {c |} {res}    4   5305         1   388254   0    77    150   1030    93          0        954       1         0   matched (3) {txt}{c |}
+1031. {c |} {res}    4   5305         1   389300   1    77    151   1031    94          0       2000       0         0   matched (3) {txt}{c |}
+1032. {c |} {res}    4   5305         1     5581   0     1      2   1032    95          1       5581       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1100. {c |} {res}    4   5306         1   235339   1    47     91   1100    46         47     235339       1         0   matched (3) {txt}{c |}
+1101. {c |} {res}    4   5306         1        1   0     0      0   1101    47         47     235339       0         1   matched (3) {txt}{c |}
+1102. {c |} {res}    4   5306         1     3391   0     0      1   1102    48          0       3391       1         0   matched (3) {txt}{c |}
+1236. {c |} {res}    4   5307         1   251191   0    50     97   1236    65         50     251191       1         1   matched (3) {txt}{c |}
+1237. {c |} {res}    4   5307         1   253545   0    50     98   1237    66          0       2345       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1238. {c |} {res}    4   5307         1   256827   1    51     99   1238    67          1       5627       1         0   matched (3) {txt}{c |}
+1239. {c |} {res}    4   5307         1     9081   0     1      3   1239    68          1       9081       0         0   matched (3) {txt}{c |}
+1339. {c |} {res}    4   5308         1   224348   0    44     87   1339    51         44     224348       0         1   matched (3) {txt}{c |}
+1340. {c |} {res}    4   5308         1   226436   0    45     88   1340    52          0        336       1         0   matched (3) {txt}{c |}
+1341. {c |} {res}    4   5308         1   230010   1    46     89   1341    53          0       3910       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1342. {c |} {res}    4   5308         1     6939   0     1      2   1342    54          1       6939       1         0   matched (3) {txt}{c |}
+1488. {c |} {res}    4   5309         1   300017   0    60    116   1488    83         60     300017       1         1   matched (3) {txt}{c |}
+1489. {c |} {res}    4   5309         1   301789   1    60    117   1489    84          0       1689       1         0   matched (3) {txt}{c |}
+1490. {c |} {res}    4   5309         1     4248   0     0      1   1490    85          0       4248       0         0   matched (3) {txt}{c |}
+1583. {c |} {res}    4   5310         1   246523   0    49     95   1583    61         49     246523       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1584. {c |} {res}    4   5310         1   248906   0    49     96   1584    62          0       2306       1         0   matched (3) {txt}{c |}
+1585. {c |} {res}    4   5310         1   251896   1    50     97   1585    63          1       5296       1         0   matched (3) {txt}{c |}
+1586. {c |} {res}    4   5310         1     8102   0     1      3   1586    64          1       8102       0         0   matched (3) {txt}{c |}
+1707. {c |} {res}    4   5311         1   271517   0    54    105   1707    68         54     271517       0         1   matched (3) {txt}{c |}
+1708. {c |} {res}    4   5311         1   274577   0    54    106   1708    69          0       2077       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1709. {c |} {res}    4   5311         1   277413   1    55    107   1709    70          0       4913       0         0   matched (3) {txt}{c |}
+1710. {c |} {res}    4   5311         1     7060   0     1      2   1710    71          1       7060       1         0   matched (3) {txt}{c |}
+1861. {c |} {res}    4   5312         1   327939   0    65    127   1861   105         65     327939       0         1   matched (3) {txt}{c |}
+1862. {c |} {res}    4   5312         1   328607   0    65    127   1862   106          0          7       1         0   matched (3) {txt}{c |}
+1863. {c |} {res}    4   5312         1   330508   1    66    128   1863   107          0       1908       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1864. {c |} {res}    4   5312         1     4475   0     0      1   1864   108          0       4475       0         0   matched (3) {txt}{c |}
+1939. {c |} {res}    4   5313         1   255712   0    51     99   1939    66         51     255712       1         1   matched (3) {txt}{c |}
+1940. {c |} {res}    4   5313         1   260005   0    52    101   1940    67          0          5       1         0   matched (3) {txt}{c |}
+1942. {c |} {res}    4   5313         1   264237   1    52    102   1942    69          0       4237       0         0   matched (3) {txt}{c |}
+1943. {c |} {res}    4   5313         1     5621   0     1      2   1943    70          1       5621       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2100. {c |} {res}    4   5314         1   353283   0    70    137   2100   110         70     353283       0         1   matched (3) {txt}{c |}
+2101. {c |} {res}    4   5314         1   358615   0    71    139   2101   111          0         15       1         0   matched (3) {txt}{c |}
+2104. {c |} {res}    4   5314         1   365726   1    73    142   2104   114          1       7126       0         0   matched (3) {txt}{c |}
+2105. {c |} {res}    4   5314         1     7211   0     1      2   2105   115          1       7211       0         0   matched (3) {txt}{c |}
+2168. {c |} {res}    4   5315         1   273010   0    54    106   2168    61         54     273010       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2169. {c |} {res}    4   5315         1   275374   0    55    107   2169    62          0        674       1         0   matched (3) {txt}{c |}
+2170. {c |} {res}    4   5315         1   279367   1    55    108   2170    63          0       4667       0         0   matched (3) {txt}{c |}
+2171. {c |} {res}    4   5315         1     7562   0     1      2   2171    64          1       7562       1         0   matched (3) {txt}{c |}
+2414. {c |} {res}    4   5317         1   291402   0    58    113   2414    73         58     291402       0         1   matched (3) {txt}{c |}
+2415. {c |} {res}    4   5317         1   297189   0    59    115   2415    74          0       4789       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2416. {c |} {res}    4   5317         1   299281   1    59    116   2416    75          1       6881       1         0   matched (3) {txt}{c |}
+2417. {c |} {res}    4   5317         1     8344   0     1      3   2417    76          1       8344       0         0   matched (3) {txt}{c |}
+2639. {c |} {res}    4   5319         1   211207   0    42     82   2639    64         42     211207       1         1   matched (3) {txt}{c |}
+2640. {c |} {res}    4   5319         1   211544   0    42     82   2640    65          0         44       1         0   matched (3) {txt}{c |}
+2642. {c |} {res}    4   5319         1   212915   1    42     82   2642    67          0       1415       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2643. {c |} {res}    4   5319         1     4606   0     0      1   2643    68          0       4606       0         0   matched (3) {txt}{c |}
+2803. {c |} {res}    4   5320         1   323722   0    64    125   2803   111         64     323722       0         1   matched (3) {txt}{c |}
+2804. {c |} {res}    4   5320         1   324934   0    64    126   2804   112          0         34       1         0   matched (3) {txt}{c |}
+2805. {c |} {res}    4   5320         1   326111   1    65    126   2805   113          0       1211       0         0   matched (3) {txt}{c |}
+2806. {c |} {res}    4   5320         1     2750   0     0      1   2806   114          0       2750       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+3015. {c |} {res}    4   5322         1   298262   0    59    115   3015    89         59     298262       0         1   matched (3) {txt}{c |}
+3016. {c |} {res}    4   5322         1   299216   0    59    116   3016    90          0         16       1         0   matched (3) {txt}{c |}
+3017. {c |} {res}    4   5322         1   299216   1    59    116   3017    91          0         16       0         0   matched (3) {txt}{c |}
+3018. {c |} {res}    4   5322         1     1264   0     0      0   3018    92          0       1264       0         0   matched (3) {txt}{c |}
+3124. {c |} {res}    4   5323         1   267579   0    53    104   3124    81         53     267579       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+3125. {c |} {res}    4   5323         1   268202   0    53    104   3125    82          0        602       1         0   matched (3) {txt}{c |}
+3126. {c |} {res}    4   5323         1   270300   1    54    105   3126    83          0       2700       0         0   matched (3) {txt}{c |}
+3127. {c |} {res}    4   5323         1     4912   0     0      1   3127    84          0       4912       0         0   matched (3) {txt}{c |}
+3351. {c |} {res}    4   5325         1   270472   0    54    105   3351    74         54     270472       1         1   matched (3) {txt}{c |}
+3352. {c |} {res}    4   5325         1   272831   0    54    106   3352    75          0       2231       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+3353. {c |} {res}    4   5325         1   275779   1    55    107   3353    76          1       5179       1         0   matched (3) {txt}{c |}
+3354. {c |} {res}    4   5325         1     8061   0     1      3   3354    77          1       8061       0         0   matched (3) {txt}{c |}
+3470. {c |} {res}    4   5326         1   263239   0    52    102   3470    76         52     263239       0         1   matched (3) {txt}{c |}
+3471. {c |} {res}    4   5326         1   265317   0    53    103   3471    77          0       1217       1         0   matched (3) {txt}{c |}
+3472. {c |} {res}    4   5326         1   266945   1    53    103   3472    78          0       2845       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+3473. {c |} {res}    4   5326         1     5392   0     1      2   3473    79          1       5392       1         0   matched (3) {txt}{c |}
+3716. {c |} {res}    4   5328         1   281082   0    56    109   3716    88         56     281082       0         1   matched (3) {txt}{c |}
+3717. {c |} {res}    4   5328         1   283417   1    56    110   3717    89          0       1917       1         0   matched (3) {txt}{c |}
+3718. {c |} {res}    4   5328         1     4157   0     0      1   3718    90          0       4157       0         0   matched (3) {txt}{c |}
+3819. {c |} {res}    4   5329         1   256823   0    51     99   3819    74         51     256823       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+3820. {c |} {res}    4   5329         1   258267   0    51    100   3820    75          0        867       1         0   matched (3) {txt}{c |}
+3821. {c |} {res}    4   5329         1   260492   1    52    101   3821    76          0       3092       0         0   matched (3) {txt}{c |}
+3822. {c |} {res}    4   5329         1     5608   0     1      2   3822    77          1       5608       1         0   matched (3) {txt}{c |}
+4140. {c |} {res}    4   5332         1   176899   0    35     68   4140    44         35     176899       1         1   matched (3) {txt}{c |}
+4141. {c |} {res}    4   5332         1   181788   1    36     70   4141    45          0       4288       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+4142. {c |} {res}    4   5332         1     7868   0     1      3   4142    46          1       7868       1         0   matched (3) {txt}{c |}
+      {c BLC}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c BRC}
+
+{com}. list if d != d_ruspy | (id[_n]==id[_n+1] & d[_n+1] != d_ruspy[_n+1])
+{txt}
+      {c TLC}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c TRC}
+      {c |} {res}group     id   tniqlow       mi   d   x90   x175      n     t   x90_ru~y   mi_ruspy   usage   d_ruspy        _merge {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+ 280. {c |} {res}    4   5299         1   206259   0    41     80    280    45         41     206259       1         0   matched (3) {txt}{c |}
+ 281. {c |} {res}    4   5299         1   208342   0    41     81    281    46         41     208342       0         1   matched (3) {txt}{c |}
+ 282. {c |} {res}    4   5299         1   209200   0    41     81    282    47          0        100       1         0   matched (3) {txt}{c |}
+ 283. {c |} {res}    4   5299         1   209200   1    41     81    283    48          0        100       0         0   matched (3) {txt}{c |}
+ 408. {c |} {res}    4   5300         1   213103   0    42     82    408    56         42     213103       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+ 409. {c |} {res}    4   5300         1   213967   0    42     83    409    57         42     213967       0         1   matched (3) {txt}{c |}
+ 411. {c |} {res}    4   5300         1   219181   0    43     85    411    59          0       4181       0         0   matched (3) {txt}{c |}
+ 412. {c |} {res}    4   5300         1   222236   1    44     86    412    60          1       7236       1         0   matched (3) {txt}{c |}
+ 775. {c |} {res}    4   5303         1   283494   0    56    110    775    72         56     283494       0         0   matched (3) {txt}{c |}
+ 776. {c |} {res}    4   5303         1   285510   0    57    111    776    73         57     285510       1         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+ 777. {c |} {res}    4   5303         1   287625   0    57    111    777    74          0       1725       1         0   matched (3) {txt}{c |}
+ 778. {c |} {res}    4   5303         1   290888   1    58    113    778    75          0       4988       0         0   matched (3) {txt}{c |}
+ 894. {c |} {res}    4   5304         1   284531   0    56    110    894    74         56     284531       0         0   matched (3) {txt}{c |}
+ 895. {c |} {res}    4   5304         1   289491   0    57    112    895    75         57     289491       1         1   matched (3) {txt}{c |}
+ 896. {c |} {res}    4   5304         1   290965   0    58    113    896    76          0        965       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+ 897. {c |} {res}    4   5304         1   295512   1    59    114    897    77          1       5512       1         0   matched (3) {txt}{c |}
+1028. {c |} {res}    4   5305         1   385135   0    77    149   1028    91         77     385135       1         0   matched (3) {txt}{c |}
+1029. {c |} {res}    4   5305         1   387282   0    77    150   1029    92         77     387282       0         1   matched (3) {txt}{c |}
+1030. {c |} {res}    4   5305         1   388254   0    77    150   1030    93          0        954       1         0   matched (3) {txt}{c |}
+1031. {c |} {res}    4   5305         1   389300   1    77    151   1031    94          0       2000       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1099. {c |} {res}    4   5306         1   233929   0    46     90   1099    45         46     233929       0         0   matched (3) {txt}{c |}
+1100. {c |} {res}    4   5306         1   235339   1    47     91   1100    46         47     235339       1         0   matched (3) {txt}{c |}
+1101. {c |} {res}    4   5306         1        1   0     0      0   1101    47         47     235339       0         1   matched (3) {txt}{c |}
+1235. {c |} {res}    4   5307         1   247460   0    49     96   1235    64         49     247460       1         0   matched (3) {txt}{c |}
+1236. {c |} {res}    4   5307         1   251191   0    50     97   1236    65         50     251191       1         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1237. {c |} {res}    4   5307         1   253545   0    50     98   1237    66          0       2345       1         0   matched (3) {txt}{c |}
+1238. {c |} {res}    4   5307         1   256827   1    51     99   1238    67          1       5627       1         0   matched (3) {txt}{c |}
+1338. {c |} {res}    4   5308         1   220700   0    44     85   1338    50         44     220700       1         0   matched (3) {txt}{c |}
+1339. {c |} {res}    4   5308         1   224348   0    44     87   1339    51         44     224348       0         1   matched (3) {txt}{c |}
+1340. {c |} {res}    4   5308         1   226436   0    45     88   1340    52          0        336       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1341. {c |} {res}    4   5308         1   230010   1    46     89   1341    53          0       3910       0         0   matched (3) {txt}{c |}
+1487. {c |} {res}    4   5309         1   297628   0    59    115   1487    82         59     297628       0         0   matched (3) {txt}{c |}
+1488. {c |} {res}    4   5309         1   300017   0    60    116   1488    83         60     300017       1         1   matched (3) {txt}{c |}
+1489. {c |} {res}    4   5309         1   301789   1    60    117   1489    84          0       1689       1         0   matched (3) {txt}{c |}
+1582. {c |} {res}    4   5310         1   245705   0    49     95   1582    60         49     245705       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1583. {c |} {res}    4   5310         1   246523   0    49     95   1583    61         49     246523       0         1   matched (3) {txt}{c |}
+1584. {c |} {res}    4   5310         1   248906   0    49     96   1584    62          0       2306       1         0   matched (3) {txt}{c |}
+1585. {c |} {res}    4   5310         1   251896   1    50     97   1585    63          1       5296       1         0   matched (3) {txt}{c |}
+1706. {c |} {res}    4   5311         1   271517   0    54    105   1706    67         54     271517       1         0   matched (3) {txt}{c |}
+1707. {c |} {res}    4   5311         1   271517   0    54    105   1707    68         54     271517       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1708. {c |} {res}    4   5311         1   274577   0    54    106   1708    69          0       2077       1         0   matched (3) {txt}{c |}
+1709. {c |} {res}    4   5311         1   277413   1    55    107   1709    70          0       4913       0         0   matched (3) {txt}{c |}
+1860. {c |} {res}    4   5312         1   327878   0    65    127   1860   104         65     327878       0         0   matched (3) {txt}{c |}
+1861. {c |} {res}    4   5312         1   327939   0    65    127   1861   105         65     327939       0         1   matched (3) {txt}{c |}
+1862. {c |} {res}    4   5312         1   328607   0    65    127   1862   106          0          7       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1863. {c |} {res}    4   5312         1   330508   1    66    128   1863   107          0       1908       0         0   matched (3) {txt}{c |}
+1938. {c |} {res}    4   5313         1   252644   0    50     98   1938    65         50     252644       0         0   matched (3) {txt}{c |}
+1939. {c |} {res}    4   5313         1   255712   0    51     99   1939    66         51     255712       1         1   matched (3) {txt}{c |}
+1941. {c |} {res}    4   5313         1   262721   0    52    102   1941    68          0       2721       0         0   matched (3) {txt}{c |}
+1942. {c |} {res}    4   5313         1   264237   1    52    102   1942    69          0       4237       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2099. {c |} {res}    4   5314         1   352623   0    70    137   2099   109         70     352623       0         0   matched (3) {txt}{c |}
+2100. {c |} {res}    4   5314         1   353283   0    70    137   2100   110         70     353283       0         1   matched (3) {txt}{c |}
+2103. {c |} {res}    4   5314         1   364393   0    72    141   2103   113          1       5793       1         0   matched (3) {txt}{c |}
+2104. {c |} {res}    4   5314         1   365726   1    73    142   2104   114          1       7126       0         0   matched (3) {txt}{c |}
+2167. {c |} {res}    4   5315         1   272196   0    54    105   2167    60         54     272196       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2168. {c |} {res}    4   5315         1   273010   0    54    106   2168    61         54     273010       0         1   matched (3) {txt}{c |}
+2169. {c |} {res}    4   5315         1   275374   0    55    107   2169    62          0        674       1         0   matched (3) {txt}{c |}
+2170. {c |} {res}    4   5315         1   279367   1    55    108   2170    63          0       4667       0         0   matched (3) {txt}{c |}
+2413. {c |} {res}    4   5317         1   290363   0    58    112   2413    72         58     290363       0         0   matched (3) {txt}{c |}
+2414. {c |} {res}    4   5317         1   291402   0    58    113   2414    73         58     291402       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2415. {c |} {res}    4   5317         1   297189   0    59    115   2415    74          0       4789       1         0   matched (3) {txt}{c |}
+2416. {c |} {res}    4   5317         1   299281   1    59    116   2416    75          1       6881       1         0   matched (3) {txt}{c |}
+2638. {c |} {res}    4   5319         1   209426   0    41     81   2638    63         41     209426       0         0   matched (3) {txt}{c |}
+2639. {c |} {res}    4   5319         1   211207   0    42     82   2639    64         42     211207       1         1   matched (3) {txt}{c |}
+2641. {c |} {res}    4   5319         1   211544   0    42     82   2641    66          0         44       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2642. {c |} {res}    4   5319         1   212915   1    42     82   2642    67          0       1415       0         0   matched (3) {txt}{c |}
+2802. {c |} {res}    4   5320         1   321599   0    64    125   2802   110         64     321599       1         0   matched (3) {txt}{c |}
+2803. {c |} {res}    4   5320         1   323722   0    64    125   2803   111         64     323722       0         1   matched (3) {txt}{c |}
+2804. {c |} {res}    4   5320         1   324934   0    64    126   2804   112          0         34       1         0   matched (3) {txt}{c |}
+2805. {c |} {res}    4   5320         1   326111   1    65    126   2805   113          0       1211       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+3014. {c |} {res}    4   5322         1   296149   0    59    115   3014    88         59     296149       1         0   matched (3) {txt}{c |}
+3015. {c |} {res}    4   5322         1   298262   0    59    115   3015    89         59     298262       0         1   matched (3) {txt}{c |}
+3016. {c |} {res}    4   5322         1   299216   0    59    116   3016    90          0         16       1         0   matched (3) {txt}{c |}
+3017. {c |} {res}    4   5322         1   299216   1    59    116   3017    91          0         16       0         0   matched (3) {txt}{c |}
+3123. {c |} {res}    4   5323         1   267536   0    53    104   3123    80         53     267536       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+3124. {c |} {res}    4   5323         1   267579   0    53    104   3124    81         53     267579       0         1   matched (3) {txt}{c |}
+3125. {c |} {res}    4   5323         1   268202   0    53    104   3125    82          0        602       1         0   matched (3) {txt}{c |}
+3126. {c |} {res}    4   5323         1   270300   1    54    105   3126    83          0       2700       0         0   matched (3) {txt}{c |}
+3350. {c |} {res}    4   5325         1   268824   0    53    104   3350    73         53     268824       0         0   matched (3) {txt}{c |}
+3351. {c |} {res}    4   5325         1   270472   0    54    105   3351    74         54     270472       1         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+3352. {c |} {res}    4   5325         1   272831   0    54    106   3352    75          0       2231       1         0   matched (3) {txt}{c |}
+3353. {c |} {res}    4   5325         1   275779   1    55    107   3353    76          1       5179       1         0   matched (3) {txt}{c |}
+3469. {c |} {res}    4   5326         1   261502   0    52    101   3469    75         52     261502       1         0   matched (3) {txt}{c |}
+3470. {c |} {res}    4   5326         1   263239   0    52    102   3470    76         52     263239       0         1   matched (3) {txt}{c |}
+3471. {c |} {res}    4   5326         1   265317   0    53    103   3471    77          0       1217       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+3472. {c |} {res}    4   5326         1   266945   1    53    103   3472    78          0       2845       0         0   matched (3) {txt}{c |}
+3715. {c |} {res}    4   5328         1   280194   0    56    108   3715    87         56     280194       1         0   matched (3) {txt}{c |}
+3716. {c |} {res}    4   5328         1   281082   0    56    109   3716    88         56     281082       0         1   matched (3) {txt}{c |}
+3717. {c |} {res}    4   5328         1   283417   1    56    110   3717    89          0       1917       1         0   matched (3) {txt}{c |}
+3818. {c |} {res}    4   5329         1   255720   0    51     99   3818    73         51     255720       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+3819. {c |} {res}    4   5329         1   256823   0    51     99   3819    74         51     256823       0         1   matched (3) {txt}{c |}
+3820. {c |} {res}    4   5329         1   258267   0    51    100   3820    75          0        867       1         0   matched (3) {txt}{c |}
+3821. {c |} {res}    4   5329         1   260492   1    52    101   3821    76          0       3092       0         0   matched (3) {txt}{c |}
+4139. {c |} {res}    4   5332         1   173057   0    34     67   4139    43         34     173057       1         0   matched (3) {txt}{c |}
+4140. {c |} {res}    4   5332         1   176899   0    35     68   4140    44         35     176899       1         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+4141. {c |} {res}    4   5332         1   181788   1    36     70   4141    45          0       4288       1         0   matched (3) {txt}{c |}
+      {c BLC}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c BRC}
+
+{com}. list if d != d_ruspy
+{txt}
+      {c TLC}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c TRC}
+      {c |} {res}group     id   tniqlow       mi   d   x90   x175      n     t   x90_ru~y   mi_ruspy   usage   d_ruspy        _merge {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+ 281. {c |} {res}    4   5299         1   208342   0    41     81    281    46         41     208342       0         1   matched (3) {txt}{c |}
+ 283. {c |} {res}    4   5299         1   209200   1    41     81    283    48          0        100       0         0   matched (3) {txt}{c |}
+ 409. {c |} {res}    4   5300         1   213967   0    42     83    409    57         42     213967       0         1   matched (3) {txt}{c |}
+ 412. {c |} {res}    4   5300         1   222236   1    44     86    412    60          1       7236       1         0   matched (3) {txt}{c |}
+ 776. {c |} {res}    4   5303         1   285510   0    57    111    776    73         57     285510       1         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+ 778. {c |} {res}    4   5303         1   290888   1    58    113    778    75          0       4988       0         0   matched (3) {txt}{c |}
+ 895. {c |} {res}    4   5304         1   289491   0    57    112    895    75         57     289491       1         1   matched (3) {txt}{c |}
+ 897. {c |} {res}    4   5304         1   295512   1    59    114    897    77          1       5512       1         0   matched (3) {txt}{c |}
+1029. {c |} {res}    4   5305         1   387282   0    77    150   1029    92         77     387282       0         1   matched (3) {txt}{c |}
+1031. {c |} {res}    4   5305         1   389300   1    77    151   1031    94          0       2000       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1100. {c |} {res}    4   5306         1   235339   1    47     91   1100    46         47     235339       1         0   matched (3) {txt}{c |}
+1101. {c |} {res}    4   5306         1        1   0     0      0   1101    47         47     235339       0         1   matched (3) {txt}{c |}
+1236. {c |} {res}    4   5307         1   251191   0    50     97   1236    65         50     251191       1         1   matched (3) {txt}{c |}
+1238. {c |} {res}    4   5307         1   256827   1    51     99   1238    67          1       5627       1         0   matched (3) {txt}{c |}
+1339. {c |} {res}    4   5308         1   224348   0    44     87   1339    51         44     224348       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1341. {c |} {res}    4   5308         1   230010   1    46     89   1341    53          0       3910       0         0   matched (3) {txt}{c |}
+1488. {c |} {res}    4   5309         1   300017   0    60    116   1488    83         60     300017       1         1   matched (3) {txt}{c |}
+1489. {c |} {res}    4   5309         1   301789   1    60    117   1489    84          0       1689       1         0   matched (3) {txt}{c |}
+1583. {c |} {res}    4   5310         1   246523   0    49     95   1583    61         49     246523       0         1   matched (3) {txt}{c |}
+1585. {c |} {res}    4   5310         1   251896   1    50     97   1585    63          1       5296       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1707. {c |} {res}    4   5311         1   271517   0    54    105   1707    68         54     271517       0         1   matched (3) {txt}{c |}
+1709. {c |} {res}    4   5311         1   277413   1    55    107   1709    70          0       4913       0         0   matched (3) {txt}{c |}
+1861. {c |} {res}    4   5312         1   327939   0    65    127   1861   105         65     327939       0         1   matched (3) {txt}{c |}
+1863. {c |} {res}    4   5312         1   330508   1    66    128   1863   107          0       1908       0         0   matched (3) {txt}{c |}
+1939. {c |} {res}    4   5313         1   255712   0    51     99   1939    66         51     255712       1         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1942. {c |} {res}    4   5313         1   264237   1    52    102   1942    69          0       4237       0         0   matched (3) {txt}{c |}
+2100. {c |} {res}    4   5314         1   353283   0    70    137   2100   110         70     353283       0         1   matched (3) {txt}{c |}
+2104. {c |} {res}    4   5314         1   365726   1    73    142   2104   114          1       7126       0         0   matched (3) {txt}{c |}
+2168. {c |} {res}    4   5315         1   273010   0    54    106   2168    61         54     273010       0         1   matched (3) {txt}{c |}
+2170. {c |} {res}    4   5315         1   279367   1    55    108   2170    63          0       4667       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2414. {c |} {res}    4   5317         1   291402   0    58    113   2414    73         58     291402       0         1   matched (3) {txt}{c |}
+2416. {c |} {res}    4   5317         1   299281   1    59    116   2416    75          1       6881       1         0   matched (3) {txt}{c |}
+2639. {c |} {res}    4   5319         1   211207   0    42     82   2639    64         42     211207       1         1   matched (3) {txt}{c |}
+2642. {c |} {res}    4   5319         1   212915   1    42     82   2642    67          0       1415       0         0   matched (3) {txt}{c |}
+2803. {c |} {res}    4   5320         1   323722   0    64    125   2803   111         64     323722       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2805. {c |} {res}    4   5320         1   326111   1    65    126   2805   113          0       1211       0         0   matched (3) {txt}{c |}
+3015. {c |} {res}    4   5322         1   298262   0    59    115   3015    89         59     298262       0         1   matched (3) {txt}{c |}
+3017. {c |} {res}    4   5322         1   299216   1    59    116   3017    91          0         16       0         0   matched (3) {txt}{c |}
+3124. {c |} {res}    4   5323         1   267579   0    53    104   3124    81         53     267579       0         1   matched (3) {txt}{c |}
+3126. {c |} {res}    4   5323         1   270300   1    54    105   3126    83          0       2700       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+3351. {c |} {res}    4   5325         1   270472   0    54    105   3351    74         54     270472       1         1   matched (3) {txt}{c |}
+3353. {c |} {res}    4   5325         1   275779   1    55    107   3353    76          1       5179       1         0   matched (3) {txt}{c |}
+3470. {c |} {res}    4   5326         1   263239   0    52    102   3470    76         52     263239       0         1   matched (3) {txt}{c |}
+3472. {c |} {res}    4   5326         1   266945   1    53    103   3472    78          0       2845       0         0   matched (3) {txt}{c |}
+3716. {c |} {res}    4   5328         1   281082   0    56    109   3716    88         56     281082       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+3717. {c |} {res}    4   5328         1   283417   1    56    110   3717    89          0       1917       1         0   matched (3) {txt}{c |}
+3819. {c |} {res}    4   5329         1   256823   0    51     99   3819    74         51     256823       0         1   matched (3) {txt}{c |}
+3821. {c |} {res}    4   5329         1   260492   1    52    101   3821    76          0       3092       0         0   matched (3) {txt}{c |}
+4140. {c |} {res}    4   5332         1   176899   0    35     68   4140    44         35     176899       1         1   matched (3) {txt}{c |}
+4141. {c |} {res}    4   5332         1   181788   1    36     70   4141    45          0       4288       1         0   matched (3) {txt}{c |}
+      {c BLC}{hline 7}{c -}{hline 6}{c -}{hline 9}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 5}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c BRC}
+
+{com}. clear
+
+. use "C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\ruspy_group4.dta"
+
+. descr
+
+{txt}Contains data from {res}C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\ruspy_group4.dta
+{txt}  obs:{res}         4,329                          
+{txt} vars:{res}             6                          8 Feb 2022 16:18
+{txt}{hline}
+              storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:id             }{txt}{bind: int     }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}Bus_ID{p_end}
+{p 0 48}{bind:t              }{txt}{bind: int     }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x90_ruspy      }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mi_ruspy       }{txt}{bind: long    }{bind:{txt}%12.0g    }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:usage          }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:d_ruspy        }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{txt}{hline}
+Sorted by: {res}id  t
+
+{com}. import delimited "C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\rep_group_1_to_4_5000miles.csv"
+{res}{err}no; data in memory would be lost
+{txt}{search r(4), local:r(4);}
+
+{com}. import delimited "C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\rep_group_1_to_4_5000miles.csv" , clear
+{res}{text}(6 vars, 8,260 obs)
+
+{com}. descr
+
+{txt}Contains data
+  obs:{res}         8,260                          
+{txt} vars:{res}             6                          
+{txt}{hline}
+              storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:bus_id         }{txt}{bind: int     }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}Bus_ID{p_end}
+{p 0 48}{bind:period         }{txt}{bind: int     }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:state          }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mileage        }{txt}{bind: long    }{bind:{txt}%12.0g    }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:usage          }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:decision       }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{txt}{hline}
+Sorted by: 
+{res}     Note: Dataset has changed since last saved.
+
+{com}. rename bus_id id
+{res}
+{com}. rename period m
+{res}
+{com}. rename state x90
+{res}
+{com}. rename decision d
+{res}
+{com}. rename d d_ruspy
+{res}
+{com}. rename x90 x90_ruspy
+{res}
+{com}. rename mileage mi_ruspy
+{res}
+{com}. descr
+
+{txt}Contains data
+  obs:{res}         8,260                          
+{txt} vars:{res}             6                          
+{txt}{hline}
+              storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:id             }{txt}{bind: int     }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}Bus_ID{p_end}
+{p 0 48}{bind:m              }{txt}{bind: int     }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x90_ruspy      }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mi_ruspy       }{txt}{bind: long    }{bind:{txt}%12.0g    }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:usage          }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:d_ruspy        }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{txt}{hline}
+Sorted by: 
+{res}     Note: Dataset has changed since last saved.
+
+{com}. summ id
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 10}id {c |}{res}      8,260    4816.583    601.7782       2386       5333
+
+{com}. sort id m
+
+. save ruspy_all
+{txt}file ruspy_all.dta saved
+
+{com}. dir R*.dta
+{txt}  93.0k   2/09/22 11:39  {res}ruspy_all.dta     
+{txt}  50.8k   2/08/22 16:18  {res}ruspy_group4.dta  
+{txt} 168.7k  11/02/18 14:28  {res}RustEmet1987.dta  
+{txt} 216.5k  10/01/20 13:00  {res}RustEmet1987_col1.dta
+{txt} 309.2k   2/08/22 18:05  {res}RustEmet1987_col1_ALL.dta
+{txt} 238.2k  10/01/20 13:00  {res}RustEmet1987_col2.dta
+{txt} 340.3k   2/08/22 18:05  {res}RustEmet1987_col2_ALL.dta
+{txt} 151.1k  10/13/20 11:53  {res}RustEmet1987_col2_AM.dta
+{txt} 453.2k  10/01/20 13:00  {res}RustEmet1987_col3.dta
+{txt} 647.4k   2/08/22 18:05  {res}RustEmet1987_col3_ALL.dta
+{txt} 717.9k   2/25/21 20:22  {res}Rust_AM_replicate.dta
+
+{com}. descr using RustEmet*.dta
+{err}{p 0 4 2}
+file RustEmet*.dta
+not found
+{p_end}
+{txt}{search r(601), local:r(601);}
+
+{com}. descr using RustEmet1987_col3_ALL.dta
+
+{txt}Contains data                                 {res}OxMetrics data
+{txt}  obs:{res}         8,260                          
+{txt} vars:{res}            10                          
+{txt}{hline}
+              storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:group          }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:id             }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:s              }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:t              }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mi             }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:d              }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x90            }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:dx90           }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x175           }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:dx175          }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{txt}{hline}
+Sorted by: 
+
+{com}. count
+  {res}8,260
+
+{com}. rename m s
+{res}
+{com}. sort id s
+
+. save ruspy_all , replace
+{txt}file ruspy_all.dta saved
+
+{com}. use RustEmet1987_col3_ALL
+{txt}(OxMetrics data)
+
+{com}. descr
+
+{txt}Contains data from {res}RustEmet1987_col3_ALL.dta
+{txt}  obs:{res}         8,260                          OxMetrics data
+{txt} vars:{res}            10                          
+{txt}{hline}
+              storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:group          }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:id             }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:s              }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:t              }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mi             }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:d              }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x90            }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:dx90           }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x175           }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:dx175          }{txt}{bind: double  }{bind:{txt}          }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{txt}{hline}
+Sorted by: 
+
+{com}. format %5.0f _all
+
+. format %8.0f mi
+
+. descr
+
+{txt}Contains data from {res}RustEmet1987_col3_ALL.dta
+{txt}  obs:{res}         8,260                          OxMetrics data
+{txt} vars:{res}            10                          
+{txt}{hline}
+              storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:group          }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:id             }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:s              }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:t              }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mi             }{txt}{bind: double  }{bind:{txt}%8.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:d              }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x90            }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:dx90           }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x175           }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:dx175          }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{txt}{hline}
+Sorted by: 
+{res}     Note: Dataset has changed since last saved.
+
+{com}. sort id s
+
+. merge 1:1 id s using "C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\ruspy_all.dta"
+{res}
+{txt}{col 5}Result{col 38}# of obs.
+{col 5}{hline 41}
+{col 5}not matched{col 30}{res}               0
+{txt}{col 5}matched{col 30}{res}           8,260{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. descr
+
+{txt}Contains data from {res}RustEmet1987_col3_ALL.dta
+{txt}  obs:{res}         8,260                          OxMetrics data
+{txt} vars:{res}            15                          
+{txt}{hline}
+              storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:group          }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:id             }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:s              }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:t              }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mi             }{txt}{bind: double  }{bind:{txt}%8.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:d              }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x90            }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:dx90           }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x175           }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:dx175          }{txt}{bind: double  }{bind:{txt}%5.0f     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:x90_ruspy      }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mi_ruspy       }{txt}{bind: long    }{bind:{txt}%12.0g    }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:usage          }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:d_ruspy        }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:_merge         }{txt}{bind: byte    }{bind:{txt}%23.0g    }{space 1}{bind:_merge   }{bind:  }{res}{res}{p_end}
+{txt}{hline}
+Sorted by: {res}id  s
+     Note: Dataset has changed since last saved.
+
+{com}. list if d != d_ruspy
+{txt}
+      {c TLC}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c TRC}
+      {c |} {res}group     id     s   t       mi   d   x90   dx90   x175   dx175   x90_ru~y   mi_ruspy   usage   d_ruspy        _merge {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+ 315. {c |} {res}    3   4339    48   0   186507   1    37      0     72       0         37     186507       0         0   matched (3) {txt}{c |}
+ 316. {c |} {res}    3   4339    49   0        1   0     0      0      0       0         37     186507       0         1   matched (3) {txt}{c |}
+ 604. {c |} {res}    3   4343    57   0   194539   0    38      1     75       2         38     194539       0         1   matched (3) {txt}{c |}
+ 610. {c |} {res}    3   4343    63   0   217674   1    43      2     84       4          3      18874       0         0   matched (3) {txt}{c |}
+ 733. {c |} {res}    3   4345    46   0   187690   1    37      0     72       0         37     187690       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+ 735. {c |} {res}    3   4345    48   0        1   0     0      0      0       1         37     187690       0         1   matched (3) {txt}{c |}
+ 866. {c |} {res}    3   4347    39   0   162477   0    32      0     63       0         32     162477       0         1   matched (3) {txt}{c |}
+ 867. {c |} {res}    3   4347    40   0   163062   1    32      0     63       1          0        562       1         0   matched (3) {txt}{c |}
+1136. {c |} {res}    3   4351    29   0   121326   0    24      0     47       1         24     121326       1         1   matched (3) {txt}{c |}
+1139. {c |} {res}    3   4351    32   0   125643   1    25      0     48       0          0        843       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1719. {c |} {res}    3   4359    52   0   185507   0    37      0     72       1         37     185507       1         1   matched (3) {txt}{c |}
+1720. {c |} {res}    3   4359    53   0   188046   1    37      0     73       0          0        346       1         0   matched (3) {txt}{c |}
+1803. {c |} {res}    3   4360    66   0   243338   0    48      0     94       0         48     243338       1         1   matched (3) {txt}{c |}
+1804. {c |} {res}    3   4360    67   0   243698   1    48      0     94       0          0        298       1         0   matched (3) {txt}{c |}
+1917. {c |} {res}    3   4362    40   0   146030   0    29      0     56       0         29     146030       1         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+1919. {c |} {res}    3   4362    42   0   146516   1    29      0     56       0          0         16       0         0   matched (3) {txt}{c |}
+2076. {c |} {res}    3   4364    59   0   215478   0    43      0     83       0         43     215478       1         1   matched (3) {txt}{c |}
+2080. {c |} {res}    3   4364    63   0   215972   1    43      0     83       1          0         72       0         0   matched (3) {txt}{c |}
+2194. {c |} {res}    3   4366    37   0   156559   0    31      1     60       2         31     156559       1         1   matched (3) {txt}{c |}
+2195. {c |} {res}    3   4366    38   0   160700   1    32      2     62       4          0       4100       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2287. {c |} {res}    3   4367    60   0   234726   0    46      1     91       0         46     234726       0         1   matched (3) {txt}{c |}
+2289. {c |} {res}    3   4367    62   0   235223   1    47      0     91       0          0         23       0         0   matched (3) {txt}{c |}
+2568. {c |} {res}    3   4371    61   0   231336   0    46      0     89       1         46     231336       1         1   matched (3) {txt}{c |}
+2569. {c |} {res}    3   4371    62   0   232400   1    46      0     90       0          0        300       1         0   matched (3) {txt}{c |}
+2637. {c |} {res}    3   4372    60   0   231073   0    46      0     89       1         46     231073       1         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2642. {c |} {res}    3   4372    65   0   232819   1    46      0     90       0          0        119       0         0   matched (3) {txt}{c |}
+2708. {c |} {res}    3   4373    61   0   229100   1    45      0     89       0         45     229100       0         0   matched (3) {txt}{c |}
+2709. {c |} {res}    3   4373    62   0        1   0     0      0      0       1         45     229150       0         1   matched (3) {txt}{c |}
+2760. {c |} {res}    3   4374    43   0   157571   0    31      0     61       0         31     157571       1         1   matched (3) {txt}{c |}
+2761. {c |} {res}    3   4374    44   0   159231   1    31      0     61       1          0         31       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2846. {c |} {res}    3   4375    59   0   236081   0    47      0     91       0         47     236081       1         1   matched (3) {txt}{c |}
+2847. {c |} {res}    3   4375    60   0   236537   1    47      0     91       0          0         37       1         0   matched (3) {txt}{c |}
+2893. {c |} {res}    3   4376    36   0   141096   0    28      0     54       1         28     141096       0         1   matched (3) {txt}{c |}
+2895. {c |} {res}    3   4376    38   0   143298   1    28      1     55       2          0       1398       0         0   matched (3) {txt}{c |}
+2959. {c |} {res}    3   4377    32   0   147432   0    29      0     57       1         29     147432       1         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+2962. {c |} {res}    3   4377    35   0   152173   1    30      0     59       1          0       2273       0         0   matched (3) {txt}{c |}
+3185. {c |} {res}    3   4380    48   0   193865   0    38      0     75       0         38     193865       0         1   matched (3) {txt}{c |}
+3188. {c |} {res}    3   4380    51   0   194948   1    38      0     75       0          0         48       0         0   matched (3) {txt}{c |}
+3552. {c |} {res}    3   4385    65   0   215093   1    43      0     83       0         43     215093       0         0   matched (3) {txt}{c |}
+3553. {c |} {res}    3   4385    66   0        1   0     0      0      0       0         43     215093       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+4212. {c |} {res}    4   5299    46   0   208342   0    41      0     81       0         41     208342       0         1   matched (3) {txt}{c |}
+4214. {c |} {res}    4   5299    48   0   209200   1    41      0     81       0          0        100       0         0   matched (3) {txt}{c |}
+4340. {c |} {res}    4   5300    57   0   213967   0    42      1     83       1         42     213967       0         1   matched (3) {txt}{c |}
+4343. {c |} {res}    4   5300    60   0   222236   1    44      1     86       3          1       7236       1         0   matched (3) {txt}{c |}
+4707. {c |} {res}    4   5303    73   0   285510   0    57      0    111       0         57     285510       1         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+4709. {c |} {res}    4   5303    75   0   290888   1    58      1    113       2          0       4988       0         0   matched (3) {txt}{c |}
+4826. {c |} {res}    4   5304    75   0   289491   0    57      1    112       1         57     289491       1         1   matched (3) {txt}{c |}
+4828. {c |} {res}    4   5304    77   0   295512   1    59      1    114       3          1       5512       1         0   matched (3) {txt}{c |}
+4960. {c |} {res}    4   5305    92   0   387282   0    77      0    150       0         77     387282       0         1   matched (3) {txt}{c |}
+4961. {c |} {res}    4   5305    93   0   388254   1    77      0    150       0          0        954       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+5031. {c |} {res}    4   5306    46   0   235339   1    47      0     91       0         47     235339       1         0   matched (3) {txt}{c |}
+5032. {c |} {res}    4   5306    47   0        1   0     0      0      0       1         47     235339       0         1   matched (3) {txt}{c |}
+5167. {c |} {res}    4   5307    65   0   251191   0    50      0     97       1         50     251191       1         1   matched (3) {txt}{c |}
+5169. {c |} {res}    4   5307    67   0   256827   1    51      1     99       3          1       5627       1         0   matched (3) {txt}{c |}
+5270. {c |} {res}    4   5308    51   0   224348   0    44      1     87       1         44     224348       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+5271. {c |} {res}    4   5308    52   0   226436   1    45      0     88       1          0        336       1         0   matched (3) {txt}{c |}
+5419. {c |} {res}    4   5309    83   0   300017   0    60      0    116       1         60     300017       1         1   matched (3) {txt}{c |}
+5420. {c |} {res}    4   5309    84   0   301789   1    60      0    117       1          0       1689       1         0   matched (3) {txt}{c |}
+5514. {c |} {res}    4   5310    61   0   246523   0    49      0     95       1         49     246523       0         1   matched (3) {txt}{c |}
+5516. {c |} {res}    4   5310    63   0   251896   1    50      1     97       3          1       5296       1         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+5638. {c |} {res}    4   5311    68   0   271517   0    54      0    105       1         54     271517       0         1   matched (3) {txt}{c |}
+5640. {c |} {res}    4   5311    70   0   277413   1    55      1    107       2          0       4913       0         0   matched (3) {txt}{c |}
+5792. {c |} {res}    4   5312   105   0   327939   0    65      0    127       0         65     327939       0         1   matched (3) {txt}{c |}
+5794. {c |} {res}    4   5312   107   0   330508   1    66      0    128       1          0       1908       0         0   matched (3) {txt}{c |}
+5870. {c |} {res}    4   5313    66   0   255712   0    51      1     99       2         51     255712       1         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+5873. {c |} {res}    4   5313    69   0   264237   1    52      1    102       2          0       4237       0         0   matched (3) {txt}{c |}
+6031. {c |} {res}    4   5314   110   0   353283   0    70      1    137       2         70     353283       0         1   matched (3) {txt}{c |}
+6035. {c |} {res}    4   5314   114   0   365726   1    73      1    142       2          1       7126       0         0   matched (3) {txt}{c |}
+6099. {c |} {res}    4   5315    61   0   273010   0    54      1    106       1         54     273010       0         1   matched (3) {txt}{c |}
+6101. {c |} {res}    4   5315    63   0   279367   1    55      1    108       2          0       4667       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+6345. {c |} {res}    4   5317    73   0   291402   0    58      1    113       2         58     291402       0         1   matched (3) {txt}{c |}
+6347. {c |} {res}    4   5317    75   0   299281   1    59      1    116       3          1       6881       1         0   matched (3) {txt}{c |}
+6570. {c |} {res}    4   5319    64   0   211207   0    42      0     82       0         42     211207       1         1   matched (3) {txt}{c |}
+6573. {c |} {res}    4   5319    67   0   212915   1    42      0     82       1          0       1415       0         0   matched (3) {txt}{c |}
+6734. {c |} {res}    4   5320   111   0   323722   0    64      0    125       1         64     323722       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+6736. {c |} {res}    4   5320   113   0   326111   1    65      0    126       1          0       1211       0         0   matched (3) {txt}{c |}
+6946. {c |} {res}    4   5322    89   0   298262   0    59      0    115       1         59     298262       0         1   matched (3) {txt}{c |}
+6948. {c |} {res}    4   5322    91   0   299216   1    59      0    116       0          0         16       0         0   matched (3) {txt}{c |}
+7055. {c |} {res}    4   5323    81   0   267579   0    53      0    104       0         53     267579       0         1   matched (3) {txt}{c |}
+7057. {c |} {res}    4   5323    83   0   270300   1    54      0    105       1          0       2700       0         0   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+7282. {c |} {res}    4   5325    74   0   270472   0    54      0    105       1         54     270472       1         1   matched (3) {txt}{c |}
+7284. {c |} {res}    4   5325    76   0   275779   1    55      1    107       3          1       5179       1         0   matched (3) {txt}{c |}
+7401. {c |} {res}    4   5326    76   0   263239   0    52      1    102       1         52     263239       0         1   matched (3) {txt}{c |}
+7403. {c |} {res}    4   5326    78   0   266945   1    53      1    103       2          0       2845       0         0   matched (3) {txt}{c |}
+7647. {c |} {res}    4   5328    88   0   281082   0    56      0    109       1         56     281082       0         1   matched (3) {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c RT}
+7648. {c |} {res}    4   5328    89   0   283417   1    56      0    110       1          0       1917       1         0   matched (3) {txt}{c |}
+7750. {c |} {res}    4   5329    74   0   256823   0    51      0     99       1         51     256823       0         1   matched (3) {txt}{c |}
+7752. {c |} {res}    4   5329    76   0   260492   1    52      1    101       2          0       3092       0         0   matched (3) {txt}{c |}
+8071. {c |} {res}    4   5332    44   0   176899   0    35      1     68       2         35     176899       1         1   matched (3) {txt}{c |}
+8072. {c |} {res}    4   5332    45   0   181788   1    36      1     70       3          0       4288       1         0   matched (3) {txt}{c |}
+      {c BLC}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c BRC}
+
+{com}. sort id s
+
+. list id s x90 dx90 in 1/20
+{txt}
+     {c TLC}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c TRC}
+     {c |} {res}  id    s   x90   dx90 {txt}{c |}
+     {c LT}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c RT}
+  1. {c |} {res}2386    0     0      1 {txt}{c |}
+  2. {c |} {res}2386    1     1      0 {txt}{c |}
+  3. {c |} {res}2386    2     1      1 {txt}{c |}
+  4. {c |} {res}2386    3     2      1 {txt}{c |}
+  5. {c |} {res}2386    4     3      0 {txt}{c |}
+     {c LT}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c RT}
+  6. {c |} {res}2386    5     3      1 {txt}{c |}
+  7. {c |} {res}2386    6     4      1 {txt}{c |}
+  8. {c |} {res}2386    7     5      1 {txt}{c |}
+  9. {c |} {res}2386    8     6      0 {txt}{c |}
+ 10. {c |} {res}2386    9     6      1 {txt}{c |}
+     {c LT}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c RT}
+ 11. {c |} {res}2386   10     7      1 {txt}{c |}
+ 12. {c |} {res}2386   11     8      0 {txt}{c |}
+ 13. {c |} {res}2386   12     8      1 {txt}{c |}
+ 14. {c |} {res}2386   13     9      1 {txt}{c |}
+ 15. {c |} {res}2386   14    10      0 {txt}{c |}
+     {c LT}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c RT}
+ 16. {c |} {res}2386   15    10      1 {txt}{c |}
+ 17. {c |} {res}2386   16    11      0 {txt}{c |}
+ 18. {c |} {res}2386   17    11      1 {txt}{c |}
+ 19. {c |} {res}2386   18    12      1 {txt}{c |}
+ 20. {c |} {res}2386   19    13      0 {txt}{c |}
+     {c BLC}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c BRC}
+
+{com}. list id s x90 dx90 mi in 1/20
+{txt}
+     {c TLC}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c -}{hline 7}{c TRC}
+     {c |} {res}  id    s   x90   dx90      mi {txt}{c |}
+     {c LT}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c -}{hline 7}{c RT}
+  1. {c |} {res}2386    0     0      1    2208 {txt}{c |}
+  2. {c |} {res}2386    1     1      0    5418 {txt}{c |}
+  3. {c |} {res}2386    2     1      1    8547 {txt}{c |}
+  4. {c |} {res}2386    3     2      1   11566 {txt}{c |}
+  5. {c |} {res}2386    4     3      0   15890 {txt}{c |}
+     {c LT}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c -}{hline 7}{c RT}
+  6. {c |} {res}2386    5     3      1   19434 {txt}{c |}
+  7. {c |} {res}2386    6     4      1   23000 {txt}{c |}
+  8. {c |} {res}2386    7     5      1   26282 {txt}{c |}
+  9. {c |} {res}2386    8     6      0   30322 {txt}{c |}
+ 10. {c |} {res}2386    9     6      1   34604 {txt}{c |}
+     {c LT}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c -}{hline 7}{c RT}
+ 11. {c |} {res}2386   10     7      1   36784 {txt}{c |}
+ 12. {c |} {res}2386   11     8      0   40160 {txt}{c |}
+ 13. {c |} {res}2386   12     8      1   43337 {txt}{c |}
+ 14. {c |} {res}2386   13     9      1   46509 {txt}{c |}
+ 15. {c |} {res}2386   14    10      0   50725 {txt}{c |}
+     {c LT}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c -}{hline 7}{c RT}
+ 16. {c |} {res}2386   15    10      1   52691 {txt}{c |}
+ 17. {c |} {res}2386   16    11      0   55462 {txt}{c |}
+ 18. {c |} {res}2386   17    11      1   58783 {txt}{c |}
+ 19. {c |} {res}2386   18    12      1   61836 {txt}{c |}
+ 20. {c |} {res}2386   19    13      0   65962 {txt}{c |}
+     {c BLC}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c -}{hline 7}{c BRC}
+
+{com}. qui by id : gen dx90_ruspy = x90_ruspy[_n+1] - (1-d_ruspy)*x90_ruspy
+
+. list id s x90 dx90 dx90_ruspy mi in 1/20
+{txt}
+     {c TLC}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c -}{hline 10}{c -}{hline 7}{c TRC}
+     {c |} {res}  id    s   x90   dx90   dx90_r~y      mi {txt}{c |}
+     {c LT}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c -}{hline 10}{c -}{hline 7}{c RT}
+  1. {c |} {res}2386    0     0      1          1    2208 {txt}{c |}
+  2. {c |} {res}2386    1     1      0          0    5418 {txt}{c |}
+  3. {c |} {res}2386    2     1      1          1    8547 {txt}{c |}
+  4. {c |} {res}2386    3     2      1          1   11566 {txt}{c |}
+  5. {c |} {res}2386    4     3      0          0   15890 {txt}{c |}
+     {c LT}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c -}{hline 10}{c -}{hline 7}{c RT}
+  6. {c |} {res}2386    5     3      1          1   19434 {txt}{c |}
+  7. {c |} {res}2386    6     4      1          1   23000 {txt}{c |}
+  8. {c |} {res}2386    7     5      1          1   26282 {txt}{c |}
+  9. {c |} {res}2386    8     6      0          0   30322 {txt}{c |}
+ 10. {c |} {res}2386    9     6      1          1   34604 {txt}{c |}
+     {c LT}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c -}{hline 10}{c -}{hline 7}{c RT}
+ 11. {c |} {res}2386   10     7      1          1   36784 {txt}{c |}
+ 12. {c |} {res}2386   11     8      0          0   40160 {txt}{c |}
+ 13. {c |} {res}2386   12     8      1          1   43337 {txt}{c |}
+ 14. {c |} {res}2386   13     9      1          1   46509 {txt}{c |}
+ 15. {c |} {res}2386   14    10      0          0   50725 {txt}{c |}
+     {c LT}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c -}{hline 10}{c -}{hline 7}{c RT}
+ 16. {c |} {res}2386   15    10      1          1   52691 {txt}{c |}
+ 17. {c |} {res}2386   16    11      0          0   55462 {txt}{c |}
+ 18. {c |} {res}2386   17    11      1          1   58783 {txt}{c |}
+ 19. {c |} {res}2386   18    12      1          1   61836 {txt}{c |}
+ 20. {c |} {res}2386   19    13      0          0   65962 {txt}{c |}
+     {c BLC}{hline 6}{c -}{hline 4}{c -}{hline 5}{c -}{hline 6}{c -}{hline 10}{c -}{hline 7}{c BRC}
+
+{com}. list if dx90!=dx90_ruspy
+{txt}
+      {c TLC}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c -}{hline 10}{c TRC}
+      {c |} {res}group     id     s   t       mi   d   x90   dx90   x175   dx175   x90_ru~y   mi_ruspy   usage   d_ruspy        _merge   dx90_r~y {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c -}{hline 10}{c RT}
+ 604. {c |} {res}    3   4343    57   0   194539   0    38      1     75       2         38     194539       0         1   matched (3)          0 {txt}{c |}
+ 605. {c |} {res}    3   4343    58   0   199019   0    39      1     77       1          0        219       1         0   matched (3)          0 {txt}{c |}
+ 610. {c |} {res}    3   4343    63   0   217674   1    43      2     84       4          3      18874       0         0   matched (3)          1 {txt}{c |}
+ 611. {c |} {res}    3   4343    64   0    20707   0     2      2      4       4          4      20707       1         0   matched (3)          0 {txt}{c |}
+1137. {c |} {res}    3   4351    30   0   124837   0    24      1     48       0          0         37       1         0   matched (3)          0 {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c -}{hline 10}{c RT}
+2194. {c |} {res}    3   4366    37   0   156559   0    31      1     60       2         31     156559       1         1   matched (3)          0 {txt}{c |}
+2287. {c |} {res}    3   4367    60   0   234726   0    46      1     91       0         46     234726       0         1   matched (3)          0 {txt}{c |}
+2961. {c |} {res}    3   4377    34   0   149925   0    29      1     58       1          0         25       0         0   matched (3)          0 {txt}{c |}
+4340. {c |} {res}    4   5300    57   0   213967   0    42      1     83       1         42     213967       0         1   matched (3)          0 {txt}{c |}
+4343. {c |} {res}    4   5300    60   0   222236   1    44      1     86       3          1       7236       1         0   matched (3)          0 {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c -}{hline 10}{c RT}
+4708. {c |} {res}    4   5303    74   0   287625   0    57      1    111       2          0       1725       1         0   matched (3)          0 {txt}{c |}
+4826. {c |} {res}    4   5304    75   0   289491   0    57      1    112       1         57     289491       1         1   matched (3)          0 {txt}{c |}
+4828. {c |} {res}    4   5304    77   0   295512   1    59      1    114       3          1       5512       1         0   matched (3)          0 {txt}{c |}
+5169. {c |} {res}    4   5307    67   0   256827   1    51      1     99       3          1       5627       1         0   matched (3)          0 {txt}{c |}
+5270. {c |} {res}    4   5308    51   0   224348   0    44      1     87       1         44     224348       0         1   matched (3)          0 {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c -}{hline 10}{c RT}
+5516. {c |} {res}    4   5310    63   0   251896   1    50      1     97       3          1       5296       1         0   matched (3)          0 {txt}{c |}
+5639. {c |} {res}    4   5311    69   0   274577   0    54      1    106       1          0       2077       1         0   matched (3)          0 {txt}{c |}
+5793. {c |} {res}    4   5312   106   0   328607   0    65      1    127       1          0          7       1         0   matched (3)          0 {txt}{c |}
+5870. {c |} {res}    4   5313    66   0   255712   0    51      1     99       2         51     255712       1         1   matched (3)          0 {txt}{c |}
+6031. {c |} {res}    4   5314   110   0   353283   0    70      1    137       2         70     353283       0         1   matched (3)          0 {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c -}{hline 10}{c RT}
+6032. {c |} {res}    4   5314   111   0   358615   0    71      1    139       1          0         15       1         0   matched (3)          0 {txt}{c |}
+6033. {c |} {res}    4   5314   112   0   361319   0    72      0    140       1          0       2719       0         0   matched (3)          1 {txt}{c |}
+6034. {c |} {res}    4   5314   113   0   364393   0    72      1    141       1          1       5793       1         0   matched (3)          0 {txt}{c |}
+6035. {c |} {res}    4   5314   114   0   365726   1    73      1    142       2          1       7126       0         0   matched (3)          0 {txt}{c |}
+6099. {c |} {res}    4   5315    61   0   273010   0    54      1    106       1         54     273010       0         1   matched (3)          0 {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c -}{hline 10}{c RT}
+6345. {c |} {res}    4   5317    73   0   291402   0    58      1    113       2         58     291402       0         1   matched (3)          0 {txt}{c |}
+6346. {c |} {res}    4   5317    74   0   297189   0    59      0    115       1          0       4789       1         0   matched (3)          1 {txt}{c |}
+6347. {c |} {res}    4   5317    75   0   299281   1    59      1    116       3          1       6881       1         0   matched (3)          0 {txt}{c |}
+6735. {c |} {res}    4   5320   112   0   324934   0    64      1    126       0          0         34       1         0   matched (3)          0 {txt}{c |}
+7056. {c |} {res}    4   5323    82   0   268202   0    53      1    104       1          0        602       1         0   matched (3)          0 {txt}{c |}
+      {c LT}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c -}{hline 10}{c RT}
+7284. {c |} {res}    4   5325    76   0   275779   1    55      1    107       3          1       5179       1         0   matched (3)          0 {txt}{c |}
+7401. {c |} {res}    4   5326    76   0   263239   0    52      1    102       1         52     263239       0         1   matched (3)          0 {txt}{c |}
+7751. {c |} {res}    4   5329    75   0   258267   0    51      1    100       1          0        867       1         0   matched (3)          0 {txt}{c |}
+8071. {c |} {res}    4   5332    44   0   176899   0    35      1     68       2         35     176899       1         1   matched (3)          0 {txt}{c |}
+      {c BLC}{hline 7}{c -}{hline 6}{c -}{hline 5}{c -}{hline 3}{c -}{hline 8}{c -}{hline 3}{c -}{hline 5}{c -}{hline 6}{c -}{hline 6}{c -}{hline 7}{c -}{hline 10}{c -}{hline 10}{c -}{hline 7}{c -}{hline 9}{c -}{hline 13}{c -}{hline 10}{c BRC}
+
+{com}. tab dx90 if group==4
+
+       {txt}dx90 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      1,693       39.45       39.45
+{txt}          1 {c |}{res}      2,544       59.27       98.72
+{txt}          2 {c |}{res}         55        1.28      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      4,292      100.00
+
+{com}. tab dx90 if group==4
+
+       {txt}dx90 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      1,693       39.45       39.45
+{txt}          1 {c |}{res}      2,544       59.27       98.72
+{txt}          2 {c |}{res}         55        1.28      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      4,292      100.00
+
+{com}. tab dx90_ruspy if group==4
+
+ {txt}dx90_ruspy {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      1,715       39.96       39.96
+{txt}          1 {c |}{res}      2,522       58.76       98.72
+{txt}          2 {c |}{res}         55        1.28      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      4,292      100.00
+
+{com}. tab dx90_ruspy if group!=4
+
+ {txt}dx90_ruspy {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      1,189       30.77       30.77
+{txt}          1 {c |}{res}      2,635       68.19       98.96
+{txt}          2 {c |}{res}         40        1.04      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      3,864      100.00
+
+{com}. tab dx90 if group!=4
+
+       {txt}dx90 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      1,182       30.59       30.59
+{txt}          1 {c |}{res}      2,640       68.32       98.91
+{txt}          2 {c |}{res}         42        1.09      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      3,864      100.00
+
+{com}. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\Chris\Documents\OFFICE\software\Microeconometrics\niqlow\examples\replications\ruspy_data.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}10 Feb 2022, 15:39:11
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
