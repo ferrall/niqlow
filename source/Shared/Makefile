@@ -1,6 +1,7 @@
 include ../Makefile.inc
 
-INC := ../../include
+INC := ..\..\include
+
 DOC := ../../docs/Shared
 
 vpath %.ox .

@@ -70,7 +70,8 @@ Zurcher::Output(chprob) {
 	   DrawText(0,"\\delta=0.0",84*5,chprob[1][84]-.01);
 	   DrawText(0,"\\delta=0.9999",82*5,chprob[0][82]-.01);
 	   DrawText(0,"Probability of Engine Replacement",0,0,-1,-1,TEXT_YLABEL);
-       //DrawAxis(0,1,0,0.0,0.16,.01,0.1,0,0);
+       DrawAxis(0,1,0.0,0.0,0.00,100 ,0  ,0,0);
+       DrawAxis(0,0,0.0,0.0,0.16,.01 ,0.1,0,0);
 	   SetDraw(SET_LINE,2,TP_SOLID,80,0,0);
 	   SetDraw(SET_LINE,3,TP_SOLID,80,0,0);
        DrawLine(0,0.0,0.16,450,0.16,1);
@@ -78,6 +79,6 @@ Zurcher::Output(chprob) {
        DrawLine(0,300,0,300,chprob[1][60],1);
 	   Draw(0,chprob,0,5);
        println("Saving the graph");
-	   SaveDrawWindow("Zurcher-Figure3-Replication.pdf");
+	   SaveDrawWindow("Zurcher-Figure3-Replication.png");
 //       }
     }

@@ -1,10 +1,11 @@
 #Version := OxMetrics7
 Version := OxMetrics8
+#Version := OxMetrics9
 OS := Windows
 
 ifeq ($(OS), Windows)
-#	OX := "C:\Program Files (x86)\$(Version)\Ox\bin\oxl.exe"   OxConsole
-	OX := "C:\Program Files\$(Version)\Ox\bin64\oxl.exe"
+#	OX := "C:\Program Files\$(Version)\Ox\oxl.exe"   
+	OX := "C:\Program Files\$(Version)\Ox\bin64\oxl.exe" 
 	OXFLAGS := -DOX7 -v1 -d 
 	ECHO := echo
 	CD := dir
@@ -34,4 +35,4 @@ else ifeq ($(OS), Linux)
 endif
 
 # list of subdirectories to make Hybrids
-DIRS := CFMPI DDP FiveO Shared C $(XMP)
+DIRS := CFMPI Shared DDP FiveO C $(XMP)

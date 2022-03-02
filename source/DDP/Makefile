@@ -4,13 +4,14 @@ INC := ..\..\include
 DOC := ../../docs/DDP
 MDOC := ..\..\docs\DDP
 
-
-vpath %.ox .:../Shared
+#:../Shared
+vpath %.ox .
 vpath %.h $(INC):$(MENU)\source
 vpath %.oxo $(INC)
 vpath %.ox.html $(DOC)
 
-varsrc :=  Shared. DDPShared. ActionVariable. StateVariable. Clock. TimeInvariant. AuxiliaryValues.
+#Shared. 
+varsrc :=  DDPShared. ActionVariable. StateVariable. Clock. TimeInvariant. AuxiliaryValues.
 varobj = $(varsrc:.=.oxo)
 dppsrc := Methods. Bellman. Data.
 dppobj = $(dppsrc:.=.oxo)

@@ -2,8 +2,8 @@ include ../Makefile.inc
 
 INC := ..\..\include
 DOC := ../../docs/FiveO
-
-vpath %.ox .:../Shared
+#:../Shared
+vpath %.ox .
 vpath %.h $(INC)
 vpath %.oxo $(INC)
 vpath %.ox.html $(DOC)
@@ -14,7 +14,8 @@ objsrc := Objective.
 objobj = $(objsrc:.=.oxo)
 
 FiveO.oxo : $(objobj)
-Objective.oxo :  Shared.oxo $(algobj)
+#Shared.oxo 
+Objective.oxo :  $(algobj)
 
 xtradoc = FiveO.ox GetStarted $(objsrc:.=.ox) $(algsrc:.=.ox) Error_And_Warning_Messages ../Shared/Shared.ox
 
