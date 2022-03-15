@@ -5,8 +5,13 @@
 struct Zurcher : Rust	{
 	/** tags for estimated parameters. @name Zparams **/
 	enum{RC,theta1,theta3,LnLk,SEs,Nparams}
-    /** tags for table/column/row choices. @name RNpars **/
-    enum{DiscType,Table,Column,Row,Target}
+    /** tags for table/column/row choices.
+    <DD>MonthMethod: either 0 or 1 for Replacement Month or Replacement Mileage data set.</DD>
+    <DD>Table: either 0 or 1 for Table IX or X (N=90 or N=175)</DD>
+    <DD>Column: 0, 1, or 2 for the column of the table (which bus groups to include)</DD>
+    <DD>Row: either 0 or 1 for &delta;=.9999 or 0</DD>
+    @name RNpars **/
+    enum{MonthMethod,Table,Column,Row,Target}
 
 	static const  decl
         /** 2x3x2x4 array of reported parameter estimates. **/

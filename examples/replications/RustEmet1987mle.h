@@ -4,9 +4,8 @@
 
 /** Put all objects related to estimation in a catchall class.
 
-This avoids global variables, which may be ambiguous when multiple models are included (as with
- <code>examples/main.ox</code>.  This also has the effect of not making any of the substantive objects
- the primary one.  Model, solution, data, and estimation algorithm each deal with its part of the problem.
+This has the effect of not making any of the substantive objects the primary one.
+Model, solution, data, and estimation algorithm each deal with its part of the problem.
 
 **/
 struct RustEstimates {

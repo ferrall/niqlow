@@ -1,0 +1,28 @@
+/** Read bus data from Rust (1987) to be read into <span class="n">niqlow</span>.
+
+This program 
+<UL>
+<LI>Reads the original ascii data files for bus types.</LI>
+<LI>Discretizes the mileage for both N=90 and N=175</LI>
+<LI>Creates data for the 3 columns of estimates from the original paper.</LI>
+<LI>Identifies replacement months by either month or mileage.  This is changed by hard-reset of the global constant `runtype` </LI>
+<LI>Generates the innovation or jump $j$ in $x$</LI>
+<LI>Saves the data to a Stata data file to be read in by <code>niqlow</code> for MLE.</LI>
+</UL>
+
+Input
+<UL>
+<LI>The raw files which are vectorized versions of a 128x37 matrix, each column is a bus.</LI>
+<LI>Each column has a header of 11 rows followed by odometer readings for each month.</LI>
+<LI>The header contains up to two engine replacement months and years after the bus was brought into service.</LI>
+<LI>This data is then used to convert the raw odometer readings into a combination of the model $(d,x)$ pair, 
+    consisting of the rebuild decision and odometer bin category.</LI>
+</UL>
+
+The Output
+<ul>
+  <li>3 Stata data files, one for each column of estimates, named for either mileage or month determination of replacements.</li>
+  <LI>Discretization for both values of N appear in each file with suffixes 90 and 175 on the Stata variables.</LI>
+</ul>
+
+**/

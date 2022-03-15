@@ -20,7 +20,7 @@ The program produces engine replacement probabilities that match those shown in 
 
 The paper models the decision to replace a bus engine as a function of mileage and unobserved IID shocks.  Replacement is a one-time cost that resets the odometer to <var>x=0</var>.  The cost of monthly  maintenance increases linearly with <var>x</var>.</p>
 
-See <a href="RustEmet1987mle.ox.html">RustEmet1987mle</a> to see how to carry out estimation using data as in the original paper.</p>
+See <a href="RustEmet1987mle.ox.html">RustEmet1987mle</a> to see estimation using data as in the original paper.</p>
 
 <a name="M"><LI>The Model</li></a>
 
@@ -70,7 +70,7 @@ takes on values between 0 and 89.
 
 <DT>Declarations in the Header File</DT>
 <details><summary><a href="javascript:popoxcode('../../../examples/replications/RustEmet1987.h');">Header File</a></summary>
-<DD><pre><object width="75%" height="200" type="text/plain" data="../../../examples/replications/RustEmet1987.h" border="1" ></object></pre></dd></details>
+<DD><pre><object width="100%" height="200" type="text/plain" data="../../../examples/replications/RustEmet1987.h" border="1" ></object></pre></dd></details>
 
 <DT>Executable Code in the Ox File</DT>
 <details><summary><a href="javascript:popoxcode('../../../examples/replications/RustEmet1987.ox');">Ox File</a></summary>
@@ -78,18 +78,13 @@ takes on values between 0 and 89.
 
 <a name="R"><LI>Remarks</LI></a>
 
-<DT><code>Zurcher</code> is derived from the <code>Rust</code> class</DT>
-<DD>The <code>Rust</code> class embeds an infinite horizon clock and a single binary action (<code>d</code>).  It defines constants and declares a <code>static</code> member <code>x></code>.  <code>Zurcher</code> then declares the required method <code>Utility()</code>. </DD>
+<DT>`Zurcher` is derived from the <a href="../DDP/Bellman.ox.html#Rust">Rust</a> class</DT>
+<DD>code>Rust</code> class embeds an infinite horizon clock and a single binary action (<code>d</code>).  It defines constants and declares a <code>static</code> member <code>x></code>.  <code>Zurcher</code> then declares the required method <code>Utility()</code>. </DD>
 
 <DT><code>Utility</code> must have that name and cannot be <code>static</code>.</DT>
 <DD>The form of the expression returned as the value should look related to the mathematical expression <var>U()</var> above.  The parameters are static members of the class (they are the shared by each state &theta;).  The current value of <code>x</code> is accessed as <code>CV(x)</code>.  The value of <code>x</code> is set to be the correct value at &theta; before <code>Utility()</code> is called.</DD>
 <DD><code>Utility</code> must return a column vector of values corresponding to the feasible action vector <code>A[Aind]</code>.  In this case the action variable is simply <var>d</var>, and engine replacement is always feasible.</DD>
-<DD>In mathematical notation, we would write the choice set as $\alpha \in A(\theta)$.  The code could simply refer to <code>A[Aind]</code>, the matrix of feasible actions at the current state.  But rather than accessing <code>A[Aind]</code> directly, the column of values for the <code>d</code> is accessed using <code>CV(d)</code>.  This makes the code closer to the notation and more general since it will work even if other actions are added to the model.</DD>
-<details class="aside"><summary>More on A and U()</summary><code>A</code> is a static array of the distinct feasible sets.  <code>Aind</code> is the index into the array specific to the current state <code>&theta;</code>.  Since Zurcher's problem has a single feasible set, <code>A</code> has only one matrix and <code>Aind</code> = 0 at all states.
-<DD><pre>
-A[0] =  &lceil; 0 &rceil;    So U = &lceil; -0.001x + n&rceil;
-        &lfloor; 1 &rfloor;           &lfloor;  -RC + n   &rfloor;         </pre></DD>
-Whenever called, <code>Utility</code> returns a 2x1 matrix, the utility of not replacing and replacing.</details>
+<DD>In mathematical notation, we would write the choice set as $\alpha \in A(\theta)$.  Rather than accessing that directly, the column of values for <code>d</code> is accessed using <code>CV(d)</code>.  This makes the code closer to the notation and more general since it will work even if other actions are added to the model.</DD>
 
 <DT>The tasks required to set up and solve the model are in <code>Zurcher::Run</code>(). Like <code>Run()</code>, a user's program must do these tasks in order:</DT>
 <OL class="steps">
