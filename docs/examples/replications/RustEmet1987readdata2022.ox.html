@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js"></script><link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><link rel="icon" href="icons/favicon16.png" type="image/png">
+<link rel="stylesheet" type="text/css" href="../../oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="../../print.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
+<title>RustEmet1987readdata2022.ox - Replications</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.htm">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">RustEmet1987readdata2022.ox</span></h1>
+
+Read bus data from Rust (1987) to be read into <span class="n">niqlow</span>.
+<P/>
+This program 
+<UL>
+<LI>Reads the original ascii data files for bus types.</LI>
+<LI>Discretizes the mileage for both N=90 and N=175</LI>
+<LI>Creates data for the 3 columns of estimates from the original paper.</LI>
+<LI>Identifies replacement months by either month or mileage.  This is changed by hard-reset of the global constant <a href="RustEmet1987readdata2022.ox.html#runtype">runtype</a> </LI>
+<LI>Generates the innovation or jump <span class="expressions">\(j\)</span> in <span class="expressions">\(x\)</span></LI>
+<LI>Saves the data to a Stata data file to be read in by <code>niqlow</code> for MLE.</LI>
+</UL>
+<P/>
+Input
+<UL>
+<LI>The raw files which are vectorized versions of a 128x37 matrix, each column is a bus.</LI>
+<LI>Each column has a header of 11 rows followed by odometer readings for each month.</LI>
+<LI>The header contains up to two engine replacement months and years after the bus was brought into service.</LI>
+<LI>This data is then used to convert the raw odometer readings into a combination of the model <span class="expressions">\((d,x)\)</span> pair, 
+    consisting of the rebuild decision and odometer bin category.</LI>
+</UL>
+<P/>
+The Output
+<ul>
+  <li>3 Stata data files, one for each column of estimates, named for either mileage or month determination of replacements.</li>
+  <LI>Discretization for both values of N appear in each file with suffixes 90 and 175 on the Stata variables.</LI>
+</ul>
+
+<a name="global"></a>
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global variables, functions, enumerations</span></h2>
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Variables</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987readdata2022.ox.html#ext">ext</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987readdata2022.ox.html#files">files</a></td>
+<td class="modifiers">const</td>
+<td class="description">files in order as they appear in Table 1.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987readdata2022.ox.html#groups">groups</a></td>
+<td class="modifiers">const</td>
+<td class="description">samples for columns of Tables IX and X based on group of file..</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987readdata2022.ox.html#Mxjmps">Mxjmps</a></td>
+<td class="modifiers">const</td>
+<td class="description">J: # mileage jumps beyond 0.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987readdata2022.ox.html#mxmiles">mxmiles</a></td>
+<td class="modifiers">const</td>
+<td class="description">max miles.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987readdata2022.ox.html#Nbins">Nbins</a></td>
+<td class="modifiers">const</td>
+<td class="description">Bin counts.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987readdata2022.ox.html#outdir">outdir</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987readdata2022.ox.html#runtype">runtype</a></td>
+<td class="modifiers">const</td>
+<td class="description">month method.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987readdata2022.ox.html#SVnames">SVnames</a></td>
+<td class="modifiers">const</td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Functions</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="RustEmet1987readdata2022.ox.html#main">main</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="RustEmet1987readdata2022.ox.html#Anonymous enum 1">Anonymous enum 1</a></td>
+<td class="modifiers"></td>
+<td class="description">Names for items in the header for each bus.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="RustEmet1987readdata2022.ox.html#Anonymous enum 2">Anonymous enum 2</a></td>
+<td class="modifiers"></td>
+<td class="description">Names for columns of output file and Stata variable names.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="RustEmet1987readdata2022.ox.html#Anonymous enum 3">Anonymous enum 3</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="RustEmet1987readdata2022.ox.html#Anonymous enum 4">Anonymous enum 4</a></td>
+<td class="modifiers"></td>
+<td class="description">Identify replacement month by r2m and r2y or r2mi.</td>
+</tr>
+</table>
+
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global </span></h2>
+
+<table class="enum_table">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<td class="declaration"><a name="Anonymous enum 1"></a>Anonymous enum 1</td>
+<td class="description">Names for items in the header for each bus.
+</td>
+<td class="elements">inid, r1m, r1y, r2m, r2y, r2mi, r3m, r3y, r3mi, fm, fy, Nheader</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><a name="Anonymous enum 2"></a>Anonymous enum 2</td>
+<td class="description">Names for columns of output file and Stata variable names.
+</td>
+<td class="elements">myg, id, ss, tt, mm, ii, x90, df90, x175, df175, Ncols</td>
+</tr>
+<tr class="even">
+<td class="declaration"><a name="Anonymous enum 3"></a>Anonymous enum 3</td>
+<td class="description"></td>
+<td class="elements">group, fname, nmths, nbuses</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><a name="Anonymous enum 4"></a>Anonymous enum 4</td>
+<td class="description">Identify replacement month by r2m and r2y or r2mi.
+</td>
+<td class="elements">UseMonth, UseMileage, Nruns</td>
+</tr>
+</table>
+
+<a name="ext"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ext</span></h3>
+
+<span class="declaration">const decl ext</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="files"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">files</span></h3>
+
+<span class="declaration">const decl files</span>
+<dl><dd>
+files in order as they appear in Table 1.
+
+</dd></dl>
+
+<hr>
+<a name="groups"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">groups</span></h3>
+
+<span class="declaration">const decl groups</span>
+<dl><dd>
+samples for columns of Tables IX and X based on group of file..
+
+</dd></dl>
+
+<hr>
+<a name="main"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">main</span></h3>
+
+<span class="declaration">main ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="Mxjmps"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Mxjmps</span></h3>
+
+<span class="declaration">const decl Mxjmps</span>
+<dl><dd>
+J: # mileage jumps beyond 0.
+
+</dd></dl>
+
+<hr>
+<a name="mxmiles"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mxmiles</span></h3>
+
+<span class="declaration">const decl mxmiles</span>
+<dl><dd>
+max miles.
+
+</dd></dl>
+
+<hr>
+<a name="Nbins"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Nbins</span></h3>
+
+<span class="declaration">const decl Nbins</span>
+<dl><dd>
+Bin counts.
+
+</dd></dl>
+
+<hr>
+<a name="outdir"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">outdir</span></h3>
+
+<span class="declaration">const decl outdir</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="runtype"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">runtype</span></h3>
+
+<span class="declaration">const decl runtype</span>
+<dl><dd>
+month method.
+
+</dd></dl>
+
+<hr>
+<a name="SVnames"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">SVnames</span></h3>
+
+<span class="declaration">const decl SVnames</span>
+<dl><dd>
+
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

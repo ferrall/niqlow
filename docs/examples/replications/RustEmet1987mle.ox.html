@@ -15,6 +15,22 @@
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
 <h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">RustEmet1987mle.ox</span></h1>
 
+Replicate MLE Estimates Reported in Rust (1987).
+<P/>
+<DT>This package extends the basic model <a href="RustEmet1987.ox.html">RustEmet1987</a> to read in data and estimate parameters using maximum likelihood.</DT>
+<P/>
+<DT>The results produced by this code are presented in <a href="https://ferrall.github.io/OODP/Rust1987.html">Ferrall (2022)</a></DT>
+<P/>
+<DT>RustEstimates' is a class that stores the objects used for the estimation, including the solution method, outcome data set, and MLE optimization algorithm.  The state space <span class="expressions">(Theta)</span> is built up from the EZ class that in turn is derived from the Zurcher' class for the value function iteration without data.</DT>
+<P/>
+<DT>There is a menu for selecting which estimates to replicate, which can be used interactively running <a href="./main.ox.html"><code>examples/main.ox</code></a> or using command line arguments. The latter requires knowing the index of options to code.  See the script in <code>/examples/my_estimate_rust_script</code>.  </DT>
+<P/>
+<DT><a href="RustEmet1987mle.ox.html#RustEstimates___Run">Run</a>(targ) carries out the staged-estimation for a single specification.  It is the function that is called by the menu after setting options.  Or a user can call it directly by sending the list of options directly. The model is set up, data read in, estimated parameters added to the econometric objective, and 3 stages of estimation are carried out.</DT>
+<P/>
+<DT>The data are stored as a <a href="RustEmet1987mle.ox.html#BusData">BusData</a> object, which reads in the data and matches columns of the data file to variables in the model.  Which file is read in is determined by the options sent
+to <a href="RustEmet1987mle.ox.html#RustEstimates___Run">Run</a>().</DT>
+<P/>
+</DT>
 
 <a name="BusData"></a>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">BusData</span></h2>
@@ -31,7 +47,7 @@ See <a href="RustEmet1987readdata.ox.html" target="_blank">RustEmet1987readdata<
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="RustEmet1987mle.ox.html#BusData___BusData">BusData</a></td>
 <td class="modifiers"></td>
-<td class="description">Read in the data.</td>
+<td class="description">Create the data object.</td>
 </tr>
 </table>
 
@@ -63,7 +79,7 @@ The Zurcher model with estimated Parameters.
 </dl>
 
 <dl class="inherited">
-<dt>Inherited fields from <a href="RustEmet1987.ox.html#Zurcher">Zurcher</a>:</dt><dd><a href="RustEmet1987.ox.html#Zurcher___bins">bins</a>, <a href="RustEmet1987.ox.html#Zurcher___COL">COL</a>, <a href="RustEmet1987.ox.html#Zurcher___dfactor">dfactor</a>, <a href="RustEmet1987.ox.html#Zurcher___mfact">mfact</a>, <a href="RustEmet1987.ox.html#Zurcher___normalization">normalization</a>, <a href="RustEmet1987.ox.html#Zurcher___NX">NX</a>, <a href="RustEmet1987.ox.html#Zurcher___parlist">parlist</a>, <a href="RustEmet1987.ox.html#Zurcher___pars">pars</a>, <a href="RustEmet1987.ox.html#Zurcher___rc">rc</a>, <a href="RustEmet1987.ox.html#Zurcher___ROW">ROW</a>, <a href="RustEmet1987.ox.html#Zurcher___th1">th1</a>, <a href="RustEmet1987.ox.html#Zurcher___x">x</a></dd>
+<dt>Inherited fields from <a href="RustEmet1987.ox.html#Zurcher">Zurcher</a>:</dt><dd><a href="RustEmet1987.ox.html#Zurcher___bins">bins</a>, <a href="RustEmet1987.ox.html#Zurcher___COL">COL</a>, <a href="RustEmet1987.ox.html#Zurcher___dfactor">dfactor</a>, <a href="RustEmet1987.ox.html#Zurcher___DMETH">DMETH</a>, <a href="RustEmet1987.ox.html#Zurcher___mfact">mfact</a>, <a href="RustEmet1987.ox.html#Zurcher___normalization">normalization</a>, <a href="RustEmet1987.ox.html#Zurcher___NX">NX</a>, <a href="RustEmet1987.ox.html#Zurcher___parlist">parlist</a>, <a href="RustEmet1987.ox.html#Zurcher___pars">pars</a>, <a href="RustEmet1987.ox.html#Zurcher___rc">rc</a>, <a href="RustEmet1987.ox.html#Zurcher___ROW">ROW</a>, <a href="RustEmet1987.ox.html#Zurcher___th1">th1</a>, <a href="RustEmet1987.ox.html#Zurcher___x">x</a></dd>
 </dl>
 
 <dl class="inherited">
@@ -75,9 +91,8 @@ The Zurcher model with estimated Parameters.
 
 Put all objects related to estimation in a catchall class.
 <P/>
-This avoids global variables, which may be ambiguous when multiple models are included (as with
- <code>examples/main.ox</code>.  This also has the effect of not making any of the substantive objects
- the primary one.  Model, solution, data, and estimation algorithm each deal with its part of the problem.
+This has the effect of not making any of the substantive objects the primary one.
+Model, solution, data, and estimation algorithm each deal with its part of the problem.
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -105,7 +120,17 @@ This avoids global variables, which may be ambiguous when multiple models are in
 <td class="modifiers">static</td>
 <td class="description">Parameter lists by stage.</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987mle.ox.html#RustEstimates___targ">targ</a></td>
+<td class="modifiers">static</td>
+<td class="description">OxMenu menu for setting parameters interactively.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="RustEmet1987mle.ox.html#RustEstimates___menu">menu</a></td>
+<td class="modifiers">static</td>
+<td class="description">Creates the interactive menu items for choosing method, table, column, and row to replicate.</td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="RustEmet1987mle.ox.html#RustEstimates___Run">Run</a></td>
 <td class="modifiers">static</td>
 <td class="description">Replicate bus estimation.</td>
@@ -113,7 +138,7 @@ This avoids global variables, which may be ambiguous when multiple models are in
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="RustEmet1987mle.ox.html#RustEstimates___SetTarget">SetTarget</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Get runtime options from the command line or through the interactive menu.</td>
 </tr>
 </table>
 
@@ -124,7 +149,12 @@ This avoids global variables, which may be ambiguous when multiple models are in
 
 <span class="declaration">BusData :: BusData ( method )</span>
 <dl><dd>
-Read in the data.
+Create the data object.
+<P/>
+Data files created by <code>RustEmet1987readdata2022.ox</code>
+<P/>
+This creates a OutcomeDataSet, which is a Panel of individual outcome with econometric objectives
+and data-matching methods available.
 
 </dd></dl>
 
@@ -153,14 +183,12 @@ Read in the data.
 <span class="declaration">static EZ :: SetUp ( )</span>
 <dl><dd>
 Setup the DP model and first stage estimation.
+row 0 or 1, row of Rust table to replicate
 
-<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
-<table class="parameter_table">
-<tr>
-<td class="declaration" valign="baseline">row</td>
-<td class="description" valign="baseline">0 or 1, row of Rust table to replicate (&delta;=0.0 or &delta;=0.999)</td>
-</tr>
-</table>
+<dl><dt class="returns">Returns:</dt><dd class="returns">3 lists of parameters.<br/>
+   Calibrated (empty, unless &delta; is added to the parameter vector)
+   Transition-related
+   Utility-related
 </dd>
 </dl>
 </dd></dl>
@@ -172,6 +200,7 @@ Setup the DP model and first stage estimation.
 <span class="declaration">EZ :: Utility ( )</span>
 <dl><dd>
 Return U() at estimated (<q>hat</q>) parameter values.
+This uses the same basic utility by setting the parameter values to the current values of estimated parameters.7
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">RustEstimates</span></h2>
@@ -192,6 +221,16 @@ bus data as a DataSet.
 <span class="declaration">static decl EMax [public]</span>
 <dl><dd>
 Value function iteration method.
+
+</dd></dl>
+
+<hr>
+<a name="RustEstimates___menu"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">menu</span></h3>
+
+<span class="declaration">static RustEstimates :: menu ( )</span>
+<dl><dd>
+Creates the interactive menu items for choosing method, table, column, and row to replicate.
 
 </dd></dl>
 
@@ -232,7 +271,11 @@ Parameter lists by stage.
 <span class="declaration">static RustEstimates :: Run ( target )</span>
 <dl><dd>
 Replicate bus estimation.
+ @input target list of options for which specification to estimate.<br/>
+       Default is {0,0,1,0}, which means Month-Method, Table IX, 2nd Column, 1st Row. <br/>
 
+<dl><dt class="seealso">See also:</dt><dd class="seealso">RNpars</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -241,6 +284,18 @@ Replicate bus estimation.
 
 <span class="declaration">static RustEstimates :: SetTarget ( CmdLine )</span>
 <dl><dd>
+Get runtime options from the command line or through the interactive menu.
+    Send the parameters to Run() to run the estimation procedure
+
+</dd></dl>
+
+<hr>
+<a name="RustEstimates___targ"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">targ</span></h3>
+
+<span class="declaration">static decl targ [public]</span>
+<dl><dd>
+OxMenu menu for setting parameters interactively.
 
 </dd></dl>
 <div class="footer">

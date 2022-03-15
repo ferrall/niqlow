@@ -37,7 +37,7 @@ The program produces engine replacement probabilities that match those shown in 
 <P/>
 The paper models the decision to replace a bus engine as a function of mileage and unobserved IID shocks.  Replacement is a one-time cost that resets the odometer to <var>x=0</var>.  The cost of monthly  maintenance increases linearly with <var>x</var>.</p>
 <P/>
-See <a href="RustEmet1987mle.ox.html">RustEmet1987mle</a> to see how to carry out estimation using data as in the original paper.</p>
+See <a href="RustEmet1987mle.ox.html">RustEmet1987mle</a> to see estimation using data as in the original paper.</p>
 <P/>
 <a name="M"><LI>The Model</li></a>
 <P/>
@@ -87,7 +87,7 @@ takes on values between 0 and 89.
 <P/>
 <DT>Declarations in the Header File</DT>
 <details><summary><a href="javascript:popoxcode('../../../examples/replications/RustEmet1987.h');">Header File</a></summary>
-<DD><pre><object width="75%" height="200" type="text/plain" data="../../../examples/replications/RustEmet1987.h" border="1" ></object></pre></dd></details>
+<DD><pre><object width="100%" height="200" type="text/plain" data="../../../examples/replications/RustEmet1987.h" border="1" ></object></pre></dd></details>
 <P/>
 <DT>Executable Code in the Ox File</DT>
 <details><summary><a href="javascript:popoxcode('../../../examples/replications/RustEmet1987.ox');">Ox File</a></summary>
@@ -95,18 +95,13 @@ takes on values between 0 and 89.
 <P/>
 <a name="R"><LI>Remarks</LI></a>
 <P/>
-<DT><code>Zurcher</code> is derived from the <code>Rust</code> class</DT>
-<DD>The <code>Rust</code> class embeds an infinite horizon clock and a single binary action (<code>d</code>).  It defines constants and declares a <code>static</code> member <code>x></code>.  <code>Zurcher</code> then declares the required method <code>Utility()</code>. </DD>
+<DT><a href="RustEmet1987.ox.html#Zurcher">Zurcher</a> is derived from the <a href="../DDP/Bellman.ox.html#Rust">Rust</a> class</DT>
+<DD>code>Rust</code> class embeds an infinite horizon clock and a single binary action (<code>d</code>).  It defines constants and declares a <code>static</code> member <code>x></code>.  <code>Zurcher</code> then declares the required method <code>Utility()</code>. </DD>
 <P/>
 <DT><code>Utility</code> must have that name and cannot be <code>static</code>.</DT>
 <DD>The form of the expression returned as the value should look related to the mathematical expression <var>U()</var> above.  The parameters are static members of the class (they are the shared by each state &theta;).  The current value of <code>x</code> is accessed as <code>CV(x)</code>.  The value of <code>x</code> is set to be the correct value at &theta; before <code>Utility()</code> is called.</DD>
 <DD><code>Utility</code> must return a column vector of values corresponding to the feasible action vector <code>A[Aind]</code>.  In this case the action variable is simply <var>d</var>, and engine replacement is always feasible.</DD>
-<DD>In mathematical notation, we would write the choice set as <span class="expressions">\(\alpha \in A(\theta)\)</span>.  The code could simply refer to <code>A[Aind]</code>, the matrix of feasible actions at the current state.  But rather than accessing <code>A[Aind]</code> directly, the column of values for the <code>d</code> is accessed using <code>CV(d)</code>.  This makes the code closer to the notation and more general since it will work even if other actions are added to the model.</DD>
-<details class="aside"><summary>More on A and U()</summary><code>A</code> is a static array of the distinct feasible sets.  <code>Aind</code> is the index into the array specific to the current state <code>&theta;</code>.  Since Zurcher's problem has a single feasible set, <code>A</code> has only one matrix and <code>Aind</code> = 0 at all states.
-<DD><pre>
-A[0] =  &lceil; 0 &rceil;    So U = &lceil; -0.001x + n&rceil;
-        &lfloor; 1 &rfloor;           &lfloor;  -RC + n   &rfloor;         </pre></DD>
-Whenever called, <code>Utility</code> returns a 2x1 matrix, the utility of not replacing and replacing.</details>
+<DD>In mathematical notation, we would write the choice set as <span class="expressions">\(\alpha \in A(\theta)\)</span>.  Rather than accessing that directly, the column of values for <code>d</code> is accessed using <code>CV(d)</code>.  This makes the code closer to the notation and more general since it will work even if other actions are added to the model.</DD>
 <P/>
 <DT>The tasks required to set up and solve the model are in <code>Zurcher::Run</code>(). Like <code>Run()</code>, a user's program must do these tasks in order:</DT>
 <OL class="steps">
@@ -193,76 +188,82 @@ Simulated data
 <td class="description">Discount factor by row.</td>
 </tr>
 <tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___DMETH">DMETH</a></td>
+<td class="modifiers">static</td>
+<td class="description">Discretization method: Month or Mileage  </td>
+</tr>
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___mfact">mfact</a></td>
 <td class="modifiers">static const</td>
 <td class="description">scaling on cost  </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___normalization">normalization</a></td>
 <td class="modifiers">static</td>
 <td class="description">added to U() to avoid underflow  </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___NX">NX</a></td>
 <td class="modifiers">static</td>
 <td class="description"># of bins, 90 or 175  </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___parlist">parlist</a></td>
 <td class="modifiers">static const</td>
 <td class="description">2x3x2x4 array of reported parameter estimates.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___pars">pars</a></td>
 <td class="modifiers">static</td>
 <td class="description">parameter vector <span class="expressions">\(\psi\)</span>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___rc">rc</a></td>
 <td class="modifiers">static</td>
 <td class="description">value of RC  </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___ROW">ROW</a></td>
 <td class="modifiers">static</td>
 <td class="description">row of table/column.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___th1">th1</a></td>
 <td class="modifiers">static</td>
 <td class="description">value of <span class="expressions">\(\theta_1\)</span>  </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___x">x</a></td>
 <td class="modifiers">static</td>
 <td class="description">mileage state, <em>x</em>  </td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___Output">Output</a></td>
 <td class="modifiers">static</td>
 <td class="description"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___Run">Run</a></td>
 <td class="modifiers">static</td>
-<td class="description">Setup and solve the model.</td>
+<td class="description">Setup and solve the model for each discount factor and generate the figure.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___SetSpec">SetSpec</a></td>
 <td class="modifiers">static</td>
 <td class="description">Set the target of the replication.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___Utility">Utility</a></td>
 <td class="modifiers"></td>
-<td class="description">The one period linear return.</td>
+<td class="description">Computes the one period linear cost as 2x1 vector
+<span class="equation"><span class="equation">$$U = dRC+(1-d)\theta_1 x + n.$$</span></span>  </td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___RNpars">RNpars</a></td>
 <td class="modifiers"></td>
 <td class="description">tags for table/column/row choices.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="RustEmet1987.ox.html#Zurcher___Zparams">Zparams</a></td>
 <td class="modifiers"></td>
 <td class="description">tags for estimated parameters.</td>
@@ -275,14 +276,18 @@ Simulated data
 <tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
 <td class="declaration"><a name="Zurcher___RNpars"></a>RNpars</td>
 <td class="description">tags for table/column/row choices.
+    <DD>MonthMethod: either 0 or 1 for Replacement Month or Replacement Mileage data set.</DD>
+    <DD>Table: either 0 or 1 for Table IX or X (N=90 or N=175)</DD>
+    <DD>Column: 0, 1, or 2 for the column of the table (which bus groups to include)</DD>
+    <DD>Row: either 0 or 1 for &delta;=.9999 or 0</DD>
 </td>
-<td class="elements">Table, Column, Row, Target</td>
+<td class="elements">MonthMethod, Table, Column, Row, Target</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><a name="Zurcher___Zparams"></a>Zparams</td>
 <td class="description">tags for estimated parameters.
 </td>
-<td class="elements">RC, theta1, theta3, LnLk, Nparams</td>
+<td class="elements">RC, theta1, theta3, LnLk, SEs, Nparams</td>
 </tr>
 </table>
 
@@ -312,6 +317,16 @@ column of Table
 <span class="declaration">static const decl dfactor [public]</span>
 <dl><dd>
 Discount factor by row.
+
+</dd></dl>
+
+<hr>
+<a name="Zurcher___DMETH"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">DMETH</span></h3>
+
+<span class="declaration">static decl DMETH [public]</span>
+<dl><dd>
+Discretization method: Month or Mileage
 
 </dd></dl>
 
@@ -400,7 +415,7 @@ row of table/column.
 
 <span class="declaration">static Zurcher :: Run ( targ )</span>
 <dl><dd>
-Setup and solve the model.
+Setup and solve the model for each discount factor and generate the figure.
 
 </dd></dl>
 
@@ -411,18 +426,17 @@ Setup and solve the model.
 <span class="declaration">static Zurcher :: SetSpec ( targ )</span>
 <dl><dd>
 Set the target of the replication.
+<P/>
+This allows the basic code to be re-used for different specifications.
 
 <dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
 <table class="parameter_table">
 <tr>
 <td class="declaration" valign="baseline">targ</td>
-<td class="description" valign="baseline">is array of integer values for the Table, COlumn and Row from the original paper.
-<P/>
-</td>
+<td class="description" valign="baseline">is array of integer values for the Table, COlumn and Row from the original paper.</td>
 </tr>
 </table>
 </dd>
-<dt class="seealso">See also:</dt><dd class="seealso">RNpars</dd>
 </dl>
 </dd></dl>
 
@@ -442,8 +456,8 @@ value of <span class="expressions">\(\theta_1\)</span>
 
 <span class="declaration">Zurcher :: Utility ( )</span>
 <dl><dd>
-The one period linear return.
-<dd><pre>U = dRC+(1-d)&theta;<sub>1</sub>mx + n</pre></dd>
+Computes the one period linear cost as 2x1 vector
+<span class="equation">$$U = dRC+(1-d)\theta_1 x + n.$$</span>
 
 </dd></dl>
 
