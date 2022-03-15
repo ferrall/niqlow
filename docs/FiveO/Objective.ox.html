@@ -657,12 +657,12 @@ Multinomial Logit Model.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#MLogit___MLogit">MLogit</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a multinomial logit model.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#MLogit___vfunc">vfunc</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Return the log-likelihood vector.</td>
 </tr>
 </table>
 
@@ -773,7 +773,7 @@ Objective for multinomial choice models.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Objective.ox.html#MultiNomialChoice___SetD">SetD</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Update <span class="expressions">\(XB\)</span> matrix of indices by observation and option.</td>
 </tr>
 </table>
 
@@ -2611,7 +2611,33 @@ Decode the input, return the whole vector.
 
 <span class="declaration">MLogit :: MLogit ( L , fn , Yname , Xnames )</span>
 <dl><dd>
+Create a multinomial logit model.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">fn</td>
+<td class="description" valign="baseline">string, a file to load the data from using Ox <code>Database.Load()</code>
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Yname</td>
+<td class="description" valign="baseline">string, name or label of the column in the file that contains <var>Y</var><br>
+Yname can contain any integers.  MNP will translate the unique sorted values into 0...Jvals-1
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Xnames</td>
+<td class="description" valign="baseline">a string of the form <q>var1 var2 ... varN</q></td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2620,6 +2646,7 @@ Decode the input, return the whole vector.
 
 <span class="declaration">MLogit :: vfunc ( )</span>
 <dl><dd>
+Return the log-likelihood vector.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">MultiNomialChoice</span></h2>
@@ -2772,6 +2799,7 @@ K : number of X variables
 
 <span class="declaration">MultiNomialChoice :: SetD ( )</span>
 <dl><dd>
+Update <span class="expressions">\(XB\)</span> matrix of indices by observation and option.
 
 </dd></dl>
 

@@ -7,10 +7,9 @@ misctestmenu() {
     mm -> add(
 			{"Test GHK",  				TestGHK::Run      },
 			{"StataMNP",  				StataMNP          },
-			{"MVNormalTest",			MVTest::Replicate },
+            {"MLogit",                  RunMLogitTest },
 			{"Reservation_Wage_Test",   WStarTestRun()    },
-            {"Dynamic Wage Test",       DynWStar::Run     },
-            {"MLogit",                  RunMLogitTest }
+            {"Dynamic Wage Test",       DynWStar::Run     }
             );
     return mm;
     }

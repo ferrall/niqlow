@@ -966,13 +966,24 @@ MultiNomialChoice::MultiNomialChoice(L,fn,Yname,Xnames)	{
     MyMoments(indY,{"Y indices"});
    }
 
+/** Update $XB$ matrix of indices by observation and option.
+**/
 MultiNomialChoice::SetD() {  D[][] = X*CV(betas);  }
 
+/** Create a multinomial logit model.
+@param L label
+@param fn string, a file to load the data from using Ox <code>Database.Load()</code>
+@param Yname string, name or label of the column in the file that contains <var>Y</var><br>
+Yname can contain any integers.  MNP will translate the unique sorted values into 0...Jvals-1
+@param Xnames a string of the form <q>var1 var2 ... varN</q>
 
+**/
 MLogit::MLogit(L,fn,Yname,Xnames) {
     MultiNomialChoice(L,fn,Yname,Xnames);
     }
 
+/** Return the log-likelihood vector.
+**/
 MLogit::vfunc() {
     SetD();
 	return log(selectrc(ColLogit(D),NN,indY))';

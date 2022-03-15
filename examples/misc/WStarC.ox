@@ -1,3 +1,4 @@
+/** Add layoffs, time-limited UI benefits and time-varying value of search to the base model. **/
 #include "WStarC.h"
 
 WStarC::Create() {
@@ -22,15 +23,17 @@ WStarC::Create() {
 /**  No reservation wage while working .**/
 WStarC::Continuous()        { return !CV(wrk); }
 
-/** Layoff probability. **/
+/** Layoff probability ($\lamba$). **/
 WStarC::Layoff()            { return CV(lambda)*CV(wrk);  }
 
 /** Must choose to work unless unemployed.**/
 WStarC::FeasibleActions()   { return CV(d).||!CV(wrk);   }
 
+/** Utility of UE: $\epsilon + b$. **/
 WStarC::UEval(){        return AV(eps)+ (CV(dur)<Tben)*ben;    }
-WStarC::Empval(offer) {    return offer/(1-I::CVdelta*(1-CV(lambda))); }
 
+/** EPDV of acceptance (accounting for layoffs). **/
+WStarC::Empval(offer) {    return offer/(1-I::CVdelta*(1-CV(lambda))); }
 
 WStarC::Uz(z) {	        return UEval() | Empval(z);	}
 
@@ -48,6 +51,7 @@ WStarC::EUtility()    {
             (1-ps)~ps };
 	}	
 
+/** Create, solve and simulate data .**/
 WStarC::Run()	{
     Create();
     RV->ToggleRunSafe();

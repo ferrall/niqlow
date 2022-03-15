@@ -10,7 +10,7 @@ vpath %.ox.html $(DOC)
 #MortTest.   MVNormal. ReEmpExp. WstarTestb. DynamicWstar.
 
 imports =MNP. 
-includes=TestGHK.ox StataMNP.ox 
+includes=TestGHK.ox StataMNP.ox RunMLogitTest.ox WStarA.ox WStarB.ox WStarC.ox
 exoxo = $(examples:.=.oxo)
 exdoc = $(includes) $(imports:.=.ox)
 

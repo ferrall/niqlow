@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js"></script><link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><link rel="icon" href="icons/favicon16.png" type="image/png">
+<link rel="stylesheet" type="text/css" href="../../oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="../../print.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
+<title>WStarC.ox - hybrid examples</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.htm">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">WStarC.ox</span></h1>
+
+Add layoffs, time-limited UI benefits and time-varying value of search to the base model.
+
+<a name="WStarC"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">WStarC : <a href="WStarA.ox.html#WStarA">WStarA</a></span></h2>
+
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___ben">ben</a></td>
+<td class="modifiers">static</td>
+<td class="description">UI Benefits  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___data">data</a></td>
+<td class="modifiers">static</td>
+<td class="description">Simulated data set.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___dur">dur</a></td>
+<td class="modifiers">static</td>
+<td class="description">Duration of <span class="expressions">\(d\)</span>, work status.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___eps">eps</a></td>
+<td class="modifiers">static</td>
+<td class="description">current value of search, exponentially
+                    distributed.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___gam">gam</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___lambda">lambda</a></td>
+<td class="modifiers">static</td>
+<td class="description">layoff prob.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___op">op</a></td>
+<td class="modifiers">static</td>
+<td class="description">Normal param vector  </td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___sigerr">sigerr</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___Tben">Tben</a></td>
+<td class="modifiers">static</td>
+<td class="description">UI period.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___wrk">wrk</a></td>
+<td class="modifiers">static</td>
+<td class="description">Augment <span class="expressions">\(m\)</span> with random layoffs.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___zz">zz</a></td>
+<td class="modifiers">static</td>
+<td class="description">standardize cutoff.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___Continuous">Continuous</a></td>
+<td class="modifiers"></td>
+<td class="description">No reservation wage while working .</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___Create">Create</a></td>
+<td class="modifiers">static</td>
+<td class="description">Set up the basic model.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___Empval">Empval</a></td>
+<td class="modifiers">static</td>
+<td class="description">EPDV of acceptance (accounting for layoffs).</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___EUtility">EUtility</a></td>
+<td class="modifiers"></td>
+<td class="description">Return E[U|z&lt;z*] and E[U|z&ge;z*] and respective
+probabilities.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___FeasibleActions">FeasibleActions</a></td>
+<td class="modifiers"></td>
+<td class="description">Must choose to work unless unemployed.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___Layoff">Layoff</a></td>
+<td class="modifiers">static</td>
+<td class="description">Layoff probability (<span class="expressions">\(\lamba\)</span>).</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___Run">Run</a></td>
+<td class="modifiers">static</td>
+<td class="description">Create, solve and simulate data .</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___Run2">Run2</a></td>
+<td class="modifiers">static</td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___UEval">UEval</a></td>
+<td class="modifiers">static</td>
+<td class="description">Utility of UE: <span class="expressions">\(\epsilon + b\)</span>.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarC.ox.html#WStarC___Uz">Uz</a></td>
+<td class="modifiers"></td>
+<td class="description">Return vector of utilities at cutoff z.</td>
+</tr>
+</table>
+
+<dl class="inherited">
+<dt>Inherited methods from <a href="WStarA.ox.html#WStarA">WStarA</a>:</dt><dd><a href="WStarA.ox.html#WStarA___Build">Build</a>, <a href="WStarA.ox.html#WStarA___graphit">graphit</a></dd>
+</dl>
+
+<dl class="inherited">
+<dt>Inherited fields from <a href="WStarA.ox.html#WStarA">WStarA</a>:</dt><dd><a href="WStarA.ox.html#WStarA___cg">cg</a>, <a href="WStarA.ox.html#WStarA___eta">eta</a>, <a href="WStarA.ox.html#WStarA___g">g</a>, <a href="WStarA.ox.html#WStarA___m">m</a>, <a href="WStarA.ox.html#WStarA___ps">ps</a>, <a href="WStarA.ox.html#WStarA___RV">RV</a></dd>
+</dl>
+
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">WStarC</span></h2>
+
+<a name="WStarC___ben"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ben</span></h3>
+
+<span class="declaration">static decl ben [public]</span>
+<dl><dd>
+UI Benefits
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___Continuous"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Continuous</span></h3>
+
+<span class="declaration">WStarC :: Continuous ( )</span>
+<dl><dd>
+No reservation wage while working .
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___Create"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Create</span></h3>
+
+<span class="declaration">static WStarC :: Create ( )</span>
+<dl><dd>
+Set up the basic model.
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___data"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">data</span></h3>
+
+<span class="declaration">static decl data [public]</span>
+<dl><dd>
+Simulated data set.
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___dur"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">dur</span></h3>
+
+<span class="declaration">static decl dur [public]</span>
+<dl><dd>
+Duration of <span class="expressions">\(d\)</span>, work status.
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___Empval"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Empval</span></h3>
+
+<span class="declaration">static WStarC :: Empval ( offer )</span>
+<dl><dd>
+EPDV of acceptance (accounting for layoffs).
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___eps"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">eps</span></h3>
+
+<span class="declaration">static decl eps [public]</span>
+<dl><dd>
+current value of search, exponentially
+                    distributed.  Its IID but has
+                    to be <span class="expressions">\(\theta\)</span> is a reservation value model.
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___EUtility"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">EUtility</span></h3>
+
+<span class="declaration">WStarC :: EUtility ( )</span>
+<dl><dd>
+Return E[U|z&lt;z*] and E[U|z&ge;z*] and respective
+probabilities.
+Use Mill's ratio to compute truncated mean of normal.
+
+<dl><dt class="returns">Returns:</dt><dd class="returns">Array of two vectors
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="WStarC___FeasibleActions"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">FeasibleActions</span></h3>
+
+<span class="declaration">WStarC :: FeasibleActions ( )</span>
+<dl><dd>
+Must choose to work unless unemployed.
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___gam"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">gam</span></h3>
+
+<span class="declaration">static decl gam [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___lambda"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">lambda</span></h3>
+
+<span class="declaration">static decl lambda [public]</span>
+<dl><dd>
+layoff prob.
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___Layoff"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Layoff</span></h3>
+
+<span class="declaration">static WStarC :: Layoff ( )</span>
+<dl><dd>
+Layoff probability (<span class="expressions">\(\lamba\)</span>).
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___op"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">op</span></h3>
+
+<span class="declaration">static decl op [public]</span>
+<dl><dd>
+Normal param vector
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">static WStarC :: Run ( )</span>
+<dl><dd>
+Create, solve and simulate data .
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___Run2"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run2</span></h3>
+
+<span class="declaration">static WStarC :: Run2 ( )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___sigerr"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sigerr</span></h3>
+
+<span class="declaration">static decl sigerr [public]</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___Tben"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">Tben</span></h3>
+
+<span class="declaration">static decl Tben [public]</span>
+<dl><dd>
+UI period.
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___UEval"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">UEval</span></h3>
+
+<span class="declaration">static WStarC :: UEval ( )</span>
+<dl><dd>
+Utility of UE: <span class="expressions">\(\epsilon + b\)</span>.
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___Uz"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Uz</span></h3>
+
+<span class="declaration">WStarC :: Uz ( z )</span>
+<dl><dd>
+Return vector of utilities at cutoff z.
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___wrk"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">wrk</span></h3>
+
+<span class="declaration">static decl wrk [public]</span>
+<dl><dd>
+Augment <span class="expressions">\(m\)</span> with random layoffs.
+
+</dd></dl>
+
+<hr>
+<a name="WStarC___zz"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">zz</span></h3>
+
+<span class="declaration">static decl zz [public]</span>
+<dl><dd>
+standardize cutoff.
+
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

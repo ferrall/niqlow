@@ -1,7 +1,9 @@
+/**Add unobserved heterogeneity to the base model.
+This version inherits Utility() from WstarA but now $g$ takes on two values and $\eta$ differs across $g$
+**/
 #include "WStarB.h"
 
-//WStarB::Utility()    { decl dv = CV(d); return eta*(1-dv) + zstar[][I::r]*dv;	}
-
+/** Creates the state space and the solution method. **/
 WStarB::Create() {
 	Initialize(new WStarB());
 	SetClock(InfiniteHorizon);
@@ -15,6 +17,7 @@ WStarB::Create() {
     eta = <0.02 ; 0.04>;
     }
 
+/** Creates, solves and prints out solution.**/
 WStarB::Run()	{
     Create();
     RV.Volume=SILENT;

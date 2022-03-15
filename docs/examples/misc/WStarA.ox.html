@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js"></script><link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><link rel="icon" href="icons/favicon16.png" type="image/png">
+<link rel="stylesheet" type="text/css" href="../../oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="../../print.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
+<title>WStarA.ox - hybrid examples</title>
+</head>
+<body>
+<div class="header">
+[ <img class="icon" src='../../icons/glass.png' width=16px' height='16px'/> <a href="../../search.htm">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+<img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
+ | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
+ | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
+<h1><span class="icon"><img class="icon" src="icons/file.png">&nbsp;</span><span class="text">WStarA.ox</span></h1>
+
+Demonstrate and test reservation wage models.
+<P/>
+This is the base model with no heterogeneity, jobs last forever.
+<span class="equation">$$U = \left(\matrix{ \eta \cr PDV(z)}\right).$$</span>
+<span class="expressions">\(z\sim N(0,1).\)</span>
+
+<a name="WStarA"></a>
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">WStarA</span></h2>
+
+Base class for reservation wage tests and demonstrations.
+
+<table class="method_table">
+<tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarA.ox.html#WStarA___cg">cg</a></td>
+<td class="modifiers">static</td>
+<td class="description">current group.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarA.ox.html#WStarA___eta">eta</a></td>
+<td class="modifiers">static</td>
+<td class="description">value of search .</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarA.ox.html#WStarA___g">g</a></td>
+<td class="modifiers">static</td>
+<td class="description">heterogeneity group (=0 for base case).</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarA.ox.html#WStarA___m">m</a></td>
+<td class="modifiers">static</td>
+<td class="description">market status (searching or done).</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarA.ox.html#WStarA___ps">ps</a></td>
+<td class="modifiers">static</td>
+<td class="description"><span class="expressions">\(1-\Phi(z^\star)\)</span>.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="WStarA.ox.html#WStarA___RV">RV</a></td>
+<td class="modifiers">static</td>
+<td class="description">Reservation Value solution object.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarA.ox.html#WStarA___Build">Build</a></td>
+<td class="modifiers">static</td>
+<td class="description">Create <span class="expressions">\(m\)</span> and set <span class="expressions">\(\delta\)</span> .</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarA.ox.html#WStarA___Create">Create</a></td>
+<td class="modifiers">static</td>
+<td class="description">Set up the basic model.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarA.ox.html#WStarA___EUtility">EUtility</a></td>
+<td class="modifiers"></td>
+<td class="description">Return <span class="expressions">\(E[U | z \lt z*]\)</span> and <span class="expressions">\(E[U|z\ge z*]\)</span> and respective probabilities.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarA.ox.html#WStarA___graphit">graphit</a></td>
+<td class="modifiers">static</td>
+<td class="description">Graph the values and save to WstarA.pdf.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarA.ox.html#WStarA___Run">Run</a></td>
+<td class="modifiers">static</td>
+<td class="description">Create, solve and graph solution.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="WStarA.ox.html#WStarA___Uz">Uz</a></td>
+<td class="modifiers">virtual</td>
+<td class="description">Return vector of utilities at cutoff z.</td>
+</tr>
+</table>
+
+<h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">WStarA</span></h2>
+
+<a name="WStarA___Build"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Build</span></h3>
+
+<span class="declaration">static WStarA :: Build ( )</span>
+<dl><dd>
+Create <span class="expressions">\(m\)</span> and set <span class="expressions">\(\delta\)</span> .
+
+</dd></dl>
+
+<hr>
+<a name="WStarA___cg"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">cg</span></h3>
+
+<span class="declaration">static decl cg [public]</span>
+<dl><dd>
+current group.
+
+</dd></dl>
+
+<hr>
+<a name="WStarA___Create"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Create</span></h3>
+
+<span class="declaration">static WStarA :: Create ( )</span>
+<dl><dd>
+Set up the basic model.
+
+</dd></dl>
+
+<hr>
+<a name="WStarA___eta"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">eta</span></h3>
+
+<span class="declaration">static decl eta [public]</span>
+<dl><dd>
+value of search .
+
+</dd></dl>
+
+<hr>
+<a name="WStarA___EUtility"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">EUtility</span></h3>
+
+<span class="declaration">WStarA :: EUtility ( )</span>
+<dl><dd>
+Return <span class="expressions">\(E[U | z \lt z*]\)</span> and <span class="expressions">\(E[U|z\ge z*]\)</span> and respective probabilities.
+Use Mill's ratio to compute truncated mean of normal.
+
+<dl><dt class="returns">Returns:</dt><dd class="returns">Array of two vectors, 2x1 and 1x2:<br/>
+         { EU0 | EU1 , F(z*) ~ 1-F(z*) }
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="WStarA___g"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">g</span></h3>
+
+<span class="declaration">static decl g [public]</span>
+<dl><dd>
+heterogeneity group (=0 for base case).
+
+</dd></dl>
+
+<hr>
+<a name="WStarA___graphit"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">graphit</span></h3>
+
+<span class="declaration">static WStarA :: graphit ( )</span>
+<dl><dd>
+Graph the values and save to WstarA.pdf.
+
+</dd></dl>
+
+<hr>
+<a name="WStarA___m"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">m</span></h3>
+
+<span class="declaration">static decl m [public]</span>
+<dl><dd>
+market status (searching or done).
+
+</dd></dl>
+
+<hr>
+<a name="WStarA___ps"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">ps</span></h3>
+
+<span class="declaration">static decl ps [public]</span>
+<dl><dd>
+<span class="expressions">\(1-\Phi(z^\star)\)</span>.
+
+</dd></dl>
+
+<hr>
+<a name="WStarA___Run"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Run</span></h3>
+
+<span class="declaration">static WStarA :: Run ( )</span>
+<dl><dd>
+Create, solve and graph solution.
+Called by the menu system.
+
+</dd></dl>
+
+<hr>
+<a name="WStarA___RV"></a>
+<h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">RV</span></h3>
+
+<span class="declaration">static decl RV [public]</span>
+<dl><dd>
+Reservation Value solution object.
+
+</dd></dl>
+
+<hr>
+<a name="WStarA___Uz"></a>
+<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Uz</span></h3>
+
+<span class="declaration">virtual WStarA :: Uz ( z )</span>
+<dl><dd>
+Return vector of utilities at cutoff z.
+
+</dd></dl>
+<div class="footer">
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
+</div>

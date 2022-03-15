@@ -1,10 +1,9 @@
 #import "RustEmet1987"
 #import "FiveO"
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2022 Christopher Ferrall */
 
-/** Put all objects related to estimation in a catchall class.
+/** Contains objects related to estimation in a catchall class.
 
-This has the effect of not making any of the substantive objects the primary one.
 Model, solution, data, and estimation algorithm each deal with its part of the problem.
 
 **/
@@ -21,15 +20,17 @@ struct RustEstimates {
     static SetTarget(CmdLine=FALSE);
 	}
 
-/** The Zurcher model with estimated `Parameter`s. **/
+/** The Zurcher model with estimated Parameters. **/
 struct EZ : Zurcher	{						
-		static 	decl hat;
+		static 	decl
+                /** list of parameter estimates. Current values
+                    are copied into variables used by `Zurcher` **/ hat;
 		static 	SetUp();
 				Utility();
 	}
 
 /** Some of the bus data used .
-See <a href="RustEmet1987readdata.ox.html" target="_blank">RustEmet1987readdata</a>.
+See <a href="RustEmet1987readdata2022.ox.html" target="_blank">RustEmet1987readdata2022</a>.
 **/
 struct BusData : OutcomeDataSet {
     const decl filename;
