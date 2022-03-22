@@ -618,7 +618,7 @@ routine will ensure this is called.
 	
 **/
 Bellman::Initialize(userState) {
-    TypeCheck(userState,"Bellman","DDP Error 05a.  You must send an object of your Bellman-derived class to Initialize.  For example,\n Initialize(new MyModel()); \n");
+    TypeCheck(userState,"Bellman",TRUE,"DDP Error 05a.  You must send an object of your Bellman-derived class to Initialize.  For example,\n Initialize(new MyModel()); \n");
 	DP::Initialize(userState);
     parents = " | Bellman";
 	}
