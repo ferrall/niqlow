@@ -1,12 +1,14 @@
 #Version := OxMetrics7
 Version := OxMetrics8
+ExPath := Ox\bin64
 #Version := OxMetrics9
+#ExPath := Ox
 OS := Windows
 
 ifeq ($(OS), Windows)
-#	OX := "C:\Program Files\$(Version)\Ox\oxl.exe"   
-	OX := "C:\Program Files\$(Version)\Ox\bin64\oxl.exe" 
-	OXFLAGS := -DOX7 -v1 -d 
+#	OX := "C:\Program Files\$(Version)\Ox\oxl.exe"
+	OX := "C:\Program Files\$(Version)\Ox\bin64\oxl.exe"
+	OXFLAGS := -DOX7 -v1 -d
 	ECHO := echo
 	CD := dir
 	COPY := copy
