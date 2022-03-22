@@ -201,6 +201,7 @@ struct Discrete	: Quantity{
 			/** corresponding model vals.  **/  	actual,
 			/** vector of prob. of vals. **/		pdf;
 	Discrete(L,N);
+    GetN();
 	virtual PDF();
 	virtual Update();
     virtual SetActual(MaxV=1.0,Report=FALSE);

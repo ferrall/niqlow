@@ -20,6 +20,7 @@ struct Space : DDPauxiliary	{
     /** Min indices of  var group in state vector.**/   M,
     /** product of VN over VM[] to VX[].   **/ 			size;
 	Space(); 	
+    Append(newN);
     }
 
 /**Stores information on a set of spaces, such as reality or treatment **/

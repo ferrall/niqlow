@@ -322,6 +322,8 @@ Discrete::Discrete(L,N)  {
     v = 0;
 	}
 
+Discrete::GetN() { return N;  }
+
 /** The default Discrete Variable update does nothing.
 Derived discrete types can define their own Updates which called when parameters of a model (may) have changed.
 This depends on `UpdateTimes`

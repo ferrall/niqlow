@@ -70,6 +70,10 @@ I::SetExogOnly(state) {
 
 /** Tracks information about a subvector of the state vector. **/
 Space::Space() {D=0; C=N=<>;   X = M= size = 1; }
+Space::Append(newN) {
+	N |= newN;
+	size *= newN;
+    }
 
 /** Tracks information about a set of one or more `Space`s.**/
 SubSpace::SubSpace() {D=0; size=1; O=<>;}
@@ -278,8 +282,7 @@ DP::AddStates(SubV,va) 	{
 			}
 		pos = S[SubV].D++;
 		SubVectors[SubV] |= va[i];
-		S[SubV].N |= va[i].N;
-		S[SubV].size *= va[i].N;
+        S[SubV]->Append(va[i]->GetN());
         va[i].subv = SubV;
 		if (pos) S[SubV].C ~= (S[SubV].C[pos-1])*S[SubV].N[pos]; else S[SubV].C = S[SubV].N[pos];
 		}
