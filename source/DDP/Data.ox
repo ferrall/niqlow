@@ -38,7 +38,7 @@ PathPrediction::SimulateOutcomePaths(curfpanel,N,ErgOrStateMat) {
 @fvals  either DoALL or a a vector of fixed effect indices to compute.
 **/
 PredictionDataSet::SimulateMomentVariances(N,ErgOrStateMat,fvals) {
-    decl simdata = new Panel(0,method),scur,old;
+    decl simdata = new Panel(0,method),scur,pold, ptmp;
     scur = simdata;
     decl fcur=first;
     do {
@@ -46,11 +46,14 @@ PredictionDataSet::SimulateMomentVariances(N,ErgOrStateMat,fvals) {
             println("simulating ",fcur.f);
             fcur->SimulateOutcomePaths(scur,N,ErgOrStateMat);
             }
-        old = scur;
+        pold = scur.pnext;
+        while (isclass(pold)) {	
+		  ptmp = pold.pnext;
+		  delete pold;
+		  pold = ptmp;
+		  }
+        scur.pnext = UnInitialized;  //subsequent outcomes on path deleted
         scur = scur.fnext;
-    #ifdef OX_PARALLEL
-        old -> ~FPanel();   // delete previous simulations;  syntax not recognize by oxdoc
-    #endif
         } while( (isclass(fcur=fcur.fnext)) );
     delete simdata;
     }

@@ -34,6 +34,7 @@ Transitions to unreachable states is tracked and logged in the Data logfile.
 @see TrackObj::Distribution
 **/
 Prediction::Predict() {
+
     EOoE.state[:right] = state[:right] = 0;
     if (!sizec(sind)) {     //no indices are current
         predmom[] = .NaN;
@@ -72,12 +73,16 @@ Prediction::Predict() {
             LeakWarned = TRUE;
             }
         }
-     if (Data::Volume>LOUD) {
+/*     if (Data::Volume>LOUD) {
         decl ach = sumr(ch), posch = !isdotfeq(ach,0.0);
-        if (isfile(Data::logf)) fprintln(Data::logf,t," States and probabilities","%r",{"Index","Prob."},selectifc(sind|p,!isdotfeq(p,0.0)),
+// This fprintln() causing an unexplained error:
+//Runtime error in Predict (80): '[][2] in matrix[1][1]' index out of range
+        if (isfile(Data::logf)) fprintln(Data::logf,t," States and probabilities","%r",
+            {"Index","Prob."},selectifc(sind|p,!isdotfeq(p,0.0)),
             Alpha::aL1,"Non-zero Choice Probabilities ",
             "%r",Alpha::Rlabels[0][selectifr(Alpha::AIlist[0],posch)],selectifr(ach,posch));
         }
+*/
     return allterm;
 	}
 	
@@ -139,7 +144,6 @@ PathPrediction::SetT() {
 	 if (!isclass(cur.pnext)) {  // no tomorrow after current
         if (inT && cur.t+1<this.T) { // predict for a fixed T
             cur.pnext = new Prediction(cur.t+1);
-            //++this.T;
             }
         }
      else {
@@ -184,7 +188,8 @@ If aggregate moments are being tracked then the weighted values for this
 
 **/
 PathPrediction::ProcessContributions(cmat){
-    decl ismat = ismatrix(cmat),  aggcur=mother, flatify = !Version::MPIserver && (Data::Volume>QUIET || prtlevel) ;
+    decl ismat = ismatrix(cmat),  aggcur=mother,
+        flatify = MakeFlat || ( !Version::MPIserver && (Data::Volume>QUIET || prtlevel) ) ;
     vdelt =<>;    dlabels = {};
     if (ismatrix(flat)) delete flat;
     if (flatify) {
@@ -480,13 +485,13 @@ PathPrediction::PathPrediction(mother,f,method,iDist,wght,myshare){
     this.wght = wght;
     this.myshare = myshare;
 	fnext = UnInitialized;
-    Prediction(0);
-    T = 1;
-    prtlevel = flat = pathW = inT = 0;
+    Prediction(Zero);
+    T = One;
+    prtlevel = flat = pathW = inT = Zero;
     pstate = ReverseState(f,onlyfixed);
-    fvals = N::F>1 ? f~pstate[S[fgroup].M:S[fgroup].X]' : matrix(f); //f must be a matrix so Fcols is correct
+    fvals = N::F>One ? f~pstate[S[fgroup].M:S[fgroup].X]' : matrix(f); //f must be a matrix so Fcols is correct
     Fcols = columns(fvals);
-    HasObservations = FALSE;
+    MakeFlat = HasObservations = FALSE;
 	}
 
 
@@ -503,13 +508,12 @@ Prediction::~Prediction() {
 
 **/
 PathPrediction::~PathPrediction() {
-	//decl v; foreach(v in tlist ) delete v;
-	while (isclass(pnext)) {
+	while (isclass(pnext)) {  // delete all but first
 		cur = pnext.pnext;
 		delete pnext;
 		pnext = cur;
 		}
-	~Prediction();
+	~Prediction();  //delete myself
     }
 
 /** Compute the histogram of tracked object at the prediction.

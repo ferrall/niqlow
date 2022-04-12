@@ -26,16 +26,17 @@
 
 /* This file is part of niqlow. Copyright (C) 2012-2021 Christopher Ferrall */
 
-	/** Pseudonyms for -1, -2, &hellip;. @name Names_for_Integers **/
-enum {CondProbOne=1, UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,
-      DoAll=-1,      NoMatch=-1,   AllFixed=-1,  AllRand=-1,      UseSubSample=-1,  ResetValue=-1,
-      IterationFailed=-1, UseGradient=-1, ErgodicDist=-1,
-      NotInData=-2, UseCurrent=-2, UseCheckPoint = -2, AggGroup=-2,
-      TrackAll=-3,
-      Zero = 0, One, Two,
+	/** Pseudonyms for -3, -2, &hellip;. @name Names_for_Integers **/
+enum {Zero, One, Two, Three,
+      TrackAll=-Three,
+      NotInData=-Two, UseCurrent=-Two, UseCheckPoint = -Two, AggGroup=-Two,
+      UseDefault=-One,UseLabel = -One,UnInitialized=-One,Impossible=-One,
+      DoAll=-One,      NoMatch=-One,   AllFixed=-One,  AllRand=-One, UseSubSample=-One,
+      ResetValue=-One, IterationFailed=-One, UseGradient=-One, ErgodicDist=-One,
+      CondProbOne=One,
       abbrevsz = 4,             //standard size of abbreviated strings
-      xax=0,yax,zax,Naxes,     // x,y,z dimensions for graphs
-      _lo=0,_hi,GraphLimits
+      xax=Zero,yax,zax,Naxes,     // x,y,z dimensions for graphs
+      _lo=Zero,_hi,GraphLimits
       }
 
 /** Levels of output to produce while executing. @name NoiseLevels **/	

@@ -28,15 +28,13 @@ I::Initialize() {
 @internal
 **/
 I::Set(state,group) {
-
+    decl exists;
 	all[] = OO*state;
-    #ifdef OX_PARALLEL
-        // .Null not recognized by oxdoc
-    curth = (Theta[all[tracking]] == .Null) ? 0 : Theta[all[tracking]];
-    #endif
-    Alpha::SetA( isclass(curth) ? UseCurrent : NoMatch );
+    curth = Theta[all[tracking]];
+    exists = !isint(curth);
+    Alpha::SetA( exists ? UseCurrent : NoMatch  );
     if (group) SetGroup();
-    return isclass(curth);
+    return exists;
     }
 
 /** Set the current group.
@@ -70,10 +68,6 @@ I::SetExogOnly(state) {
 
 /** Tracks information about a subvector of the state vector. **/
 Space::Space() {D=0; C=N=<>;   X = M= size = 1; }
-Space::Append(newN) {
-	N |= newN;
-	size *= newN;
-    }
 
 /** Tracks information about a set of one or more `Space`s.**/
 SubSpace::SubSpace() {D=0; size=1; O=<>;}
@@ -258,7 +252,7 @@ DP::AddStates(SubV,va) 	{
             }
 		if (StateVariable::IsBlock(va[i])) {
 			for (j=0;j<va[i].N;++j) {
-				if (StateVariable::IsBlock(va[i].Theta[j])) oxrunerror("DDP Error 37. anested state blocks not allowed");
+				if (StateVariable::IsBlock(va[i].Theta[j])) oxrunerror("DDP Error 37. nested state blocks not allowed");
 				AddStates(SubV,va[i].Theta[j]);
 				va[i].Theta[j].block = va[i];
 				va[i].Theta[j] = 0;		    //avoids ping-pong reference
@@ -282,7 +276,8 @@ DP::AddStates(SubV,va) 	{
 			}
 		pos = S[SubV].D++;
 		SubVectors[SubV] |= va[i];
-        S[SubV]->Append(va[i]->GetN());
+		S[SubV].N |= va[i].N;
+		S[SubV].size *= va[i].N;
         va[i].subv = SubV;
 		if (pos) S[SubV].C ~= (S[SubV].C[pos-1])*S[SubV].N[pos]; else S[SubV].C = S[SubV].N[pos];
 		}

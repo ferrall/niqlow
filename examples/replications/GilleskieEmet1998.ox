@@ -29,7 +29,7 @@ DynaHealth::PWell() {
 	}
 
 DynaHealth::Replicate() {
-	Initialize(new DynaHealth(),FALSE); //EVExAnte
+	Initialize(new DynaHealth()); //EVExAnte
 	SetClock(Ergodic);
 	SetDelta(disc);
     SickL = 1;

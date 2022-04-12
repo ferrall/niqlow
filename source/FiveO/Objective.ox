@@ -1160,14 +1160,14 @@ Equilibrium::Equilibrium(L,T,P){
     if (!aggF.DoNotConstrain) aggF->ToggleParameterConstraint();
     println("Aggregate production function: ",aggF.L," of type ",classname(aggF));
     println("Aggregate inputs: ",aggF.PsiL,"Parameter constraints have been turned off");
-
+    stnpred.MakeFlat = TRUE;
     if (T>One) {
         aggF = {};TLabels = {}; allP={};
         decl t, ts;
         for(t=0;t<T;++t) {
             ts ="_"+sprint("%02u",t);
             aggF    |= clone(inAggF);
-            TLabels |= suffix(aggF.PsiL,ts);
+            TLabels |= suffix(inAggF.PsiL,ts);
             if (isint(P))
                allP |= new StDeviations("P"+ts,0,inAggF.PsiL);
             }
@@ -1214,7 +1214,7 @@ Equilibrium::vfunc() {
 **/
 Equilibrium::Print(orig,fn,toscreen){
     Objective::Print(orig,fn,toscreen);
-    decl details = sprint("%r",aggF.PsiL,"%c",{"MP-d-P","Q"},"%cf",{"%#12.7g"},foc~Q);
+    decl details = sprint("%r",aggF[0].PsiL,"%c",{"MP-d-P","Q"},"%cf",{"%#12.7g"},foc~Q);
     if (isfile(fn)) {fprintln(fn,details); }
     if (toscreen) println(details);
 	}

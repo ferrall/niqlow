@@ -15,10 +15,10 @@ Retirement::Run()	{
 	EndogenousStates(PrevJob = new LaggedAction("previ",i),
 	                 dur = new Duration("t-s",m,matrix(Stay),Smax),
 					 M = new RetainMatch(eS,m,Part~Full,Move) );
-	eI = new NormalRandomEffect("etaI",nReps,0.0,Sig1);
+	eI = new NormalRandomEffect("etaI",nReps,0.0~Sig1);
 	ejob = new array[Nsectors];
 	for (j=0;j<Nsectors;++j)
-		ejob[j]= new NormalRandomEffect("eta"+sprint(j),nReps,0.0,Sig2);
+		ejob[j]= new NormalRandomEffect("eta"+sprint(j),nReps,0.0~Sig2);
     //ejob[Stay] = 0;
 	GroupVariables(eI,ejob);
 	CreateSpaces();

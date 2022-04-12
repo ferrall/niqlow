@@ -105,7 +105,7 @@ Does not delete prev and next to avoid recursion.
 
 **/
 Outcome::~Outcome() {
-	if (isclass(prev)) prev.onext = UnInitialized;
+//	if (isclass(prev)) prev.onext = UnInitialized;
 	delete ind, delete aux, delete act, delete state, delete Ainds;
 	}
 
@@ -192,7 +192,7 @@ Path::~Path() {
 		delete onext;
 		onext = cur;
 		}
-	~Outcome();
+	~Outcome();    //delete myself
 	}	
 
 /** Produce a matrix representation of the path.
@@ -253,12 +253,15 @@ Path::Simulate(newstate,T,DropTerminal){
        } while(TRUE);
 	if (DropTerminal && done && this.T>1) {  //don't delete if first state is terminal!! Added March 2015.
 		last = cur.prev;
-		delete cur;
-		last.onext = UnInitialized;
 		--this.T;
 		}
 	else
 		last = cur;
+    while (isclass(last.onext)) {   //TRIM EXCESS OUTCOMES
+        cur = last.onext;
+        last.onext = cur.onext;
+        delete cur;
+        }
     Flags::NewPhase(INBETWEEN);
 	}
 
@@ -307,10 +310,6 @@ FPanel::~FPanel() {
 		delete pnext;
 		pnext = cur;
 		}
-	/* delete SD; SD = UnInitialized;
-        delete upddens; upddens = UnInitialized;
-	   delete summand; summand=UnInitialized;
-    */
 	~Path();				//delete root path
 	}	
 
@@ -457,11 +456,8 @@ Panel::Panel(r,method) {
 @internal
 **/
 Panel::~Panel() {
-	while (isclass(fnext)) {	//end of panel not reached
-		cur = fnext.fnext;
-		delete fnext;		//delete fpanel
-		fnext = cur;
-		}
+    decl i;
+	for (i=One;i<sizeof(fparray);++i) delete fparray[i];
 	~FPanel();				//delete root panel
 	}
 

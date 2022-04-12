@@ -13,10 +13,10 @@ French2005::Run()	{
 		println(acteqpars);
 		Actions(i = new ActionVariable("i",Nactions));
 		ejob = new array[Nsectors];
-		ejob[Retire]= new NormalRandomEffect("etaR",counter,nReps,sig2[col]);
-		ejob[Part] 	= new NormalRandomEffect("etaP",counter,nReps,sig2[col]);
-		ejob[Full] 	= new NormalRandomEffect("etaF",counter,nReps,sig2[col]);
-		eI 			= new NormalRandomEffect("etaI",counter,nReps,sig1[col]);
+		ejob[Retire]= new NormalRandomEffect("etaR",nReps,0~sig2[col]);
+		ejob[Part] 	= new NormalRandomEffect("etaP",nReps,0~sig2[col]);
+		ejob[Full] 	= new NormalRandomEffect("etaF",nReps,0~sig2[col]);
+		eI 			= new NormalRandomEffect("etaI",nReps,0~sig1[col]);
 		ExogenousStates(ejob[Retire],ejob[Part],ejob[Full],eI);
 		SemiExogenousStates(eS = new Zvariable("etaS",nReps) );
 		EndogenousStates(retired = new ActionTracker("ret.",i,Retire),

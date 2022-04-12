@@ -26,4 +26,6 @@ struct AiyagariAgent : ExPostSmoothing {
     static Build(price,K);
 	static Consumption();
     static LS();
+    static statsig();
+    static trho();
 	}
