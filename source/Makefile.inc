@@ -1,8 +1,8 @@
 #Version := OxMetrics7
-#Version := OxMetrics8
-#ExPath := Ox\bin64
-Version := OxMetrics9
-ExPath := Ox
+Version := OxMetrics8
+ExPath := Ox\bin64
+#Version := OxMetrics9
+#ExPath := Ox
 OS := Windows
 
 ifeq ($(OS), Windows)

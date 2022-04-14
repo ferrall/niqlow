@@ -112,7 +112,7 @@ HMGSolve::Solve(state) {
     ZeroTprime();
     MaxTrips = 1;
     succeed = TRUE;
-    warned = FALSE;
+    AuxRun = warned = FALSE;
 	loop();
     if (!HotzMiller::AMstep) {
 	   tmpP = -I::CVdelta*I::curg.Ptrans;

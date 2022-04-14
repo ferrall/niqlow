@@ -359,7 +359,7 @@ KWGSolve::Solve(instate) {
 	state[] = instate;
     ZeroTprime();
 	Flags::setPstar = TRUE;	
-    warned = FALSE;
+    AuxRun = warned = FALSE;
     curlabels = xlabels0|xlabels1|xlabels2;  //This should depend on feasible set!
 	for (myt=N::T-1;myt>=0;--myt) {
 		state[cpos] = XUT.state[cpos] = myt;
