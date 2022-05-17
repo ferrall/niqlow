@@ -78,9 +78,9 @@ struct ExogAuxOut : ExTask {
 The path is a doubly-linked list of `Outcome`s.
 **/
 struct Path : Outcome {
-	const 	decl
-		/** index of path in a panel. **/	i;
-			decl
+	decl
+		/** index of path in a panel. **/	            i,
+       /** frequency of outcomes represented by this.**/freq,
         /** type of likelihood calculation. **/         LType,
         /** current index of random effects.**/         rcur,
 		/** . @internal **/								cur,
@@ -89,7 +89,7 @@ struct Path : Outcome {
 		/** likelihood of the path.**/					L,
         /** . **/                                       flat,
 		/**	Last `Outcome` in the path. @internal **/	last;
-			Path(id,state0);
+			Path(id,state0,infreq=1);
 			~Path();
 	virtual	Simulate(newstate=UnInitialized,T=UnInitialized,DropTerminal=FALSE);
 	        Likelihood();
@@ -131,7 +131,7 @@ struct FPanel : Path {
 	virtual Simulate(N, T,ErgOrStateMat=0,DropTerminal=FALSE,pathpred=UnInitialized);
             LogLikelihood();
 	virtual Collapse(cond,stat);
-			Append(i);
+			Append(i,freq=1);
 	}
 
 /**A heterogenous panel.
@@ -148,6 +148,7 @@ struct Panel : FPanel {
 	/** total paths. **/                    FN,
 	/** total outcomes in the panel. **/ 	FNT,
 	/** . @internal **/						cur,
+    /** .**/                                first,
 	/** panel likelihood vector. **/	 	M,
 	/** matrix representation of panel.
 		@see Panel::Flat **/				flat;
@@ -194,7 +195,9 @@ See <a href="../FiveO/Objective.ox.html#DataObjective">DataObjective</a>.
 struct OutcomeDataSet : Panel {
 	const decl 										low,
     /** Label for the data set. **/                 label;
-	decl											
+	decl					
+                                                    HasFrequencies,
+                                                    freqcol,
                                                     LTypes,
 													masked,
 	/** labels  **/									dlabels,
@@ -211,6 +214,8 @@ struct OutcomeDataSet : Panel {
 	Read(fn,SearchLabels=FALSE);
 	IDColumn(lORind="path");
     tColumn(lORind="t");
+    freqColumn(lORind="freq");
+
 	Summary(data,rlabels=0);
     Simulate(N,T,ErgOrStateMat=0,DropTerminal=FALSE,pathpred=UnInitialized);
     virtual EconometricObjective(subp=DoAll);

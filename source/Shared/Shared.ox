@@ -36,7 +36,7 @@ Version::Check(indir) {
  tmstmp = replace("-"+date()+"-"+replace(time(),":","-")," ","");
  if (!Version::MPIserver)
     println("\n niqlow version ",sprint("%4.2f",version/100),
-    ". Copyright (C) 2011-2020 Christopher Ferrall.\n",
+    ". Copyright (C) 2011-2022 Christopher Ferrall.\n",
     "Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n",
     "Log file directory: '",logdir=="" ? "." : logdir,"'. Time stamp: ",tmstmp,".\n\n");
 
@@ -288,8 +288,10 @@ If the new Volume is SILENT and a log file is already open then the log file is 
 **/
 Quantity::SetVolume(Volume) {
     if (Volume > this.Volume) {
-        if (isint(logf))
-            logf = fopen(Version::logdir+"Q-"+classname(this)+"-"+L+"-"+Version::tmstmp+".log","w");
+        if (isint(logf)) {
+            logf = fopen(Version::logdir+"Q-"+classname(this)+"-"+L+".log","a");
+            fprintln(logf,"**** "+Version::tmstmp+" ****");
+            }
         }
     else {
         if (Volume==SILENT && isfile(logf)) {

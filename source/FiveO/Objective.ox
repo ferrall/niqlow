@@ -33,8 +33,9 @@ Objective::Objective(L,CreateCur)	{
 	Blocks = {};
 	Volume = QUIET;
     RunSafe = TRUE;
-    lognm = replace(Version::logdir+"Obj-"+classname(this)+"-"+L+Version::tmstmp," ","")+".log";
+    lognm = replace(Version::logdir+"Obj-"+classname(this)+"-"+L," ","")+".log";
     logf = fopen(lognm,"av");
+    fprintln(logf,"**** ",Version::tmstmp," ****");
 	if (CreateCur) vcur = new Point();
 	fshold = hold = maxpt = NvfuncTerms  = UnInitialized;
 	p2p = once = nstruct = INGRADIENT = DoNotConstrain = FALSE;
@@ -441,6 +442,7 @@ Objective::ToggleParams(...
     #endif
 ) {
     decl v,p;
+    if (!once) oxrunerror("Must call Load() or Encode() before toggling parameters");
 	foreach (v in va) {
         if (isarray(v)) { foreach (p in v) ToggleParams(p); }
         else

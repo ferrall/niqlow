@@ -680,7 +680,7 @@ PathPrediction::Initialize() {
     if (isclass(mother,"PanelPrediction")) mother->InitializePath(pstate);
     flat = <>;
     L = +.Inf;
-    first = TRUE;
+    firstprediction = TRUE;
     return TRUE;
     }
 
@@ -703,7 +703,7 @@ PathPrediction::TypeContribution(pf,subflat) {
   ExogOutcomes::SetAuxList(ctlist);  //mother.tlist
   if (Data::Volume>LOUD) println("++ TypeContribution ",Version::MPIserver," ",pf);
   do {
-     cur->SetMoms(sizeof(ctlist),first);
+     cur->SetMoms(sizeof(ctlist),firstprediction);
      foreach(tv in mother.tlist) {
         tv.track->Reset();
         if (tv.Volume>=LOUD) println(tv.L," ",tv.track.mean);
@@ -733,7 +733,7 @@ PathPrediction::TypeContribution(pf,subflat) {
         delete nxt;
         } while (( isclass(nxt = cur) ));
      }
-  first = FALSE;
+  firstprediction = FALSE;
   Flags::NewPhase(INBETWEEN,Data::Volume>QUIET);
   if (Data::Volume>LOUD) println("----------------");
   return 0;
@@ -802,27 +802,31 @@ PanelPrediction::~PanelPrediction() {
         array: a list of state INDICES and a list of probabilities, can be the output of a IID Transit()<br/>
         object of Prediction class: use `Prediction::sind` as the initial state for this prediction.
 @param wght [default=UNCORRELATED]
-@param aggshares   0 [default] equal shares of averaged moments over fixed groups<br />Fx1 vector, share of population
+@param aggshares   0 [default] equal shares of averaged moments over fixed groups<br/>
+                  -1 [UnInitialized] do not compute averaged moments<br />
+                  Fx1 vector, share of population
 **/
 PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
     decl k;
-    aggexists= N::F>One;
+    aggexists= N::F>One && (isint(aggshares)&&aggshares!=UnInitialized);
     PathPrediction(this,aggexists ? AggGroup : 0,method,iDist,wght,0);	
     EverPredicted = FALSE;
     this.method = method;
     tlabels = {"t"};  //,"S"
     tlist = {};
-    pcount = 0;
+    pcount = first = Zero;
     label = isint(label) ? classname(userState) : label;
     PredMomFile=replace(Version::logdir+DP::L+"_PredMoments_"+label," ",""); // removed so pcount can be used +".dta";
-    if (aggexists) {
+    if (N::F>One) {
 	   fparray = new array[N::F];
 	   for (k=Zero;k<N::F;++k) {
-            fparray[k] = new PathPrediction(this,k,method,iDist,wght,ismatrix(aggshares)? aggshares[k] : 1/N::F);
-            if (!k)
-                first = cur = fparray[k];
-            else
-                cur = cur.fnext = fparray[k];
+            if (isclass(I::SetGroup(k*N::R))) {
+                fparray[k] = new PathPrediction(this,k,method,iDist,wght,ismatrix(aggshares)? aggshares[k] : 1/N::F);
+                if (!isclass(first))
+                    first = cur = fparray[k];
+                else
+                    cur = cur.fnext = fparray[k];
+                }
             }
        if (!isclass(method))
         oxwarning("DDP Warning: Solution method is not nested with fixed effects present.  Predictions may not be accurate");
