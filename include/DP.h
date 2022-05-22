@@ -410,6 +410,7 @@ struct CGTask 		: GroupTask {
 
 /** The base task for looping over random effects $\gamma_r$.  **/
 struct RETask 		: GroupTask { 	
+    const decl fixl,fixr;
     RETask(caller=UnInitialized);
     SetFE(f);	
     SetRE(f,r);

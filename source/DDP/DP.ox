@@ -1945,9 +1945,10 @@ FETask::FETask() {
 
 **/
 RETask::SetFE(f) {
-	state[] = isint(f) ? ReverseState(f,onlyfixed)
-       				 : f;
-    SyncStates(SS[onlyfixed].left,SS[onlyfixed].right);
+
+	state[fixl:fixr] = isint(f) ? ReverseState(f,onlyfixed)[fixl:fixr]
+       				 : f[fixl:fixr];
+    SyncStates(fixl,fixr);
     I::f = I::all[onlyfixed];
 	}
 	
@@ -1957,6 +1958,8 @@ RETask::SetFE(f) {
 RETask::RETask(caller) {
 	GroupTask(caller);
 	span = onlyrand;	left = SS[span].left;	right = SS[span].right;
+    fixl = SS[onlyfixed].left;
+    fixr = SS[onlyfixed].right;
 	}
 
 /** Set fixed and random effect segment of state vector for task.
@@ -2247,6 +2250,7 @@ RandomEffectsIntegration::Run() {
     path.rcur = I::r;  //Added Dec. 2016
     if (Flags::UpdateTime[AfterRandom ]) ETT->Transitions(I::curg.state);
     L += path->TypeContribution(curREdensity);
+    println("@@@ ",curREdensity," ",L);
     }
 
 /** Open data log with timestamp.

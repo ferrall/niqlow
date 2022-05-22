@@ -588,6 +588,7 @@ Outcome::PartialObservedLikelihood() {
 		arows=ind[onlyacts][Ainds[q]];                    //action rows consistent with this state
 		PS = GetPstar(viinds[now][q])[arows][];         //choice probabilities of consistent actions
         ue = GetUseEps(viinds[now][q]);
+        println("%%% ",q," ",PS);
 		for (h = 0,totprob = 0.0;h<nh;++h) {      //loop over semi-exogenous values
 			bothrows = dosemi[h]*N::Ewidth + einds;                       //combination of consistent epsilon and eta values
 			curprob = sumr( PS[][ bothrows ].*(ue ? NxtExog[Qprob][ bothrows ]' : 1.0/nh ) )';  //combine cond. choice prob. and iid prob. over today's shocks
@@ -665,6 +666,7 @@ Path::TypeContribution(pf,subflat) {
 		cur->Outcome::Likelihood(LType);
 		now = !now;
 		} while((isclass(cur = cur.prev)));
+    if (freq>1) println("---- ",pf,vilikes[!now]);
     L = pf*double(sumr(vilikes[!now])); //final like always in !now.
 	return L;
 	}
@@ -764,8 +766,10 @@ FPanel::LogLikelihood() {
 		upddens->loop();
 		}
 	for (i=0,cur = this;i<N;++i,cur = cur.pnext) {
+        if (cur.freq>1) println("#### ");
         cur->Path::Likelihood();
 		FPL[i] = cur.freq * log(cur.L);
+        println("$$$$ ",FPL[i]);
 		}
     Flags::NewPhase(INBETWEEN,Data::Volume>QUIET);
     return TRUE;
@@ -811,9 +815,12 @@ Path::Mask() {
 @internal
 **/
 FPanel::Mask(aLT) {
-	cur = this;	
+	decl cur = this;	
     do {
-        cur -> Path::Mask(); aLT[0][cur.LType] += 1;
+        if (cur.T) {
+            cur -> Path::Mask();
+            aLT[0][cur.LType] += 1;
+            }
         } while ( (isclass(cur = cur.pnext)) );
 	}	
 
