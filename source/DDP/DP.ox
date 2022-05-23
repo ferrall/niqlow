@@ -1972,6 +1972,7 @@ This calls SyncStates and `I::Set`()
 
 **/
 RETask::SetRE(f,r) {
+    state[left:right] = 0;
     SetFE(f);
 	state += ReverseState(r,onlyrand);
     SyncStates(left,right);
@@ -2250,7 +2251,6 @@ RandomEffectsIntegration::Run() {
     path.rcur = I::r;  //Added Dec. 2016
     if (Flags::UpdateTime[AfterRandom ]) ETT->Transitions(I::curg.state);
     L += path->TypeContribution(curREdensity);
-    println("@@@ ",curREdensity," ",L);
     }
 
 /** Open data log with timestamp.
