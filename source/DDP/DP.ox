@@ -2101,7 +2101,7 @@ fixed effect group is complete.
 **/
 DPDebug::outV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
     outAllV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice);
-    OutAll = FALSE;
+    //OutAll = FALSE;  May 2022:  Not sure why this was here.
     DPDebug::RunOut();
 	}
 
@@ -2114,9 +2114,11 @@ DPDebug::RunOut() {
     else if (isfile(logf)) fprintln(logf,hder);
 	rp -> Traverse();
 	if (rp.ToScreen) println(div,"\n");	else if (isfile(logf)) fprintln(logf,div,"\n");	
-	if (!OutAll || (!I::f&&!I::r) ) {   //last or only group, so delete rp and reset.
+    ++ndone;
+	if (ndone==N::G) {   //last or only group, so delete rp and reset.
         delete rp;
         OutAll = FALSE;
+        ndone = Zero;
         }
     }
 
@@ -2136,6 +2138,7 @@ DPDebug::Initialize() {
         Vlabel0 |= "  Erg.Distn  |";
         prtfmt0 |= "%11.7f";
         }
+    ndone=Zero;
 	}
 
 /** . @internal **/

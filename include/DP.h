@@ -534,7 +534,7 @@ struct Group : DP {
 struct DPDebug : ThetaTask {
 	static const decl
 		div = "     ------------------------------------------------------------------------------";
-	static decl prtfmt0, prtfmt, SimLabels, SVlabels, Vlabel0, rp, OutAll;
+	static decl prtfmt0, prtfmt, SimLabels, SVlabels, Vlabel0, rp, OutAll, ndone;
 	static Initialize();		
 	static outV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
     static outAllV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);

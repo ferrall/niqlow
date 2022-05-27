@@ -666,7 +666,6 @@ Path::TypeContribution(pf,subflat) {
 		cur->Outcome::Likelihood(LType);
 		now = !now;
 		} while((isclass(cur = cur.prev)));
-    if (freq>1) println("---- ",pf,vilikes[!now]);
     L = pf*double(sumr(vilikes[!now])); //final like always in !now.
 	return L;
 	}
@@ -766,10 +765,8 @@ FPanel::LogLikelihood() {
 		upddens->loop();
 		}
 	for (i=0,cur = this;i<N;++i,cur = cur.pnext) {
-        if (cur.freq>1) println("#### ");
         cur->Path::Likelihood();
 		FPL[i] = cur.freq * log(cur.L);
-        println("$$$$ ",FPL[i]);
 		}
     Flags::NewPhase(INBETWEEN,Data::Volume>QUIET);
     return TRUE;
