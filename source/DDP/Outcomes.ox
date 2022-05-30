@@ -228,7 +228,7 @@ Path::Deep(){
 
 Checks to see if transition is &Rho; is <code>tracking</code>.  If not, process span the state space with `EndogTrans`.
 @param newstate UnInitialized (default) state already set<br/>state to add to group state
-@param T integer, max. length of the panel<br/>0, no maximum lenth; simulation goes on until a Terminal State is reached.
+@param T integer, max. length of the panel<br/>0, no maximum lenth; simulation goes on until a Terminawl State is reached.
 @param DropTerminal drop states that are terminal
 
 
