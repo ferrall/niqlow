@@ -204,7 +204,7 @@ GSolve::Update() {
                         || counter->setPstar(FALSE);
 		N::VV[I::now][:I::MxEndogInd] = 0.0;
 		}
-	if (Volume>LOUD) println("   t:",I::t," Trip:",trips," Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes": "No");
+	if (Volume>=LOUD) println("   t:",I::t," Trip:",trips," Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes": "No");
  	state[right] += done;		//put counter back to 0 	if necessary
 	SyncStates(right,right);
     return done || (trips>=MaxTrips);

@@ -103,7 +103,7 @@ RVGSolve::Solve(state) {
     decl rv;
     foreach (rv in RValSys)
         if (isclass(rv)) {
-            rv.meth.Volume = max(SILENT,Volume-1);  //one step less than master
+            rv.meth.Volume = max(SILENT,Volume-Two);  //two steps less than master
             rv.meth->Tune(MaxTrips);
             }
     GSolve::Solve(state);

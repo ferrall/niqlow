@@ -96,6 +96,7 @@ Prediction::IncAcc(inf,addmom) {
         accmom = addmom;
     else
         accmom += addmom;
+    println("** ",inf,accmom);
     }
 /** Initialize and if necessary set moms vectors.
 @param sz length of current ctlist.
