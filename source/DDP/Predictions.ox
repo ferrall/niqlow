@@ -213,6 +213,7 @@ PathPrediction::ProcessContributions(cmat){
             }
         if (aggexists) {
             aggcur->IncAcc(f,myshare * cur->GetAcc());
+            println("## ",f,aggcur->GetAcc());
             aggcur = aggcur.pnext;
             }
         cur    =    cur.pnext;
@@ -810,6 +811,7 @@ PanelPrediction::~PanelPrediction() {
 PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
     decl k;
     aggexists= N::F>One && (isint(aggshares)&&aggshares!=UnInitialized);
+    println("AGG EXISTS: ",aggexists);
     PathPrediction(this,aggexists ? AggGroup : 0,method,iDist,wght,0);	
     EverPredicted = FALSE;
     this.method = method;
@@ -893,6 +895,7 @@ PanelPrediction::Predict(inT,prtlevel,outmat) {
                     }
                 else
                     vdelt |= cur->Delta(mask,Data::Volume>QUIET,tlabels[One:]);
+                println("Agg Fit ",cur.t,vdelt[rows(vdelt)-1][]);
                 cur    =    cur.pnext;
   	            } while(isclass(cur));
             L = ismatrix(pathW) ? outer(vdelt,pathW) : norm(vdelt,'F') ;
