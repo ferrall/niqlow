@@ -64,7 +64,7 @@ Method::Initialize(MaxTrips) {
         qtask.itask.Volume = Volume;
         qtask.itask.vtoler = vtoler;
         qtask.itask.succeed = TRUE;
-        qtask.itask.MaxTrips = (MaxTrips==ResetValue) ? 0 : MaxTrips;
+        qtask.itask.MaxTrips = (MaxTrips==ResetValue) ? 0 : (MaxTrips==UseCurrent) ? this.MaxTrips : MaxTrips;
     done = FALSE;
     Flags::NewPhase(SOLVING);
     }
@@ -183,7 +183,7 @@ Solution is not run if the density of the point in the group space equals 0.0.
 
 **/
 RandomSolve::Run()  {
-	if (I::curg->Reset()>0.0) {
+	if (isclass(I::curg) && I::curg->Reset()>0.0) {
         if (Flags::UpdateTime[AfterRandom]) ETT->Transitions(state);
         retval =itask->Solve(this.state);
         if (Flags::IsErgodic) I::curg->StationaryDistribution();

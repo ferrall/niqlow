@@ -184,12 +184,17 @@ Test6::Run() {
 	decl sp = new Panel(0,EMax);
 	sp -> Simulate(30,20,0,0);
 	DPDebug::outV(TRUE);
-	sp -> Print(FALSE);
+	sp -> Print(2);
+    println("0.");
     delete EMax;
     delete sp;
+    println("1.");
     sp = new PanelPrediction(0,"hi");
+    println("2.");
     sp->Tracking(TrackAll);
+    println("3.");
     sp->Predict(5,2);
+        println("4.");
     delete sp;
 	Delete();
 	}

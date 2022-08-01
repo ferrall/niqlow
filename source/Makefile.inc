@@ -6,8 +6,7 @@ ExPath := Ox\bin64
 OS := Windows
 
 ifeq ($(OS), Windows)
-#	OX := "C:\Program Files\$(Version)\Ox\oxl.exe"
-	OX := "C:\Program Files\$(Version)\Ox\bin64\oxl.exe"
+	OX := "C:\Program Files\$(Version)\$(ExPath)\oxl.exe"
 	OXFLAGS := -DOX7 -v1 -d
 	ECHO := echo
 	CD := dir

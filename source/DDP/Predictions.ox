@@ -34,6 +34,7 @@ Transitions to unreachable states is tracked and logged in the Data logfile.
 @see TrackObj::Distribution
 **/
 Prediction::Predict() {
+
     EOoE.state[:right] = state[:right] = 0;
     if (!sizec(sind)) {     //no indices are current
         predmom[] = .NaN;
@@ -72,12 +73,16 @@ Prediction::Predict() {
             LeakWarned = TRUE;
             }
         }
-     if (Data::Volume>LOUD) {
+/*     if (Data::Volume>LOUD) {
         decl ach = sumr(ch), posch = !isdotfeq(ach,0.0);
-        if (isfile(Data::logf)) fprintln(Data::logf,t," States and probabilities","%r",{"Index","Prob."},selectifc(sind|p,!isdotfeq(p,0.0)),
+// This fprintln() causing an unexplained error:
+//Runtime error in Predict (80): '[][2] in matrix[1][1]' index out of range
+        if (isfile(Data::logf)) fprintln(Data::logf,t," States and probabilities","%r",
+            {"Index","Prob."},selectifc(sind|p,!isdotfeq(p,0.0)),
             Alpha::aL1,"Non-zero Choice Probabilities ",
             "%r",Alpha::Rlabels[0][selectifr(Alpha::AIlist[0],posch)],selectifr(ach,posch));
         }
+*/
     return allterm;
 	}
 	
@@ -139,7 +144,6 @@ PathPrediction::SetT() {
 	 if (!isclass(cur.pnext)) {  // no tomorrow after current
         if (inT && cur.t+1<this.T) { // predict for a fixed T
             cur.pnext = new Prediction(cur.t+1);
-            //++this.T;
             }
         }
      else {
@@ -184,7 +188,8 @@ If aggregate moments are being tracked then the weighted values for this
 
 **/
 PathPrediction::ProcessContributions(cmat){
-    decl ismat = ismatrix(cmat),  aggcur=mother, flatify = !Version::MPIserver && (Data::Volume>QUIET || prtlevel) ;
+    decl ismat = ismatrix(cmat),  aggcur=mother,
+        flatify = MakeFlat || ( !Version::MPIserver && (Data::Volume>QUIET || prtlevel) ) ;
     vdelt =<>;    dlabels = {};
     if (ismatrix(flat)) delete flat;
     if (flatify) {
@@ -480,13 +485,13 @@ PathPrediction::PathPrediction(mother,f,method,iDist,wght,myshare){
     this.wght = wght;
     this.myshare = myshare;
 	fnext = UnInitialized;
-    Prediction(0);
-    T = 1;
-    prtlevel = flat = pathW = inT = 0;
+    Prediction(Zero);
+    T = One;
+    prtlevel = flat = pathW = inT = Zero;
     pstate = ReverseState(f,onlyfixed);
-    fvals = N::F>1 ? f~pstate[S[fgroup].M:S[fgroup].X]' : matrix(f); //f must be a matrix so Fcols is correct
+    fvals = N::F>One ? f~pstate[S[fgroup].M:S[fgroup].X]' : matrix(f); //f must be a matrix so Fcols is correct
     Fcols = columns(fvals);
-    HasObservations = FALSE;
+    MakeFlat = HasObservations = FALSE;
 	}
 
 
@@ -503,13 +508,12 @@ Prediction::~Prediction() {
 
 **/
 PathPrediction::~PathPrediction() {
-	//decl v; foreach(v in tlist ) delete v;
-	while (isclass(pnext)) {
+	while (isclass(pnext)) {  // delete all but first
 		cur = pnext.pnext;
 		delete pnext;
 		pnext = cur;
 		}
-	~Prediction();
+	~Prediction();  //delete myself
     }
 
 /** Compute the histogram of tracked object at the prediction.
@@ -676,7 +680,7 @@ PathPrediction::Initialize() {
     if (isclass(mother,"PanelPrediction")) mother->InitializePath(pstate);
     flat = <>;
     L = +.Inf;
-    first = TRUE;
+    firstprediction = TRUE;
     return TRUE;
     }
 
@@ -699,7 +703,7 @@ PathPrediction::TypeContribution(pf,subflat) {
   ExogOutcomes::SetAuxList(ctlist);  //mother.tlist
   if (Data::Volume>LOUD) println("++ TypeContribution ",Version::MPIserver," ",pf);
   do {
-     cur->SetMoms(sizeof(ctlist),first);
+     cur->SetMoms(sizeof(ctlist),firstprediction);
      foreach(tv in mother.tlist) {
         tv.track->Reset();
         if (tv.Volume>=LOUD) println(tv.L," ",tv.track.mean);
@@ -729,7 +733,7 @@ PathPrediction::TypeContribution(pf,subflat) {
         delete nxt;
         } while (( isclass(nxt = cur) ));
      }
-  first = FALSE;
+  firstprediction = FALSE;
   Flags::NewPhase(INBETWEEN,Data::Volume>QUIET);
   if (Data::Volume>LOUD) println("----------------");
   return 0;
@@ -798,27 +802,31 @@ PanelPrediction::~PanelPrediction() {
         array: a list of state INDICES and a list of probabilities, can be the output of a IID Transit()<br/>
         object of Prediction class: use `Prediction::sind` as the initial state for this prediction.
 @param wght [default=UNCORRELATED]
-@param aggshares   0 [default] equal shares of averaged moments over fixed groups<br />Fx1 vector, share of population
+@param aggshares   0 [default] equal shares of averaged moments over fixed groups<br/>
+                  -1 [UnInitialized] do not compute averaged moments<br />
+                  Fx1 vector, share of population
 **/
 PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
     decl k;
-    aggexists= N::F>One;
+    aggexists= N::F>One && (!isint(aggshares) || aggshares!=UnInitialized);
     PathPrediction(this,aggexists ? AggGroup : 0,method,iDist,wght,0);	
     EverPredicted = FALSE;
     this.method = method;
     tlabels = {"t"};  //,"S"
     tlist = {};
-    pcount = 0;
+    pcount = first = Zero;
     label = isint(label) ? classname(userState) : label;
     PredMomFile=replace(Version::logdir+DP::L+"_PredMoments_"+label," ",""); // removed so pcount can be used +".dta";
-    if (aggexists) {
+    if (N::F>One) {
 	   fparray = new array[N::F];
 	   for (k=Zero;k<N::F;++k) {
-            fparray[k] = new PathPrediction(this,k,method,iDist,wght,ismatrix(aggshares)? aggshares[k] : 1/N::F);
-            if (!k)
-                first = cur = fparray[k];
-            else
-                cur = cur.fnext = fparray[k];
+            if (isclass(I::SetGroup(k*N::R))) {
+                fparray[k] = new PathPrediction(this,k,method,iDist,wght,ismatrix(aggshares)? aggshares[k] : 1/N::F);
+                if (!isclass(first))
+                    first = cur = fparray[k];
+                else
+                    cur = cur.fnext = fparray[k];
+                }
             }
        if (!isclass(method))
         oxwarning("DDP Warning: Solution method is not nested with fixed effects present.  Predictions may not be accurate");

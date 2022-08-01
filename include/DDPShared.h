@@ -97,11 +97,12 @@ enum {NOW,LATER,DVspace}
             <tr><td valign="top">avar</td><td>`ActionVariable`</td></tr>
             <tr><td valign="top">svar</td><td>`StateVariable`</td></tr>
             <tr><td valign="top">idvar</td><td>`AuxiliaryValue`</td></tr>
+            <tr><td valign="top">freqvar</td><td>Frequency (weight to apply to this observation)</td></tr>
             </table>
 
         @name DataColumnTypes
         **/
-enum{idvar,avar,svar,auxvar,NColumnTypes}
+enum{idvar,avar,svar,auxvar,freqvar,NColumnTypes}
 
 static const decl ilistnames = {"StateVariable","ActionVariable","AuxiliaryValue"};
 

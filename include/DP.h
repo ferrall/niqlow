@@ -20,6 +20,7 @@ struct Space : DDPauxiliary	{
     /** Min indices of  var group in state vector.**/   M,
     /** product of VN over VM[] to VX[].   **/ 			size;
 	Space(); 	
+    Append(newN);
     }
 
 /**Stores information on a set of spaces, such as reality or treatment **/
@@ -409,6 +410,7 @@ struct CGTask 		: GroupTask {
 
 /** The base task for looping over random effects $\gamma_r$.  **/
 struct RETask 		: GroupTask { 	
+    const decl fixl,fixr;
     RETask(caller=UnInitialized);
     SetFE(f);	
     SetRE(f,r);
@@ -532,7 +534,7 @@ struct Group : DP {
 struct DPDebug : ThetaTask {
 	static const decl
 		div = "     ------------------------------------------------------------------------------";
-	static decl prtfmt0, prtfmt, SimLabels, SVlabels, Vlabel0, rp, OutAll;
+	static decl prtfmt0, prtfmt, SimLabels, SVlabels, Vlabel0, rp, OutAll, ndone;
 	static Initialize();		
 	static outV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);
     static outAllV(ToScreen=TRUE,aOutMat=0,MaxChoiceIndex=FALSE,TrimTerminals=FALSE,TrimZeroChoice=FALSE);

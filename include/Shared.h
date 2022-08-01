@@ -26,16 +26,17 @@
 
 /* This file is part of niqlow. Copyright (C) 2012-2021 Christopher Ferrall */
 
-	/** Pseudonyms for -1, -2, &hellip;. @name Names_for_Integers **/
-enum {CondProbOne=1, UseDefault=-1,UseLabel = -1,UnInitialized=-1,Impossible=-1,
-      DoAll=-1,      NoMatch=-1,   AllFixed=-1,  AllRand=-1,      UseSubSample=-1,  ResetValue=-1,
-      IterationFailed=-1, UseGradient=-1, ErgodicDist=-1,
-      NotInData=-2, UseCurrent=-2, UseCheckPoint = -2, AggGroup=-2,
-      TrackAll=-3,
-      Zero = 0, One, Two,
+	/** Pseudonyms for -3, -2, &hellip;. @name Names_for_Integers **/
+enum {Zero, One, Two, Three,
+      TrackAll=-Three,
+      NotInData=-Two, UseCurrent=-Two, UseCheckPoint = -Two, AggGroup=-Two,
+      UseDefault=-One,UseLabel = -One,UnInitialized=-One,Impossible=-One,
+      DoAll=-One,      NoMatch=-One,   AllFixed=-One,  AllRand=-One, UseSubSample=-One,
+      ResetValue=-One, IterationFailed=-One, UseGradient=-One, ErgodicDist=-One,
+      CondProbOne=One,
       abbrevsz = 4,             //standard size of abbreviated strings
-      xax=0,yax,zax,Naxes,     // x,y,z dimensions for graphs
-      _lo=0,_hi,GraphLimits
+      xax=Zero,yax,zax,Naxes,     // x,y,z dimensions for graphs
+      _lo=Zero,_hi,GraphLimits
       }
 
 /** Levels of output to produce while executing. @name NoiseLevels **/	
@@ -89,8 +90,8 @@ enum{LINEAR,LOGLINEAR,MULTIPLICATIVE,MINUSSUMOFSQUARES,SUMOFSQUARES,Aggregators}
             at the endogenous state $\theta$.
         <table>
         <tr><th>Tags</th><td>Value</td><th>$\theta$ Type</th></tr>
-        <tr><td>ORDINARY,INSUBSAMPLE</td>   <td>0</td><td></td></tr>
-        <tr><td>NOTSASMPLED,IGNOREEXOG</td><td>1</td><td>randomly selected for first stage of KW approximation</td></tr>
+        <tr><td>ORDINARY,INSUBSAMPLE</td>   <td>0</td><td>randomly selected for first stage of KW approximation</td></tr>
+        <tr><td>NOTSASMPLED,IGNOREEXOG</td><td>1</td><td>approximated if KW or utility does not depend on $\epsilon$</td></tr>
         <tr><td>LASTT</td>      <td>2</td><td>subsampled AND last period of decision-making</td></tr>
         <tr><td>LASTNOTSAMPLED</td>   <td>3</td><td>LASTT AND NOTSAMPLED</td></tr>
         <tr><td>TERMINAL</td>   <td>4</td><td>Terminal state</td></tr>
@@ -201,6 +202,7 @@ struct Discrete	: Quantity{
 			/** corresponding model vals.  **/  	actual,
 			/** vector of prob. of vals. **/		pdf;
 	Discrete(L,N);
+    GetN();
 	virtual PDF();
 	virtual Update();
     virtual SetActual(MaxV=1.0,Report=FALSE);

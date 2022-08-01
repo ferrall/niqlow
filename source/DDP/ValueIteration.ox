@@ -92,7 +92,7 @@ NewtonKantorovich::NewtonKantorovich(myNGSolve) {
 /**Solve Bellman's Equation switching to N-K when a tolerance is reached.
 @param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
 @param Rgroups
-@param MaxTrips 0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
+@param MaxTrips 0, iterate until convergence<br/>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
 @return TRUE if all solutions succeed; FALSE if any fail.
 
 **/
@@ -204,7 +204,7 @@ GSolve::Update() {
                         || counter->setPstar(FALSE);
 		N::VV[I::now][:I::MxEndogInd] = 0.0;
 		}
-	if (Volume>LOUD) println("   t:",I::t," Trip:",trips," Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes": "No");
+	if (Volume>=LOUD) println("   t:",I::t," Trip:",trips," Done:",done?"Yes":"No",". Visits:",iter,". V diff ",dff,". setP*:",Flags::setPstar ? "Yes": "No");
  	state[right] += done;		//put counter back to 0 	if necessary
 	SyncStates(right,right);
     return done || (trips>=MaxTrips);
@@ -359,7 +359,7 @@ KWGSolve::Solve(instate) {
 	state[] = instate;
     ZeroTprime();
 	Flags::setPstar = TRUE;	
-    warned = FALSE;
+    AuxRun = warned = FALSE;
     curlabels = xlabels0|xlabels1|xlabels2;  //This should depend on feasible set!
 	for (myt=N::T-1;myt>=0;--myt) {
 		state[cpos] = XUT.state[cpos] = myt;

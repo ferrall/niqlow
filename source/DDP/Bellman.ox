@@ -230,7 +230,8 @@ pandv[][I::elo : I::ehi] += I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Q
 Bellman::ExogExpectedV() {
     et =I::all[onlysemiexog];
 	pandv[][I::elo : I::ehi] +=
-        I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]);
+//        I::CVdelta*
+        AV(delta)*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]);
     }
 
 /** Default to be replaced by user if necessary.
@@ -268,7 +269,10 @@ Bellman::ActVal() {
 **/
 Bellman::MedianActVal() {
         //Note Since Action values not computed for terminal states, Type same as IsLast
-    pandv[][0] = this->ThetaUtility() + (Type>= LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][Zero].*N::VV[I::later][Nxt[Qit][Zero]]));
+    pandv[][0] = this->ThetaUtility() + (Type>= LASTT
+            ? 0.0
+            : //        I::CVdelta*
+            AV(delta)*sumr(Nxt[Qrho][Zero].*N::VV[I::later][Nxt[Qit][Zero]]));
 	V[] = maxc( pandv[][0] );
 	}
 Bellman::GetPandV(col)	{    return (col==DoAll) ? pandv : pandv[][col];    }
@@ -842,7 +846,11 @@ Normal::CreateSpaces() {
 **/
 NIID::ExogExpectedV() {
 	decl j,choicep,vv, et = I::all[onlysemiexog];
-	pandv[][I::elo:I::ehi] += (Type>=LASTT ? 0.0 : I::CVdelta*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]));
+	pandv[][I::elo:I::ehi] += (Type>=LASTT
+                ? 0.0
+                :
+                //        I::CVdelta*
+                AV(delta)*sumr(Nxt[Qrho][et].*N::VV[I::later][Nxt[Qit][et]]));
     vv = pandv[][I::elo:I::ehi]';
     if (!UseEps())
         oxrunerror(" niqlow development error: NIID EXogExpected not updated to handle ignoring epsilon yet");
@@ -1037,7 +1045,8 @@ NnotIID::CreateSpaces() {
 **/
 NnotIID::ExogExpectedV() {
     et = I::all[onlysemiexog];
-    pandv[][et] += I::CVdelta*sumr( Nxt[Qrho][et] .* N::VV[I::later][Nxt[Qit][et]] );
+    pandv[][et] += //        I::CVdelta*
+        AV(delta)*sumr( Nxt[Qrho][et] .* N::VV[I::later][Nxt[Qit][et]] );
     if (R==UnInitialized) SetIntegration();
 	[V,prob] = ghk[Aind]->SimDP(pandv[][et]);
     prob /= sumc(prob);  //normalize to 1 because all choices simulated, may not equate to 1
@@ -1213,7 +1222,9 @@ Stored in `Bellman::pandv`, as the constant future component that does not depen
 OneDimensionalChoice::ActVal() {
     pandv[][] = Type>=LASTT
                        ? 0.0
-	                   : I::CVdelta*Nxt[Qrho][0]*N::VV[I::later][Nxt[Qit][0]]';
+	                   :
+                    //        I::CVdelta*
+                    AV(delta)*Nxt[Qrho][0]*N::VV[I::later][Nxt[Qit][0]]';
     if (!solvez) {
         XUT->ReCompute( UseEps() ? DoAll : Zero );
         pandv += XUT.U;
@@ -1240,7 +1251,8 @@ KeepZ::ActVal() {
 KeepZ::DynamicActVal(z) {
     pandv[] = diagonal(this->Uz(z),0,-1); // keep adjacent values to be differenced later
                                           // April 2016.  This was -diagonal() but not consistent with later addin EV
-    if (Type<=LASTT) pandv[]  += I::CVdelta*keptz->DynamicTransit(z);
+    if (Type<=LASTT) pandv[]  += //        I::CVdelta*
+                                 AV(delta)*keptz->DynamicTransit(z);
     return pandv;
     }
 

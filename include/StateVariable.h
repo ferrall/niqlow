@@ -902,7 +902,7 @@ struct StateBlock : StateVariable {
     /** vector <0:N-1>, used in AV().**/            rnge;
 	StateBlock(L,...);
 	AddToBlock(...);
-    Clones(N,base);
+//    Clones(N,base);
 	virtual Transit();
     virtual Check();
     virtual myAV();

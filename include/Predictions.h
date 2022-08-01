@@ -75,6 +75,11 @@ struct 	PathPrediction : Prediction {
                                                 wght;
     static decl                                 aggexists;
 	decl
+    /** Create flat prediction always .
+        Usually flat prediction matrix only created for
+        data output. The flat prediction is used by classes such as
+        `Equilibrium`.  Then in this case set this to TRUE.
+                         **/                        MakeFlat,
     /** current index of random effects.**/         rcur,
     /** Empirical moments read in. **/              HasObservations,
     /** Path length sent it.**/                     inT,
@@ -88,7 +93,7 @@ struct 	PathPrediction : Prediction {
     /** labels for vdelt.**/                        dlabels,
     /** Distance between predictions and emp.mom.**/ L,
     /** method to call for nested solution. **/		method,
-    /** first prediction.**/                        first,
+    /** first prediction.**/                        firstprediction,
     /** the next PathPrediction   **/               fnext;
     static tprefix(t);
 	

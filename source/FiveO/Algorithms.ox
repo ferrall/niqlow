@@ -21,9 +21,9 @@ Algorithm::Algorithm(O) {
 	Volume = SILENT;
     StorePath = FALSE;
     logpfx = Version::logdir+"Alg-"+classname(this)+"-On-"+O.L;
-    lognm = replace(logpfx+Version::tmstmp," ","")+".log";
+    lognm = replace(logpfx," ","")+".log";
     logf = IAmMac ? FALSE : fopen(lognm,"aV");
-    if (isfile(logf)) fprintln(logf,"Created");
+    if (isfile(logf)) fprintln(logf,"**** ",Version::tmstmp," ****");
     }
 
 /** Tune Parameters of the Algorithm.

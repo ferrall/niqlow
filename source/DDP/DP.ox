@@ -28,15 +28,13 @@ I::Initialize() {
 @internal
 **/
 I::Set(state,group) {
-
+    decl exists;
 	all[] = OO*state;
-    #ifdef OX_PARALLEL
-        // .Null not recognized by oxdoc
-    curth = (Theta[all[tracking]] == .Null) ? 0 : Theta[all[tracking]];
-    #endif
-    Alpha::SetA( isclass(curth) ? UseCurrent : NoMatch );
+    curth = Theta[all[tracking]];
+    exists = !isint(curth);
+    Alpha::SetA( exists ? UseCurrent : NoMatch  );
     if (group) SetGroup();
-    return isclass(curth);
+    return exists;
     }
 
 /** Set the current group.
@@ -254,7 +252,7 @@ DP::AddStates(SubV,va) 	{
             }
 		if (StateVariable::IsBlock(va[i])) {
 			for (j=0;j<va[i].N;++j) {
-				if (StateVariable::IsBlock(va[i].Theta[j])) oxrunerror("DDP Error 37. anested state blocks not allowed");
+				if (StateVariable::IsBlock(va[i].Theta[j])) oxrunerror("DDP Error 37. nested state blocks not allowed");
 				AddStates(SubV,va[i].Theta[j]);
 				va[i].Theta[j].block = va[i];
 				va[i].Theta[j] = 0;		    //avoids ping-pong reference
@@ -1090,8 +1088,9 @@ DP::Initialize(userState,UseStateList) {
     TypeCheck(userState,"DP","DDP Error 05.  You must send an object of your Bellman-derived class to Initialize.  For example,\n Initialize(new MyModel()); \n");
     if (Flags::ThetaCreated) oxrunerror("DDP Error 42. Must call DP::Delete between calls to CreateSpaces and Initialize");
     if (isint(L)) L = "DDP";
-    lognm = replace(Version::logdir+"DP-"+L+Version::tmstmp," ","")+".log";
+    lognm = replace(Version::logdir+"DP-"+L," ","")+".log";
     logf = fopen(lognm,"av");
+    fprintln(logf,"**** ",Version::tmstmp," ****");
     //Discrete::logf = fopen(replace(Version::logdir+"Variables-"+L+Version::tmstmp+".log"," ",""),"aV");
     Hooks::Reset();
     this.userState = userState;
@@ -1946,9 +1945,10 @@ FETask::FETask() {
 
 **/
 RETask::SetFE(f) {
-	state[] = isint(f) ? ReverseState(f,onlyfixed)
-       				 : f;
-    SyncStates(SS[onlyfixed].left,SS[onlyfixed].right);
+
+	state[fixl:fixr] = isint(f) ? ReverseState(f,onlyfixed)[fixl:fixr]
+       				 : f[fixl:fixr];
+    SyncStates(fixl,fixr);
     I::f = I::all[onlyfixed];
 	}
 	
@@ -1958,6 +1958,8 @@ RETask::SetFE(f) {
 RETask::RETask(caller) {
 	GroupTask(caller);
 	span = onlyrand;	left = SS[span].left;	right = SS[span].right;
+    fixl = SS[onlyfixed].left;
+    fixr = SS[onlyfixed].right;
 	}
 
 /** Set fixed and random effect segment of state vector for task.
@@ -1970,6 +1972,7 @@ This calls SyncStates and `I::Set`()
 
 **/
 RETask::SetRE(f,r) {
+    state[left:right] = 0;
     SetFE(f);
 	state += ReverseState(r,onlyrand);
     SyncStates(left,right);
@@ -2098,7 +2101,7 @@ fixed effect group is complete.
 **/
 DPDebug::outV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice) {
     outAllV(ToScreen,aM,MaxChoiceIndex,TrimTerminals,TrimZeroChoice);
-    OutAll = FALSE;
+    //OutAll = FALSE;  May 2022:  Not sure why this was here.
     DPDebug::RunOut();
 	}
 
@@ -2111,9 +2114,11 @@ DPDebug::RunOut() {
     else if (isfile(logf)) fprintln(logf,hder);
 	rp -> Traverse();
 	if (rp.ToScreen) println(div,"\n");	else if (isfile(logf)) fprintln(logf,div,"\n");	
-	if (!OutAll || (!I::f&&!I::r) ) {   //last or only group, so delete rp and reset.
+    ++ndone;
+	if (ndone==N::G) {   //last or only group, so delete rp and reset.
         delete rp;
         OutAll = FALSE;
+        ndone = Zero;
         }
     }
 
@@ -2133,6 +2138,7 @@ DPDebug::Initialize() {
         Vlabel0 |= "  Erg.Distn  |";
         prtfmt0 |= "%11.7f";
         }
+    ndone=Zero;
 	}
 
 /** . @internal **/
@@ -2254,6 +2260,7 @@ RandomEffectsIntegration::Run() {
 **/
 Data::SetLog() {
     Volume = SILENT;
-    lognm = replace(Version::logdir+"Data-"+Version::tmstmp," ","")+".log";
+    lognm = replace(Version::logdir+"Data"," ","")+".log";
     logf = fopen(lognm,"av");
+    fprintln(logf,"**** ",Version::tmstmp," ****");
     }

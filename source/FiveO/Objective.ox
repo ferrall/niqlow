@@ -33,8 +33,9 @@ Objective::Objective(L,CreateCur)	{
 	Blocks = {};
 	Volume = QUIET;
     RunSafe = TRUE;
-    lognm = replace(Version::logdir+"Obj-"+classname(this)+"-"+L+Version::tmstmp," ","")+".log";
+    lognm = replace(Version::logdir+"Obj-"+classname(this)+"-"+L," ","")+".log";
     logf = fopen(lognm,"av");
+    fprintln(logf,"**** ",Version::tmstmp," ****");
 	if (CreateCur) vcur = new Point();
 	fshold = hold = maxpt = NvfuncTerms  = UnInitialized;
 	p2p = once = nstruct = INGRADIENT = DoNotConstrain = FALSE;
@@ -441,6 +442,7 @@ Objective::ToggleParams(...
     #endif
 ) {
     decl v,p;
+    if (!once) oxrunerror("Must call Load() or Encode() before toggling parameters");
 	foreach (v in va) {
         if (isarray(v)) { foreach (p in v) ToggleParams(p); }
         else
@@ -1160,14 +1162,14 @@ Equilibrium::Equilibrium(L,T,P){
     if (!aggF.DoNotConstrain) aggF->ToggleParameterConstraint();
     println("Aggregate production function: ",aggF.L," of type ",classname(aggF));
     println("Aggregate inputs: ",aggF.PsiL,"Parameter constraints have been turned off");
-
+    stnpred.MakeFlat = TRUE;
     if (T>One) {
         aggF = {};TLabels = {}; allP={};
         decl t, ts;
         for(t=0;t<T;++t) {
             ts ="_"+sprint("%02u",t);
             aggF    |= clone(inAggF);
-            TLabels |= suffix(aggF.PsiL,ts);
+            TLabels |= suffix(inAggF.PsiL,ts);
             if (isint(P))
                allP |= new StDeviations("P"+ts,0,inAggF.PsiL);
             }
@@ -1214,7 +1216,7 @@ Equilibrium::vfunc() {
 **/
 Equilibrium::Print(orig,fn,toscreen){
     Objective::Print(orig,fn,toscreen);
-    decl details = sprint("%r",aggF.PsiL,"%c",{"MP-d-P","Q"},"%cf",{"%#12.7g"},foc~Q);
+    decl details = sprint("%r",aggF[0].PsiL,"%c",{"MP-d-P","Q"},"%cf",{"%#12.7g"},foc~Q);
     if (isfile(fn)) {fprintln(fn,details); }
     if (toscreen) println(details);
 	}

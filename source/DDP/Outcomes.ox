@@ -1,7 +1,7 @@
 #ifndef Dh
     #include "Outcomes.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2022 Christopher Ferrall */
 
 /**  Simple Panel Simulation.
 @param Nsim  integer, number of paths to simulate per fixed group<br>[default] UseDefault, whic is 1
@@ -105,7 +105,7 @@ Does not delete prev and next to avoid recursion.
 
 **/
 Outcome::~Outcome() {
-	if (isclass(prev)) prev.onext = UnInitialized;
+//	if (isclass(prev)) prev.onext = UnInitialized;
 	delete ind, delete aux, delete act, delete state, delete Ainds;
 	}
 
@@ -172,9 +172,10 @@ Outcome::Simulate() {
         non-negative  fixed effect index to use, draw and random effect from current distribution<br/>
         <em>vector</em>, initial state vector
 **/
-Path::Path(i,state0) {
+Path::Path(i,state0,infreq) {
 	T = 0;
 	this.i = i;
+    freq = infreq;
 	if (isint(state0) && state0!=UnInitialized) {
         decl myg = N::R*state0 + DrawOne(gdist[find][]);
 		Outcome( Gamma[myg].state );
@@ -192,7 +193,7 @@ Path::~Path() {
 		delete onext;
 		onext = cur;
 		}
-	~Outcome();
+	~Outcome();    //delete myself
 	}	
 
 /** Produce a matrix representation of the path.
@@ -227,7 +228,7 @@ Path::Deep(){
 
 Checks to see if transition is &Rho; is <code>tracking</code>.  If not, process span the state space with `EndogTrans`.
 @param newstate UnInitialized (default) state already set<br/>state to add to group state
-@param T integer, max. length of the panel<br/>0, no maximum lenth; simulation goes on until a Terminal State is reached.
+@param T integer, max. length of the panel<br/>0, no maximum lenth; simulation goes on until a Terminawl State is reached.
 @param DropTerminal drop states that are terminal
 
 
@@ -253,12 +254,15 @@ Path::Simulate(newstate,T,DropTerminal){
        } while(TRUE);
 	if (DropTerminal && done && this.T>1) {  //don't delete if first state is terminal!! Added March 2015.
 		last = cur.prev;
-		delete cur;
-		last.onext = UnInitialized;
 		--this.T;
 		}
 	else
 		last = cur;
+    while (isclass(last.onext)) {   //TRIM EXCESS OUTCOMES
+        cur = last.onext;
+        last.onext = cur.onext;
+        delete cur;
+        }
     Flags::NewPhase(INBETWEEN);
 	}
 
@@ -307,10 +311,6 @@ FPanel::~FPanel() {
 		delete pnext;
 		pnext = cur;
 		}
-	/* delete SD; SD = UnInitialized;
-        delete upddens; upddens = UnInitialized;
-	   delete summand; summand=UnInitialized;
-    */
 	~Path();				//delete root path
 	}	
 
@@ -374,8 +374,14 @@ FPanel::Simulate(Nsim, T,ErgOrStateMat,DropTerminal,pathpred){
 /** .
 @internal
 **/
-FPanel::Append(pathid) {
-	if (N) cur = cur.pnext = new Path(pathid,UnInitialized);
+FPanel::Append(pathid,infreq) {
+	if (N) {
+        cur = cur.pnext = new Path(pathid,UnInitialized,infreq);
+        }
+    else {  // Use myself for first Path in the FPanel
+        i = pathid;
+        freq = infreq;
+        }
 	++N;
 	}
 	
@@ -425,14 +431,21 @@ Panel::Panel(r,method) {
     if ( N::F>One && !isclass(method) && (!Version::MPIserver)) {
             oxwarning("DDP Warning: Solution method is not nested with fixed effects present.  Panel Outcomes will not be accurate");
             }
-	FPanel(0,method);	
 	fparray = new array[N::F];
-	fparray[0] = 0;  // I am my own fixed effect panel
-	flat = FNT = 0;
-	cur = this;
+	fparray[Zero] = Zero;  // I am my own fixed effect panel
+	FPanel(Zero,method);	
+	first = flat = FNT = Zero;
+    if (isclass(I::SetGroup(Zero))) {
+        cur = first = this;
+        }
     // create fpanels for other fixed effects
-	for (i=One;i<N::F;++i) {
-            cur = cur.fnext = fparray[i] = new FPanel(i,method);
+	for (i=One;i<N::F;++i)
+        if (isclass(I::SetGroup(i*N::R))) {
+            fparray[i] = new FPanel(i,method);
+            if (!isclass(first))
+                first = cur = fparray[i];
+            else
+                cur = cur.fnext = fparray[i];
             }
 	if (isint(LFlat)) {
         LFlat = new array[FlatOptions];
@@ -457,11 +470,8 @@ Panel::Panel(r,method) {
 @internal
 **/
 Panel::~Panel() {
-	while (isclass(fnext)) {	//end of panel not reached
-		cur = fnext.fnext;
-		delete fnext;		//delete fpanel
-		fnext = cur;
-		}
+    decl i;
+	for (i=One;i<sizeof(fparray);++i) delete fparray[i];
 	~FPanel();				//delete root panel
 	}
 
@@ -478,7 +488,7 @@ matrix of initial states to draw from (each column is a different starting value
 @param pathpred Integer [default] or PathPrediction object that is simulating
 **/
 Panel::Simulate(N,T,ErgOrStateMat,DropTerminal,pathpred) {
-	cur = this;
+	cur = first;
     FN = 0;
     decl fpi = 0;
 	do { // Update density???
@@ -491,7 +501,7 @@ Panel::Simulate(N,T,ErgOrStateMat,DropTerminal,pathpred) {
 
 /** Store the panel as long flat matrix. **/
 Panel::Flat(Orientation)	{
-	cur = this;
+	cur = first;
 	flat = <>;
 	do {
         flat |= r~cur->FPanel::Flat(Orientation);
@@ -500,7 +510,7 @@ Panel::Flat(Orientation)	{
 
 /** Print the deep view of the panel. **/
 Panel::Deep()	{
-	cur = this;
+	cur = first;
 	do cur->FPanel::Deep(); while ((isclass(cur = cur.fnext)));
 	}
 
@@ -578,6 +588,7 @@ Outcome::PartialObservedLikelihood() {
 		arows=ind[onlyacts][Ainds[q]];                    //action rows consistent with this state
 		PS = GetPstar(viinds[now][q])[arows][];         //choice probabilities of consistent actions
         ue = GetUseEps(viinds[now][q]);
+        println("%%% ",q," ",PS);
 		for (h = 0,totprob = 0.0;h<nh;++h) {      //loop over semi-exogenous values
 			bothrows = dosemi[h]*N::Ewidth + einds;                       //combination of consistent epsilon and eta values
 			curprob = sumr( PS[][ bothrows ].*(ue ? NxtExog[Qprob][ bothrows ]' : 1.0/nh ) )';  //combine cond. choice prob. and iid prob. over today's shocks
@@ -589,6 +600,7 @@ Outcome::PartialObservedLikelihood() {
    			}
 		vilikes[now][q] /= totprob;   //cond. prob.
 		}
+//    vilikes[now] =pow(vilikes[now],freq);
 	}	
 
 /** Compute likelihood of an outcome given observablity of &theta; and &eta; but integrating over &epsilon;
@@ -616,6 +628,7 @@ Outcome::IIDLikelihood() {
                                 ? TP[arows][icol[1][0]]
                                 : 1.0;
     vilikes[now] = double( sumc(vilikes[now])/sumc(curprob) );
+//    vilikes[now] = pow(vilikes[now],freq);
 	}	
 
 
@@ -660,7 +673,6 @@ Path::TypeContribution(pf,subflat) {
 /** Compute likelihood of a realized path.
 **/
 Path::Likelihood() {
-    Flags::Phase = LIKING;
 	if (isint(viinds)) {
 		viinds = new array[DVspace];
 		vilikes = new array[DVspace];
@@ -680,7 +692,8 @@ DataColumn::DataColumn(type,obj) {
 	this.obj = obj;
 	incol = ind = label = UnInitialized;
     obsv = FALSE;
-	force0 = (ismember(obj,"N") && obj.N==1) ;  // force quantities that have only  1 value observed
+    // force random effects and quantities that have only  1 value observed
+	force0 = isclass(obj,"RandomEffect")||(ismember(obj,"N") && obj.N==1) ;
 	}
 
 /** .
@@ -730,10 +743,14 @@ is set to a vector of <code>.NaN</code>.</DD>
 **/
 FPanel::LogLikelihood() {
 	decl i,cur;
+    if (N==Zero) {
+        FPL=<>;
+        return TRUE;
+        }
 	FPL = zeros(N,1);  //NT
 	if (isclass(method)) {
         if (!method->Solve(f)) {
-	       FPL = constant(.NaN,N,1);
+	       FPL[] = .NaN;
            return FALSE;
            }
         }
@@ -747,11 +764,9 @@ FPanel::LogLikelihood() {
 		summand->SetFE(state);
 		upddens->loop();
 		}
-    decl myl = 0.0;
 	for (i=0,cur = this;i<N;++i,cur = cur.pnext) {
         cur->Path::Likelihood();
-		FPL[i] = log(cur.L);
-        myl += FPL[i];
+		FPL[i] = cur.freq * log(cur.L);
 		}
     Flags::NewPhase(INBETWEEN,Data::Volume>QUIET);
     return TRUE;
@@ -767,7 +782,7 @@ is called.
 **/
 Panel::LogLikelihood() {
     decl succ;
-	cur = this;
+	cur = first;
 	M = <>;	
     succ = TRUE;
 	if (!isclass(method) && Flags::UpdateTime[OnlyOnce]) ETT->Transitions(state);
@@ -797,7 +812,13 @@ Path::Mask() {
 @internal
 **/
 FPanel::Mask(aLT) {
-	cur = this;	do { cur -> Path::Mask(); aLT[0][cur.LType] += 1;} while ( (isclass(cur = cur.pnext)) );
+	decl cur = this;	
+    do {
+        if (cur.T) {
+            cur -> Path::Mask();
+            aLT[0][cur.LType] += 1;
+            }
+        } while ( (isclass(cur = cur.pnext)) );
 	}	
 
 /** Mask unobservables.
@@ -808,7 +829,6 @@ OutcomeDataSet::Mask() {
 	decl s;
 	if (isint(mask)) mask = new array[NColumnTypes];
     for(s=0;s<NColumnTypes;++s) mask[s] = <>;
-	// if (list[0].obsv!=TRUE) list[0].obsv=FALSE; Oct 2018.  Initialized to FALSE so not needed
 	for(s=0;s<N::Av;++s)
 		if (!list[s+low[avar]].obsv && !list[s+low[avar]].force0) mask[avar] |= s;
 	for(s=0;s<N::S;++s)
@@ -818,7 +838,7 @@ OutcomeDataSet::Mask() {
         list[s+low[auxvar]].obj.indata = list[s+low[auxvar]].obsv;
         }
 	if (!Version::MPIserver && Data::Volume>SILENT) Summary(0);
-	cur = this;
+	cur = first;
     LTypes[] = 0;
 	do {
         cur -> FPanel::Mask(&LTypes);
@@ -842,6 +862,21 @@ OutcomeDataSet::tColumn(lORind) {
 	if (isint(lORind)&&lORind<0) oxrunerror("DDP Error 54. column index cannot be negative");
     list[low[svar]+counter.t.pos] -> Observed(lORind);
     }
+
+/** set the column label or index of a frequency (weighted data) variable.
+@param lORind string, column label<br>integer&ge;0 column index;
+
+Likelihoods are multiplied by this value.  If no column is specified the default is 1.
+
+**/
+OutcomeDataSet::freqColumn(lORind) {
+    if (HasFrequencies) oxrunerror("Frequency column already set");
+	if (isint(lORind)&&lORind<0) oxrunerror("DDP Error 54. column index cannot be negative");
+    HasFrequencies = TRUE;
+    freqcol = lORind;
+    }
+
+
 
 /** Identify a variable with a data column.
 @param aORs  Either an `ActionVariable`, element of $\alpha$, or a `StateVariable`,
@@ -976,7 +1011,8 @@ Outcome::AccountForUnobservables() {
 	s = 0;
 	Ainds = <>;
   	do {
-		if (( (myA = GetAind(ind[tracking][s]))!=NoMatch )) {
+        myA = GetAind(ind[tracking][s]);
+		if (( myA!=NoMatch )) {
 			ai =  Alpha::AList[myA]*SS[onlyacts].O;	 // indices of feasible acts
 			myi = selectifr( Alpha::AList[myA],prodr((Alpha::AList[myA] .== act) + isdotnan(act)) )
 					* SS[onlyacts].O; //indices of consistent acts
@@ -1036,7 +1072,7 @@ OutcomeDataSet::Summary(data,rlabels) {
     if (ismatrix(data)) MyMoments(data,rlabels,Data::logf);
     else {
         Print(0);
-        MyMoments(flat,{"f"}|"r"|"i"|"t"|"track"|"type"|"Ai"|Labels::Vprt[svar]|"Arow"|Labels::Vprt[avar]|Labels::Vprt[auxvar],Data::Volume>QUIET ? 0 : Data::logf);
+        MyMoments(flat,{"r"}|"f"|"i"|"t"|"track"|"type"|"Ai"|Labels::Vprt[svar]|"Arow"|Labels::Vprt[avar]|Labels::Vprt[auxvar],Data::Volume>QUIET ? 0 : Data::logf);
         }
 	}
 	
@@ -1044,30 +1080,47 @@ OutcomeDataSet::Summary(data,rlabels) {
 @internal
 **/
 OutcomeDataSet::LoadOxDB() {
-	decl s,curid,data,curd = new array[NColumnTypes],row,obscols,inf,fpcur,obslabels,nc;
+	decl dc,s,curid,freqind,data,curd = new array[NColumnTypes],row,obscols,inf,fpcur,obslabels,nc;
 	dlabels=source->GetAllNames();
 	obscols=<>;
     obslabels = {};
 	for(s=0;s<sizeof(list);++s)
 		if (list[s].obsv==TRUE) {
 			obscols |= nc = list[s].ReturnColumn(dlabels,sizeof(obscols));
+            if (nc==NoMatch) {
+                println("s= ",s,"dlabels = ",dlabels);
+                oxrunerror("Column not found ");
+                }
             obslabels |= dlabels[nc];
             }
 		else
 			list[s].obsv=FALSE;
+    if (HasFrequencies) {
+        freqind = rows(obscols);
+        if (isint(freqcol)) {
+            obscols |= freqcol;
+            obslabels |= "freq";
+            }
+        else {
+            obslabels |= freqcol;
+            obscols |= strfind(dlabels,freqcol);
+            }
+        }
 	data = source->GetVarByIndex(obscols);
     for (s=S[fgroup].M;s<=S[fgroup].X;++s)
             if (list[N::Av+s].obsv)
                 data = deleteifr(data,data[][list[N::Av+s].incol].>=SubVectors[fgroup][s].N);
 	if (Data::Volume>SILENT) Summary(data,obslabels);
 	curid = UnInitialized;
-	cur = this;
+	cur = first;
 	FN = N = 0;
 	curd[avar] = constant(.NaN,1,N::Av);
 	curd[svar] = constant(.NaN,N::S,1);
 	curd[auxvar] = constant(.NaN,1,N::aux);	
+    curd[freqvar] = 1;
 	for (row=0;row<rows(data);++row) {
 		curd[idvar] = data[row][list[0].incol];
+        if (HasFrequencies) curd[freqvar] = data[row][freqind];
 		for(s=0;s<N::Av;++s) {
 			curd[avar][0][s] = (list[low[avar]+s].obsv)
 						          ? data[row][list[low[avar]+s].incol]
@@ -1076,9 +1129,10 @@ OutcomeDataSet::LoadOxDB() {
 							          : .NaN;
             }
 		for(s=0;s<N::S;++s) {
-			curd[svar][s] = (list[low[svar]+s].obsv)
-						      ? data[row][list[low[svar]+s].incol]
-						      : (list[low[svar]+s].force0)
+            dc =low[svar]+s;
+			curd[svar][s] = (list[dc].obsv)
+						      ? data[row][list[dc].incol]
+						      : (list[dc].force0)
 							     ? 0
 							     : .NaN;
 			}
@@ -1090,8 +1144,8 @@ OutcomeDataSet::LoadOxDB() {
 			if ((inf = I::OO[onlyfixed][]*curd[svar])) //fixed index not 0
 				cur = fparray[inf];
 			else	//fparray does not point to self
-				cur = this;
-			cur->FPanel::Append(curid = curd[idvar]);
+				cur = this;     // MAYBE SHOULD BE first ???
+			cur->FPanel::Append(curid = curd[idvar],curd[freqvar]);
 			++FN;
 			}
 		fpcur = cur->GetCur();
@@ -1134,12 +1188,18 @@ OutcomeDataSet::Read(FNorDB,SearchLabels) {
 	if (SearchLabels) {
 		decl lnames,mtch, i,j;
 		lnames = source->GetAllNames();
-		mtch = strfind(lnames,Labels::V[svar]);
-		foreach(i in mtch[j]) if (i!=NoMatch) MatchToColumn(States[j],i);
-		mtch = strfind(lnames,Labels::V[avar]);
-		foreach(i in mtch[j]) if (i!=NoMatch) MatchToColumn(SubVectors[acts][j],i);
-		mtch = strfind(lnames,Labels::V[auxvar]);
-		foreach(i in mtch[j]) if (i!=NoMatch) MatchToColumn(Chi[j],i);
+		if (sizeof(Labels::V[svar])) {
+            mtch = strfind(lnames,Labels::V[svar]);
+		    foreach(i in mtch[j]) if (i!=NoMatch) MatchToColumn(States[j],int(i));
+            }
+		if (sizeof(Labels::V[avar])) {
+		    mtch = strfind(lnames,Labels::V[avar]);
+		    foreach(i in mtch[j]) if (i!=NoMatch) MatchToColumn(SubVectors[acts][j],int(i));
+            }
+        if (sizeof(Labels::V[auxvar])) {
+		      mtch = strfind(lnames,Labels::V[auxvar]);
+		      foreach(i in mtch[j]) if (i!=NoMatch) MatchToColumn(Chi[j],int(i));
+              }
 		}
 	decl i;
 	for (i=S[fgroup].M;i<=S[fgroup].X;++i)
@@ -1159,7 +1219,7 @@ OutcomeDataSet::OutcomeDataSet(id,method) {
 	if (!Flags::ThetaCreated) oxrunerror("DDP Error 62. Cannot create OutcomeDataSet before calling CreateSpaces()");
 	label = isint(id) ? classname(userState) : id;
 	Panel(0,method);
-	masked = FALSE;
+	HasFrequencies = masked = FALSE;
 	decl q, aa=SubVectors[acts];
 	list = {};
 	list |= new DataColumn(idvar,0);

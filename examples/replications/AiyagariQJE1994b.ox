@@ -8,7 +8,7 @@ AYG::Run() {
 	decl i, j, k;
 	
     eq = new AiyagariEQ(KK);	                 //create the equilibrium system
-
+    Data::Volume = NOISY;
 	for(i=0;i<sizerc(params[isig]);++i) {  //loop over values of sigma
 	
 		AiyagariAgent::sig = params[isig][i];     //returned by lambda function used in Tauchen()
