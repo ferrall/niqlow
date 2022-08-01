@@ -4,7 +4,7 @@
 **/
 struct Menu {
 	enum{prompt,call,ItemSize}
-	enum{EXIT = -3,HELP,QUIT,DOALL,CHOICE}
+	enum{INVALID=-4,EXIT,HELP,QUIT,DOALL,CHOICE}
 	static const decl sep  = "\n---------------------------\n";
 	static decl
         /** Folder for logs.**/                    logdir = "./";

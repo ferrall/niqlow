@@ -19,7 +19,7 @@ struct Method : FETask {
     /** Output from the solution method.  Passed on to `GSolve::Volume`.
         @see NoiseLevels**/                                         Volume;
     Method(GSolve=0);
-    Initialize(MaxTrips=Zero);
+    Initialize(MaxTrips=UseCurrent);
     ToggleRunSafe();
     ToggleIterate(ToggleOnlyTrans=TRUE);
     virtual Run();

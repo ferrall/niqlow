@@ -92,7 +92,7 @@ NewtonKantorovich::NewtonKantorovich(myNGSolve) {
 /**Solve Bellman's Equation switching to N-K when a tolerance is reached.
 @param Fgroups DoAll, loop over fixed groups<br>non-negative integer, solve only that fixed group index
 @param Rgroups
-@param MaxTrips 0, iterate until convergence<br>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
+@param MaxTrips 0, iterate until convergence<br/>positive integer, max number of iterations<br>-1 (ResetValue), reset to 0.
 @return TRUE if all solutions succeed; FALSE if any fail.
 
 **/

@@ -64,7 +64,7 @@ Method::Initialize(MaxTrips) {
         qtask.itask.Volume = Volume;
         qtask.itask.vtoler = vtoler;
         qtask.itask.succeed = TRUE;
-        qtask.itask.MaxTrips = (MaxTrips==ResetValue) ? 0 : MaxTrips;
+        qtask.itask.MaxTrips = (MaxTrips==ResetValue) ? 0 : (MaxTrips==UseCurrent) ? this.MaxTrips : MaxTrips;
     done = FALSE;
     Flags::NewPhase(SOLVING);
     }

@@ -90,8 +90,8 @@ enum{LINEAR,LOGLINEAR,MULTIPLICATIVE,MINUSSUMOFSQUARES,SUMOFSQUARES,Aggregators}
             at the endogenous state $\theta$.
         <table>
         <tr><th>Tags</th><td>Value</td><th>$\theta$ Type</th></tr>
-        <tr><td>ORDINARY,INSUBSAMPLE</td>   <td>0</td><td></td></tr>
-        <tr><td>NOTSASMPLED,IGNOREEXOG</td><td>1</td><td>randomly selected for first stage of KW approximation</td></tr>
+        <tr><td>ORDINARY,INSUBSAMPLE</td>   <td>0</td><td>randomly selected for first stage of KW approximation</td></tr>
+        <tr><td>NOTSASMPLED,IGNOREEXOG</td><td>1</td><td>approximated if KW or utility does not depend on $\epsilon$</td></tr>
         <tr><td>LASTT</td>      <td>2</td><td>subsampled AND last period of decision-making</td></tr>
         <tr><td>LASTNOTSAMPLED</td>   <td>3</td><td>LASTT AND NOTSAMPLED</td></tr>
         <tr><td>TERMINAL</td>   <td>4</td><td>Terminal state</td></tr>

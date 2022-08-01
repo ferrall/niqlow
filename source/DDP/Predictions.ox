@@ -809,7 +809,6 @@ PanelPrediction::~PanelPrediction() {
 PanelPrediction::PanelPrediction(label,method,iDist,wght,aggshares) {
     decl k;
     aggexists= N::F>One && (!isint(aggshares) || aggshares!=UnInitialized);
-    println("AGG EXISTS: ",aggexists);
     PathPrediction(this,aggexists ? AggGroup : 0,method,iDist,wght,0);	
     EverPredicted = FALSE;
     this.method = method;
