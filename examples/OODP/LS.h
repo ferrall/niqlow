@@ -7,4 +7,5 @@ class LS : ExtremeValue {
     static      Build(d=FALSE);
     static      Create();
     static      Earn();
+	static		Home();
     }

@@ -12,13 +12,14 @@ LS::Build(d) {
      M = new ActionCounter("M",40,m);
      EndogenousStates(M);
      SetDelta(0.95);
-     beta =<1.2 ; 0.09 ; -0.1 ; 0.2>;
-     pi = 2;
+     beta =<1.2 ; 0.09 ; -0.005 ; 0.2>;
+     pi = .4;
     }
 LS::Create() {
     Initialize(1.0,new LS());
     Build();
     CreateSpaces();
     }
+LS::Home() { return pi; }	
 LS::Earn()    { return  exp( (1~CV(M)~sqr(CV(M))~AV(e)) * CV(beta) ) ; }
-LS::Utility() { return CV(m)*(Earn()-pi) + pi;  }
+LS::Utility() { return CV(m)*(Earn()-Home()) + Home();  }

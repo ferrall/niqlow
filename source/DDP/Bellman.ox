@@ -562,12 +562,15 @@ Bellman::Simulate(Y) {
         c->Realize();  // Not sending Y.  This option seems to be unused now.
 		Y.aux ~= c.v;
         }
+    Y.aux ~= AutoAuxiliaryValues();
 	if (done) return UnInitialized;
 	i = (I::OO[bothgroup][]'.!=0) .* Y.state;
 	i += ReverseState(Nxt[Qtr][Y.ind[onlysemiexog]][DrawOne(Nxt[Qrho][Y.ind[onlysemiexog]][Alpha::aI][])],tracking);
     Alpha::ClearA();
 	return i;
 	}
+
+Bellman::AutoAuxiliaryValues() { return <>; }
 
 /* Return realized &zeta; vector conditional on optimal choice.
 Default is to return .NaN as a matrix.
@@ -1117,6 +1120,24 @@ OneDimensionalChoice::CreateSpaces(Method,smparam) {
 	ExPostSmoothing::CreateSpaces(Method,smparam);
 	if (N::Av!=1) oxrunerror("1-d model must have exactly one action variable");
 	if (SS[bothexog].size>1) oxrunerror("1-d model does not allow exogenous variables");	
+    decl i,l;
+    for(i=0;i<this.d.N-1;++i) {
+        l="z"+sprint(i);
+        if (!sizeof(Labels::V[auxvar])) {
+            Labels::V[auxvar] = {l};
+            Labels::Vprt[auxvar] = {l};
+            }
+        else {
+            Labels::V[auxvar] |= l;
+            Labels::Vprt[auxvar] |= l;
+            }
+        }
+    for(i=0;i<this.d.N;++i) {
+        l="P"+sprint(i);
+        Labels::V[auxvar] |= l;
+        Labels::Vprt[auxvar] |= l;
+        }
+    println(Labels::V[auxvar]);
 	}
 
 /** The default indicator whether a continuous choice is made at $\theta$.
@@ -1230,6 +1251,10 @@ OneDimensionalChoice::ActVal() {
         pandv += XUT.U;
         }
 	}	
+
+OneDimensionalChoice::AutoAuxiliaryValues() {
+    return zstar~pstar;
+    }
 
 /** .
 @internal

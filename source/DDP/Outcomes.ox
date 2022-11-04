@@ -449,20 +449,20 @@ Panel::Panel(r,method) {
             }
 	if (isint(LFlat)) {
         LFlat = new array[FlatOptions];
-		LFlat[LONG] = {PanelID}|{FPanelID}|{PathID}|PrefixLabels|Labels::Vprt[svar]|{"|ai|"}|Labels::Vprt[avar];
-		LFlat[WIDE] = Labels::Vprt[svar]|Labels::Vprt[avar];
+		LFlat[LONG] = {PanelID}|{FPanelID}|{PathID}|PrefixLabels|Labels::Vprt[svar]|{"|ai|"}|Labels::Vprt[avar]|Labels::Vprt[auxvar];
+		LFlat[WIDE] = Labels::Vprt[svar]|Labels::Vprt[avar]|Labels::Vprt[auxvar];
 /*		for (i=0;i<zeta.length;++i) {
                 LFlat[LONG] |= "z"+sprint(i);
                 LFlat[WIDE] |= "z"+sprint(i);
                 }*/
-		foreach (q in Chi) {
+/*		foreach (q in Chi) {
             LFlat[LONG] |= q.L;
             LFlat[WIDE] |= q.L;
-            }
+            } */
 		Fmtflat = {"%4.0f","%4.0f"}|{"%4.0f","%4.0f","%7.0f","%3.0f"}|Labels::Sfmts|"%4.0f";
 		for (i=0;i<N::Av;++i) Fmtflat |= "%4.0f";
 		//for (i=0;i<zeta.length;++i) Fmtflat |= "%7.3f";
-        foreach (q in Chi) Fmtflat |= "%7.3f"; //		for (i=0;i<Naux;++i) Fmtflat |=        "%7.3f";
+        for(i=0; i<sizeof(Labels::Vprt[auxvar]);++i ) Fmtflat |= "%7.3f";
 		}
 	}
 

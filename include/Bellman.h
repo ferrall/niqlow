@@ -65,6 +65,7 @@ struct  Bellman : DP {
             virtual ThetaUtility();
             virtual OutcomesGivenEpsilon();
             virtual IgnoreExogenous();
+            virtual AutoAuxiliaryValues();
 
                     //Solution Methods replace these
             virtual ExogExpectedV();
@@ -367,6 +368,7 @@ struct OneDimensionalChoice : ExPostSmoothing {
             Getz();
             HasChoice();
     virtual Setz(z);
+    virtual AutoAuxiliaryValues();
 	}
 
 /** A OneDimensionalChoice model with discretized approximation to "accepted" past $\zeta$.

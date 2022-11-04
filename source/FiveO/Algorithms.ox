@@ -34,9 +34,9 @@ This is the base version.  Some derived algorithms replace this with their own T
 @param nfuncmax integer, number of function evaluations before resetting the simplex<br>0 use current/default value
 **/
 Algorithm::Tune(maxiter,toler,nfuncmax) {
-	if (maxiter) this.maxiter = maxiter;	
+	if (maxiter>Zero) this.maxiter = maxiter;	
 	if (isdouble(toler)) this.tolerance = toler;
-	if (nfuncmax) this.nfuncmax = nfuncmax;
+	if (nfuncmax>Zero) this.nfuncmax = nfuncmax;
 	}
 
 /**  This routine is called at the start if Iterate().
@@ -102,10 +102,10 @@ Algorithm::ItEnd() {
 @param maxiter integer max. number of iterations <br>0 use current/default value
 **/
 NelderMead::Tune(mxstarts,toler,nfuncmax,maxiter) {
-	if (mxstarts) this.mxstarts = mxstarts;	
+	if (mxstarts>Zero) this.mxstarts = mxstarts;	
 	if (isdouble(toler)) this.tolerance = toler;
-	if (nfuncmax) this.nfuncmax = nfuncmax;
-	if (maxiter) this.maxiter = maxiter;	
+	if (nfuncmax>Zero) this.nfuncmax = nfuncmax;
+	if (maxiter>Zero) this.maxiter = maxiter;	
 	}
 
 /** Tune Parameters of the Algorithm.
@@ -117,7 +117,7 @@ NelderMead::Tune(mxstarts,toler,nfuncmax,maxiter) {
 **/
 GradientBased::Tune(maxiter,toler,nfuncmax,LMitmax,LMmaxstep) {
     Algorithm::Tune(maxiter,toler,nfuncmax);
-    if (LMitmax) this.LMitmax = LMitmax;
+    if (LMitmax>Zero) this.LMitmax = LMitmax;
     if (isdouble(LMmaxstep)) this.LMmaxstep = LMmaxstep;
     }
 
@@ -151,10 +151,10 @@ SimulatedAnnealing::SimulatedAnnealing(O)  {
 @param shrinkage &in; (0,1], rate to shrink, <br>0 do not change
 **/
 SimulatedAnnealing::Tune(maxiter,heat,cooling,shrinkage)	{
-	if (heat>0) this.heat = heat;
-	if (maxiter) this.maxiter = maxiter;
-    if (cooling>0) this.cooling = cooling;
-    if (shrinkage>0) this.shrinkage = shrinkage;
+	if (heat>Zero) this.heat = heat;
+	if (maxiter>Zero) this.maxiter = maxiter;
+    if (cooling>Zero) this.cooling = cooling;
+    if (shrinkage>Zero) this.shrinkage = shrinkage;
 	}
 
 
