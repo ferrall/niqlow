@@ -136,7 +136,7 @@ Test3a::Run()	{
 	Approx = new KeaneWolpin();
 	Approx -> Solve();
 	DPDebug::outV(FALSE,&AMat);
-    println("difference ","%c",{"EV","Choice Probs"},(BMat-AMat)[][columns(BMat)-4:]);
+    println("Brute Force","%c",{"EV","Choice Probs"},BMat[][columns(BMat)-4:],"Approximate","%c",{"EV","Choice Probs"},AMat[][columns(AMat)-4:]);
     Delete();
 }
 
