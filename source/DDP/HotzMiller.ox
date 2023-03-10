@@ -1,7 +1,7 @@
 #ifndef Mh
     #include "HotzMiller.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 /** Create a Hotz-Miller solution method.
 @param (optional) indata  `Panel` object<br>F&times;1 array of Q mappings <br>0 [default], no data sent

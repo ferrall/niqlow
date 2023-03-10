@@ -1,5 +1,5 @@
 #import "DDPShared"
-/* This file is part of niqlow. Copyright (C) 2012-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2023 Christopher Ferrall */
 
 		/** . elements of array returned by `StateVariable::Transit` @name TransOutput **/
 enum {Qind,Qprob,TransOutput}
@@ -62,7 +62,7 @@ As a transition function:
 $$q' = q + I\{s=1\}.$$
 As a transition probability:
 $$P(q'; q,s) = I\{ q' = q + I\{s=1\} \}.$$
-
+</dd>
 **/
 class NonRandom : Autonomous { }
 
@@ -358,6 +358,7 @@ $$P(s'=z|s) = \Pi_{z}$$
 <pre>
 decl health = new IIDJump("h",<0.1;0.8;0.1>);
 </pre>
+</dd>
 
 @comments Unlike a general Markov variable, a IIDJump is eligible to be an Exogenous variable, a member of $\epsilon$
 added to the model with `DP::ExogenousStates`.
@@ -468,7 +469,7 @@ Fertility::Mortality()	{
 	decl p = probn(x*q);  // x has to be updated using current age and other x values.
 	decl ivals = CV(i);
 	return 0 ~ (1-p*ivals) ~ p*ivals;
-	}</pre>
+	}</pre></dd>
 **/
 struct RandomUpDown : Random	{
     enum { down, hold, up, NRUP}
@@ -674,7 +675,7 @@ $$s' = s+I\{ CV(x) \in tau\}I\{s \lt N-1\}.$$
 @example
 <pre>
 decl wks  = new ActionState("wksunemp",work,10,<0>); //track up to 10 years
-EndogenousStates(wks);</pre>
+EndogenousStates(wks);</pre></dd>
 **/
 struct StateCounter : Counter  {
 	StateCounter(L,N,Target,ToTrack=<1>,Reset=FALSE,Prune=TRUE);
@@ -699,10 +700,10 @@ struct StateCounterMaster: StateCounter  {
 $$s' = s+I\{ CV(x) \in tau\}I\{s \lt N-1\}.$$
 
 @example
-<code><pre>
+<pre>
 decl exper = new ActionCounter("Yrs Experience",10,work); //track up to 10 years working
 EndogenousStates(exper);
-</pre></code></DD>
+</pre></DD>
 
 **/
 struct ActionCounter : Counter  {
@@ -769,8 +770,8 @@ This variable requires a target s.X and the lagged value of the target, denoted 
 <DT>Transition:</DT>
 $$s' = I\{ x = Lag(x)\}(s+ I\{s \lt N-1\}).$$
 @example
-<code><pre>
-</pre></code></DD>
+<pre>
+</pre></DD>
 **/
 struct Duration : Counter {
 	const decl Current, Lag, isact, MaxOnce;
@@ -785,8 +786,8 @@ struct Duration : Counter {
 s' = .
 </pre></dd>
 @example
-<code><pre>
-</pre></code>
+<pre>
+</pre></dd>
 **/
 struct RetainMatch : NonRandom {
 	const decl matchvalue, acc, replace, keep;
@@ -837,7 +838,7 @@ Zurcher::Initialize()	{
 	EndogenousState( x = new Renewal("x",90,i,q) );
     &vellip;
 	}
-</pre>
+</pre></dd>
 **/
 struct Renewal : Random {
 	const decl

@@ -1,6 +1,6 @@
 #import "RustEmet1987"
 #import "FiveO"
-/* This file is part of niqlow. Copyright (C) 2011-2022 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 /** Contains objects related to estimation in a catchall class.
 

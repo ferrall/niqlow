@@ -1,5 +1,5 @@
 #include "GilleskieEmet1998.h"
-/* This file is part of niqlow. Copyright (C) 2011-2013 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 DynaHealth::NewEpisode() { return !spell.k.v; }	
 

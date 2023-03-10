@@ -12,7 +12,7 @@
 
 </OL>
 
-@author &copy; 2011-2021 <a href="https://ferrall.github.io/">Christopher Ferrall</a> </dd>
+@author &copy; 2011-2023 <a href="https://ferrall.github.io/">Christopher Ferrall</a> </dd>
 <a name="auto"><hr><h1>Documentation of  Items Defined in Shared.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a>
 
 **/
@@ -24,7 +24,7 @@
 
 //	extern "CFcurl,fget"   			curl_get(url,file);
 
-/* This file is part of niqlow. Copyright (C) 2012-2021 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2023 Christopher Ferrall */
 
 	/** Pseudonyms for -3, -2, &hellip;. @name Names_for_Integers **/
 enum {Zero, One, Two, Three,

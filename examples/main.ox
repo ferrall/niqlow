@@ -1,5 +1,5 @@
 #include "main.h"
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 	
 /** Present a menu of test, sample and replication functions to call; will also read options from
 the command line.

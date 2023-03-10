@@ -1,5 +1,5 @@
 #import "Bellman"
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 /** stages of Keane-Wolpin approximation @name KWstages **/
 enum {AddToSample,ComputeBhat,PredictEV,NKWstages}

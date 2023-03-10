@@ -1,7 +1,7 @@
 #ifndef Vh
     #include "StateVariable.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 /** Remove all transitions for which the transition probability is EXACTLY 0. **/
 StripZeros(trans) {
@@ -93,10 +93,12 @@ the bequest value of the state.</DD>
 
 @comments The feasible action set for terminal states is automatically set to the first row of the gobal <var>A</var> matrix.
 @example
+<pre>
   s = new StateVariable("s",5);
   s->MakeTerminal(<3;4>);
   v = new StateVariable("v",1);
   v->MakeTerminal(1);
+</pre>
 </dd>
 
 Now any state for which <code>CV(s)=3</code> or <code>CV(s)=4</code> or <code>CV(v)=1</code>
@@ -832,7 +834,10 @@ Lagged::IsReachable() {
 @param Prune [optional default=TRUE] prune unreachable states automatically if finite horizon
 @param Order [optional default=1] order of the lag (how many periods to prune)
 
-@example <pre>prevoccup = new LaggedState("Prev",occup);</pre></DD>
+@example
+<pre>
+prevoccup = new LaggedState("Prev",occup);
+</pre></DD>
 
 @see DP::KLaggedState
 
@@ -852,8 +857,10 @@ LaggedState::Transit()	{
 @param L label
 @param Target `ActionVariable` to track.
 @param Prune TRUE [default]: prune non-zero states at t=0 if finite horizon detected.
-@param Order
-@example <pre>wrked = new LaggedAction("Worked Last Year",work);</pre>
+@param Order number of lags [default = 1]
+@example
+<pre>wrked = new LaggedAction("Worked Last Year",work);
+</pre></dd>
 
 @see DP::KLaggedAction
 **/
@@ -939,7 +946,9 @@ $$s' = \cases{ 0 & if CV(Target)==0\cr
 
 @example
 Once a person retires the stay retired forever:
-<pre>retired = new PermanentChoice("Ret",retire);</pre></dd>
+<pre>
+retired = new PermanentChoice("Ret",retire);
+</pre></dd>
 **/
 PermanentChoice::PermanentChoice(L,Target,Prune) {
 	LaggedAction(L,Target,Prune);
@@ -957,7 +966,8 @@ Once the Target is current in the ToTrack set this variable will be TRUE
 @param Target `CV`-compatible value to track.
 @param ToTrack vector of values to Track. Default=<1>.
 @param Prune.  Begins at 0 in finite horizon clocks.
-@example <pre>??</pre></dd>
+@example
+<pre>??</pre></dd>
 **/
 PermanentCondition::PermanentCondition(L,Target,ToTrack,Prune) {
     StateTracker(L,Target,ToTrack,Prune);

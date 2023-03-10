@@ -1,5 +1,5 @@
 #import "DDP"
-/* This file is part of niqlow. Copyright (C) 2012-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2023 Christopher Ferrall */
 
 
 struct KWJPE97 : ExPostSmoothing	{

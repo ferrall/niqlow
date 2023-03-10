@@ -1,7 +1,7 @@
 #ifndef Mh
     #include "ReservationValues.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 
 /** Create a system of nonlinear equations to solve for reservation values.

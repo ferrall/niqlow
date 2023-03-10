@@ -1,7 +1,7 @@
 /** Menus of programs to  replicate published DDP work: see <a href="replications/default.html">documentation</a>.
 **/
 #include "replications.h"
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 /** Options built closely on Rust 1987.**/
 rust87menu() {

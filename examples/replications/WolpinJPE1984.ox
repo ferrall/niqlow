@@ -1,5 +1,5 @@
 #include "WolpinJPE1984.h"
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 /**Run the  replication, compute predictions.
 **/

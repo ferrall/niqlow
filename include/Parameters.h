@@ -1,5 +1,5 @@
 #import "Shared"
-/* This file is part of niqlow. Copyright (C) 2012-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2023 Christopher Ferrall */
 
 NormalDistParmeters(L,ivals=<0.0;1.0>);
 
@@ -161,7 +161,7 @@ struct ParameterBlock : Parameter {
 	           ParameterBlock(L="PB",...);
 	           AddToBlock(...);
 	           ToggleDoNotVary(elements=DoAll);
-               SetDoNotVary(setting); 
+               SetDoNotVary(setting);
                Xb(X);
 	virtual    BlockCode();
 	virtual    Encode();

@@ -1,7 +1,7 @@
 #import "database"
 #import "Bellman"
 
-/* This file is part of niqlow. Copyright (C) 2012-2021 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2023 Christopher Ferrall */
 
 SimulateOutcomes(Nsim=UseDefault,T=UseDefault,fname=UseDefault,ErgOrStateMat=0,DropTerminal=FALSE);
 

@@ -1,5 +1,5 @@
 #import "DP"
-/* This file is part of niqlow. Copyright (C) 2011-2021 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 /** Base class for any DP problem and each point $\theta$ in the endogenous state space.
 

@@ -1,7 +1,7 @@
 #ifndef Dh
     #include "Outcomes.h"
 #endif
-/* This file is part of niqlow. Copyright (C) 2011-2022 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 /**  Simple Panel Simulation.
 @param Nsim  integer, number of paths to simulate per fixed group<br>[default] UseDefault, whic is 1

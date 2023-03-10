@@ -1,5 +1,5 @@
 #include "StataMNP.h"
-/* This file is part of niqlow. Copyright (C) 2011-2012 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 StataMNP()	{
 	format(250);

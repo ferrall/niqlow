@@ -1,5 +1,5 @@
 #include "Objective.h"
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 /** Checks the version number you send with the current version of niqlow.
 @param v integer [default=200]

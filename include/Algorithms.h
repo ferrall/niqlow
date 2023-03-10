@@ -1,6 +1,6 @@
 #import "Shared"
 #import <solveqp>
-/* This file is part of niqlow. Copyright (C) 2012-2021 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2012-2023 Christopher Ferrall */
 
 /** Base class for optimization and system-solving algorithms.
 

@@ -1,5 +1,5 @@
 #include "RustEmet1987mle.h"
-/* This file is part of niqlow. Copyright (C) 2011-2022 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 /** Creates the interactive menu items for choosing method, table, column, and row to replicate.**/
 RustEstimates::menu() {

@@ -1,5 +1,5 @@
 #include "BerkovecSternEmet1991.h"
-/* This file is part of niqlow. Copyright (C) 2011-2018 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 /** Setup and solve the model for both columns.**/	
 Retirement::Run()	{
