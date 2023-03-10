@@ -332,13 +332,13 @@ struct GHK   : Integration {
 class Version : Zauxiliary {
 
 	/** Minimum Ox Version required. @name Oxversion **/
-	enum {MinOxVersion=800} //719 709 700
+	enum {MinOxVersion=900} //719 709 700
 
 	static decl checked;
 
 public: 	
     static const decl
-    	/** Current niqlow version. @name niqlowversion **/ version=400; //=350
+    	/** Current niqlow version. @name niqlowversion **/ version=500; //=350 =400
     static decl
       /**HTML log is open.**/                                HTopen,
      /** directory to put log files in.**/                   logdir,

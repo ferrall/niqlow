@@ -1,8 +1,8 @@
 #Version := OxMetrics7
-Version := OxMetrics8
-ExPath := Ox\bin64
-#Version := OxMetrics9
-#ExPath := Ox
+#Version := OxMetrics8
+#ExPath := Ox\bin64
+Version := OxMetrics9
+ExPath := Ox
 OS := Windows
 
 ifeq ($(OS), Windows)
@@ -25,7 +25,7 @@ else ifeq ($(OS), Darwin)
 	SED := sed
 	XMP := ../examples
 else ifeq ($(OS), Linux)
-	OX := /home/ferrallc/bin/$(Version)/ox/bin64/oxl
+	OX := /home/ferrallc/bin/$(Version)/ox/$(ExPath)/oxl
 	OXFLAGS := -DMPI -DOX7 -d
 	ECHO := printf
 	CD := cd

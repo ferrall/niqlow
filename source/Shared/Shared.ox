@@ -1,5 +1,5 @@
 #include "Shared.h"
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 HTopen(fn) {
     if (Version::HTopen) return;
@@ -36,7 +36,7 @@ Version::Check(indir) {
  tmstmp = replace("-"+date()+"-"+replace(time(),":","-")," ","");
  if (!Version::MPIserver)
     println("\n niqlow version ",sprint("%4.2f",version/100),
-    ". Copyright (C) 2011-2022 Christopher Ferrall.\n",
+    ". Copyright (C) 2011-2023 Christopher Ferrall.\n",
     "Execution of niqlow implies acceptance of its free software License (niqlow/niqlow-license.txt).\n",
     "Log file directory: '",logdir=="" ? "." : logdir,"'. Time stamp: ",tmstmp,".\n\n");
 
