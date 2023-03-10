@@ -1,5 +1,5 @@
 niqlow : design, solve and estimate discrete dynamic programs
-Copyright (C) 2015-2019 Christopher Ferrall
+Copyright (C) 2015-2023 Christopher Ferrall
 
 Visit https://github.com/ferrall/niqlow/releases/latest
 
