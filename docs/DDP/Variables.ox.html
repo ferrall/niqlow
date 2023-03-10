@@ -95,7 +95,7 @@ The three different approaches to coding discrete choices are illustrate in this
 <P/>
 <p>Indicator vectors make it possible to write any utility as a sum: <span class="expressions">\(U = \sum_k d_k u_k\)</span>. But as with the single action approach the interpretation is not obvious and <span class="expressions">\(U()\)</span> will in no way resemble usual mathematical notation for an objective.</p>
 <P/>
-<LI>Actual, Current and Empirical Values of an Action Variable</LI>
+<LI id="AV">Actual, Current and Empirical Values of an Action Variable</LI>
 <P/>
 Usually an action variable can be an object of the base <a href="Variables.ox.html#ActionVariable">ActionVariable</a> class.  The user rarely needs to define a derived class.
 <P/>
@@ -913,7 +913,7 @@ A continuous choice is related to <code>AuxiliaryValues</code>, in the sense tha
 <P/>
 </OL>
 
-<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2021 <a href="https://ferrall.github.io/">Christopher Ferrall</a> </dd>
+<dl><dt class="author">Author:</dt><dd class="author">&copy; 2011-2023 <a href="https://ferrall.github.io/">Christopher Ferrall</a> </dd>
 
 <a id="auto"><hr><h1>Documentation of  Items Defined in Variables.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a></dd>
 </dl>
@@ -1069,10 +1069,10 @@ Track number of periods value(s) of target action variable have occurred.
 <P/>
 <span class="equation">$$s' = s+I\{ CV(x) \in tau\}I\{s \lt N-1\}.$$</span>
 
-<dl><dt class="example">Example:</dt><dd class="example"><code><pre>
+<dl><dt class="example">Example:</dt><dd class="example"><pre>
 decl exper = new ActionCounter("Yrs Experience",10,work); //track up to 10 years working
 EndogenousStates(exper);
-</pre></code></DD>
+</pre></DD>
 </dd>
 </dl>
 <table class="method_table">
@@ -2220,8 +2220,8 @@ This variable requires a target s.X and the lagged value of the target, denoted 
 <DT>Transition:</DT>
 <span class="equation">$$s' = I\{ x = Lag(x)\}(s+ I\{s \lt N-1\}).$$</span>
 
-<dl><dt class="example">Example:</dt><dd class="example"><code><pre>
-</pre></code></DD>
+<dl><dt class="example">Example:</dt><dd class="example"><pre>
+</pre></DD>
 </dd>
 </dl>
 <table class="method_table">
@@ -2624,6 +2624,7 @@ A discrete IID process.
 <dl><dt class="example">Example:</dt><dd class="example"><pre>
 decl health = new IIDJump("h",<0.1;0.8;0.1>);
 </pre>
+</dd>
 </dd>
 <dt class="comments">Comments:</dt><dd class="comments">Unlike a general Markov variable, a IIDJump is eligible to be an Exogenous variable, a member of <span class="expressions">\(\epsilon\)</span>
 added to the model with <a href="DP.ox.html#DP___ExogenousStates">ExogenousStates</a>.
@@ -3557,6 +3558,7 @@ As a transition function:
 As a transition probability:
 <span class="equation">$$P(q'; q,s) = I\{ q' = q + I\{s=1\} \}.$$</span>
 </dd>
+</dd>
 </dl>
 <dl class="inherited">
 <dt>Inherited methods from <a href="Variables.ox.html#StateVariable">StateVariable</a>:</dt><dd><a href="Variables.ox.html#StateVariable___Check">Check</a>, <a href="Variables.ox.html#StateVariable___IsBlock">IsBlock</a>, <a href="Variables.ox.html#StateVariable___IsBlockMember">IsBlockMember</a>, <a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a>, <a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="Variables.ox.html#StateVariable___myAV">myAV</a>, <a href="Variables.ox.html#StateVariable___StateVariable">StateVariable</a>, <a href="Variables.ox.html#StateVariable___Track">Track</a>, <a href="Variables.ox.html#StateVariable___Transit">Transit</a>, <a href="Variables.ox.html#StateVariable___UnChanged">UnChanged</a></dd>
@@ -4261,7 +4263,7 @@ Fertility::Mortality()	{
 	decl p = probn(x*q);  // x has to be updated using current age and other x values.
 	decl ivals = CV(i);
 	return 0 ~ (1-p*ivals) ~ p*ivals;
-	}</pre>
+	}</pre></dd>
 </dd>
 </dl>
 <table class="method_table">
@@ -4424,7 +4426,7 @@ Zurcher::Initialize()	{
 	EndogenousState( x = new Renewal("x",90,i,q) );
     &vellip;
 	}
-</pre>
+</pre></dd>
 </dd>
 </dl>
 <table class="method_table">
@@ -4503,8 +4505,8 @@ Store a new offer or retain its current value.
 s' = .
 </pre></dd>
 
-<dl><dt class="example">Example:</dt><dd class="example"><code><pre>
-</pre></code>
+<dl><dt class="example">Example:</dt><dd class="example"><pre>
+</pre></dd>
 </dd>
 </dl>
 <table class="method_table">
@@ -4821,7 +4823,7 @@ The values of <code>x</code> in <span class="expressions">\(\tau\)</span> (ToTra
 
 <dl><dt class="example">Example:</dt><dd class="example"><pre>
 decl wks  = new ActionState("wksunemp",work,10,<0>); //track up to 10 years
-EndogenousStates(wks);</pre>
+EndogenousStates(wks);</pre></dd>
 </dd>
 </dl>
 <table class="method_table">
@@ -7945,12 +7947,14 @@ Create a variable that tracks the previous value of action variable.
 </td>
 </tr>
 <tr>
-<td class="declaration" valign="baseline">Order
+<td class="declaration" valign="baseline">Order</td>
+<td class="description" valign="baseline">number of lags [default = 1]
 </td>
 </tr>
 </table>
 </dd>
-<dt class="example">Example:</dt><dd class="example"><pre>wrked = new LaggedAction("Worked Last Year",work);</pre>
+<dt class="example">Example:</dt><dd class="example"><pre>wrked = new LaggedAction("Worked Last Year",work);
+</pre></dd>
 </dd>
 <dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___KLaggedAction">KLaggedAction</a></dd>
 </dl>
@@ -7998,7 +8002,9 @@ Create a variable that tracks the previous value of another state variable.
 </tr>
 </table>
 </dd>
-<dt class="example">Example:</dt><dd class="example"><pre>prevoccup = new LaggedState("Prev",occup);</pre></DD>
+<dt class="example">Example:</dt><dd class="example"><pre>
+prevoccup = new LaggedState("Prev",occup);
+</pre></DD>
 </dd>
 <dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___KLaggedState">KLaggedState</a></dd>
 </dl>
@@ -9105,7 +9111,9 @@ Create a variable that tracks a one-time permanent choice.
 </table>
 </dd>
 <dt class="example">Example:</dt><dd class="example">Once a person retires the stay retired forever:
-<pre>retired = new PermanentChoice("Ret",retire);</pre></dd>
+<pre>
+retired = new PermanentChoice("Ret",retire);
+</pre></dd>
 </dd>
 </dl>
 </dd></dl>
@@ -10478,10 +10486,12 @@ the bequest value of the state.</DD>
 </tr>
 </table>
 </dd>
-<dt class="example">Example:</dt><dd class="example">s = new StateVariable("s",5);
+<dt class="example">Example:</dt><dd class="example"><pre>
+  s = new StateVariable("s",5);
   s->MakeTerminal(<3;4>);
   v = new StateVariable("v",1);
   v->MakeTerminal(1);
+</pre>
 </dd>
 <P/>
 Now any state for which <code>CV(s)=3</code> or <code>CV(s)=4</code> or <code>CV(v)=1</code>

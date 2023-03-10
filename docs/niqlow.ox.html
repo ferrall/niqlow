@@ -41,14 +41,14 @@ Browse and run <a  target="_blank" href="examples/default.html">test code, examp
 <LI>Build the mode using  the <a href="DDP/default.html">DDP</a> section of <span class="n">niqlow</span>.</LI>
 <LI>See a simple search model built using 7 executable statements in <a href="DDP/GetStarted.html">Get Started with DDP</a></LI>
 <LI><b>Or</b> start from scratch with <a href="DDP/DDP.ox.html">static discrete choice</a> and learn how to work up to a DP model.</LI>
-<LI><b>Or</b> follow replications of classic papers in  <a href="https://ferrall.github.io/OODP/">OODP</a> and start from the <a href="">replication code</a></LI>
+<LI><b>Or</b> follow replications of classic papers in  <a href="https://ferrall.github.io/OODP/">OODP</a> and start from the <a href="/examples/replications/default.html">replication code</a></LI>
 </UL>
 </td>
 <P/>
 <td><details class="over"><summary>Step 2. Solve the model</summary>
 <ul>
-<li>Use the <a href="DDP/Methods.ox.html">Method</a>s to solve Bellman's equation and compute choice probabilities for your model.</li>
-<li>Create <a href="DDP/Data.ox.html">Data</a> outcomes for the solution (simulated sample or predictions).</td>
+<li>Use  <a href="DDP/Methods.ox.html">Method</a>s to solve Bellman's equation for your model and compute choice probabilities.</li>
+<li>Create <a href="DDP/Data.ox.html">Data</a> outcomes for the solution, either simulated data or (averaged) predictions.</td>
 </ul></details>
 <td><details class="over"><summary>Step 3. Find parameter values</summary>
 <UL><li>Use the integrated  <a href="FiveO/default.html">FiveO</a> tools to maximize an objective or solve a system of
@@ -61,29 +61,29 @@ equations that depends on the solved DP model.</li>
 <P/>
 <tr><td><details class="over"><summary>Required DP Components </summary>
     <UL>
-    <li><a href="DDP/">Choose among <a href="">Bellman</a> classes to base your template for each point <span class="expressions">\(\theta\)</span> of the state space.</a></li>
+    <li><a href="DDP/">Choose among derived <a href="/DDP/hierarchy.html">Bellman</a> classes to base your template for each point <span class="expressions">\(\theta\)</span> of the state space.</a></li>
      <li>Choose key/required features of <span class="expressions">\(\theta\)</span>:</li>
-     <UL><li>Set the <a href="DDP/">Clock</a> (properties of <span class="expressions">\(t\)</span>)</li>
-        <li>Add <a href="DDP/">Action Variables</a> to create your action vector <span class="expressions">\(\alpha\)</span>.</li>
-        <li>Add <a href="DDP/">State Variables</a> to <span class="expressions">\(\theta\)</span>, from which the model's transition emerges</li>
+     <UL><li>Set the <a href="DDP/Variables.ox.html#Clock">Clock</a> (properties of <span class="expressions">\(t\)</span>)</li>
+        <li>Add <a href="DDP/Variables.ox.html#ActionVariables">Action Variables</a> to create your action vector <span class="expressions">\(\alpha\)</span>.</li>
+        <li>Add <a href="DDP/Variables.ox.html#StateVariables">State Variables</a> to <span class="expressions">\(\theta\)</span>, from which the model's transition emerges</li>
         </UL>
-     <li>Code <a href="">Utility()</a> </li>
-     <li>Set the <a href="">Discount Factor</a></li>
+     <li>Code <a href="DDP/Bellman.ox.html#utility">Utility()</a> </li>
+     <li>Set the discount factor &delta;</li>
      </UL></details><br/>
 <details class="over"><summary>Further customizations</summary>
      <ul>
-       <LI>Create multiple problems by adding <a href="DDP/">Group Variables</a></LI>
-       <li>Make values of state variables <a href="">Terminal Values</a></li>
-       <li>Restrict actions depending on <span class="expressions">\(\theta\)</span> by coding <a href="">FeasibleActions()</a> to define <span class="expressions">\(A(\theta)\)</span>.</li>
-       <li>Restrict which states can be reached by coding <a href="">Reachable()</a></li>
-     <LI>Let <span class="n">niqlow</span> handle the mapping between discrete <a href="">counter values</a> of
-        variables and their <a href="">actual values</a> that enter your formulas</LI>
-     <LI>Set the point in the solution algorithm when transitions must be recomputed depending on the reliance on parameters or group variables
+       <LI>Create multiple problems by adding <a href="DDP/Variables.ox.html#Fixed">Group Variables</a></LI>
+       <li>Make values of state variables <a href="DDP/Variables.ox.html#StateVariable___MakeTerminal">Terminal Values</a></li>
+       <li>Restrict actions depending on <span class="expressions">\(\theta\)</span> by coding <a href="DDP/Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions()</a> to define <span class="expressions">\(A(\theta)\)</span>.</li>
+       <li>Restrict which states can be reached by coding <a href="DDP/Bellman.ox.html#reachable">Reachable()</a></li>
+     <LI>Let <span class="n">niqlow</span> handle the mapping between discrete <a href="DDP/Variables.ox.html#AV">counter values</a> of
+        variables and their <a href="DDP/Variables.ox.html#AV">actual values</a> that enter your formulas</LI>
+     <LI><a href="DDP/DP.ox.html#DP___SetUpdateTime">Set the point in the solution algorithm</a> when transitions must be recomputed depending on the reliance on parameters or group variables
         without computing the transitions unnecessarily.</LI>
      </ul></details><br/>
 <details class="over"><summary>When ready create the spaces</summary>
 <ul>
-  <li>As your code executes the model is built until you <a href="">CreateSpaces</a></li>
+  <li>As your code executes the model is built until you tell DDP to <code>CreateSpaces</code></li>
   <li><span class="n">DDP</span> will built your state space <span class="expressions">\(\Theta\)</span>, the feasible action spaces <span class="expressions">\(A(\theta)\)</span> and the space of problems (group
     space <span class="expressions">\(\Gamma\)</span>).</li>
   <li>Storage is economized by limiting storage at each point <span class="expressions">\(\theta\)</span> and relying heavily on shared (<em>static</em>) variables</li>
@@ -95,14 +95,14 @@ equations that depends on the solved DP model.</li>
     <UL>
     <LI>Solve for discrete choice probabilities (CCPs) under different assumptions or solve for reservation values of continuous
         random shocks.</LI>
-    <li>Apply the solution to your model using its <a href="">Solve()</a> function.</li>
+    <li>Apply the solution to your model using its <a href="/DDP/Methods.ox.html">Solve()</a> function.</li>
     <LI>Let the method handle storage and computation efficiently accounting for your clock and other details.</LI>
-    <LI>Create more than one method "object" and compare their performance</LI>
+    <LI>Create more than one method object to compare their performance</LI>
     </UL></details><br/>
 <details class="over"><summary>Create outcomes for the solved model</summary>
     <UL>
-    <LI>Create a <a href="">Panel</a> of outcomes so you can <a href="">Simulate</a> outcomes from the model <em>or</em> read in external data to compute likelihood .</LI>
-    <li>Create a <a href="">PanelPrediction</a> to <a href="">Predict</a> expected outcomes (averaged over all random elements) and read in
+    <LI>Create a <a href="/DDP/Data.ox.html#Outcomes">Panel</a> of outcomes so you can <a href="/DDP/Data.ox.html#Panel___Simulate">Simulate</a> outcomes from the model <em>or</em> read in external data to compute likelihood .</LI>
+    <li>Create a <a href="/DDP/Data.ox.html#PD">PanelPrediction</a> to <a href="/DDP/Data.ox.html#PanelPrediction___Predict">Predict</a> expected outcomes (averaged over all random elements) and read in
         external moments to compare them to.</li>
     <LI>Send a solution method to the data object: when any prediction or econometric calculation is needed the model will be resolved (a nested algorithm).</li>
     </UL>
@@ -127,17 +127,17 @@ equations that depends on the solved DP model.</li>
 <details class="over"><summary>Create a criterion (objective) </summary>
     <UL>
     <LI>Use an automatically generated econometric objective already available that depend on external data.</LI>
-    <LI>Create a system of equations to find <a href="">Equilibrium</a> prices.</LI>
+    <LI>Create a system of equations to find <a href="/FiveO/Objective.ox.html#Equilibrium">Equilibrium</a> prices.</LI>
     <LI>Add DP parameters to the objective/system so they are associated with it.</LI>
-    <LI>Use built-in features to handle <a href="">BHHH iteration</a> </LI>
-    <LI>Choose among GMM weighting options</LI>
+    <LI>Use built-in features to handle <a href="/FiveO/Algorithms.ox.html#BHHH">BHHH iteration</a> </LI>
+    <LI>Choose among <a href="/DDP/DDPShared.ox.html#GMMWeightOptions">GMM weighting options</a></LI>
     </UL>
 </details><br/>
 <details class="over"><summary>Optimize your objective.</summary>
-    <UL><li>Apply an <a href="">Algorithm(s)</a> using its <a href="">Iterate()</a> function.  </LI>
-    <LI>Apply different methods, monitor and <a href="">checkpoint</a> progress</LI>
+    <UL><li>Apply an <a href="/FiveO/hierarchy.html">Algorithm(s)</a> using its Iterate() function.  </LI>
+    <LI>Apply different methods, monitor and checkpoint progress</LI>
     <LI>Rest assured: the DP model is re-solved each time the criterion is re-evaluated because you sent the solution method to the data objects.</LI>
-    <LI>Turn DP iteration on and off in order to carry out <a href="">Two-Stage Estimation.</a></LI>
+    <LI>Turn DP iteration on and off in order to carry out <a href="/FiveO/Objective.ox.html#DataObjective___TwoStage">Two-Stage Estimation.</a></LI>
     </UL></details><br/></td></td></tr>
 <P/>
 <tr><th colspan="3"  class="sep">When your model &hellip;</th></tr>
