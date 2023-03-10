@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<link rel="stylesheet" type="text/css" href="oxdoc.css">
-<link rel="stylesheet" type="text/css" media="print" href="print.css">
-<script type="text/javascript" async  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js"></script><link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><link rel="icon" href="icons/favicon16.png" type="image/png">
+<link rel="stylesheet" type="text/css" href="../oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="../print.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
 <title>DDPShared.ox - Derived Dynamic Programs</title>
 </head>
 <body>
 <div class="header">
-[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+[ <img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.htm">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
 <img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
  | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
@@ -16,7 +17,7 @@
 
 
 <a name="global"></a>
-<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global variables, enumerations</span></h2>
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global variables, functions, enumerations</span></h2>
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Variables</td></tr><tr class="even">
@@ -70,10 +71,15 @@
 <td class="modifiers">static</td>
 <td class="description"><span class="expressions">\(\theta\)</span> tracking or iterating indices.</td>
 </tr>
+<tr><td colspan="3" class="header" valign="top">Functions</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="DDPShared.ox.html#ReverseState">ReverseState</a></td>
+<td class="modifiers"></td>
+<td class="description">Recreate a State vector from an index and offset vector.</td>
+</tr>
 <tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#ClockTypes">ClockTypes</a></td>
 <td class="modifiers"></td>
-<td class="description">Send one of these tags as first argument to DP::SetClock() to use that clock.</td>
+<td class="description">Send one of these tags as first argument to <a href="DP.ox.html#DP___SetClock">SetClock</a>() to use that clock.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="DDPShared.ox.html#DataColumnTypes">DataColumnTypes</a></td>
@@ -157,7 +163,7 @@
 
 Aspects of the Action Space <span class="expressions">\(A(\theta)\)</span>.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso">Bellman::FeasibleActions</dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Bellman.ox.html#Bellman___FeasibleActions">FeasibleActions</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -293,7 +299,7 @@ Indicators related to the DP problem.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___HasBeenUpdated">HasBeenUpdated</a></td>
 <td class="modifiers">static</td>
-<td class="description">EndogTrans::Transitions has been called.</td>
+<td class="description"><a href="Bellman.ox.html#EndogTrans___Transitions">Transitions</a> has been called.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___HasFixedEffect">HasFixedEffect</a></td>
@@ -388,7 +394,7 @@ Indicators related to the DP problem.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___NewPhase">NewPhase</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Cumulate time on current phase, report time, set new phase.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___Reset">Reset</a></td>
@@ -398,12 +404,12 @@ Indicators related to the DP problem.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___SetPrunable">SetPrunable</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Sets <a href="DDPShared.ox.html#Flags___Prunable">Prunable</a> to TRUE if the clock setting makes automatic pruning of the state space valid.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Flags___TimeProfile">TimeProfile</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Report the time spent in different phases of the calculations.</td>
 </tr>
 </table>
 
@@ -412,12 +418,12 @@ Indicators related to the DP problem.
 
 Manages an array (stored in <a href="DDPShared.ox.html#Hooks___hooks">hooks</a>) that holds user-defined static functions/methods to call at different points in the solution process.
 <P/>
-Hooks are places in the DP solution process where the user can add code to be carried out.  This is done using the Hooks::Add()
+Hooks are places in the DP solution process where the user can add code to be carried out.  This is done using the <a href="DDPShared.ox.html#Hooks___Add">Add</a>()
 procedure.  Hooks are a list of procedures to be called so more than one procedure can be carried out.
 <P/>
-Hooks::Reset() will re-initialize hooks so that you can change what is done between one solution method and the next.
+<a href="DDPShared.ox.html#Hooks___Reset">Reset</a>() will re-initialize hooks so that you can change what is done between one solution method and the next.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#HookTimes">HookTimes</a>, DP::SetUpdateTime</dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#HookTimes">HookTimes</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
 </dl>
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public fields</td></tr><tr class="even">
@@ -433,22 +439,17 @@ Hooks::Reset() will re-initialize hooks so that you can change what is done betw
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Hooks___Add">Add</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Add a static function or method to a hook.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Hooks___Do">Do</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Call all the methods on the hook.</td>
 </tr>
 <tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Hooks___DoNothing">DoNothing</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#Hooks___Reset">Reset</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Empty the hooks (delete first if already created).</td>
 </tr>
 </table>
 
@@ -531,12 +532,12 @@ Dynamically updated indices into state spaces.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#I___NowSet">NowSet</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Initialize now and later indices for Bellman iteration.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#I___NowSwap">NowSwap</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Swap the now and later indices for Bellman iteration.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#I___Set">Set</a></td>
@@ -820,24 +821,14 @@ Contains information on an object (variable, auxiliary outcome, etc) to be track
 <td class="description"></td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#TrackObj___Distribution">Distribution</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#TrackObj___print">print</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#TrackObj___Reset">Reset</a></td>
 <td class="modifiers">virtual</td>
 <td class="description"></td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#TrackObj___TrackObj">TrackObj</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Track an object in a prediction path.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="DDPShared.ox.html#TrackObj___Update">Update</a></td>
@@ -851,19 +842,19 @@ Contains information on an object (variable, auxiliary outcome, etc) to be track
 <table class="enum_table">
 <tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
 <td class="declaration"><a name="ClockTypes"></a>ClockTypes</td>
-<td class="description">Send one of these tags as first argument to DP::SetClock() to use that clock.
+<td class="description">Send one of these tags as first argument to <a href="DP.ox.html#DP___SetClock">SetClock</a>() to use that clock.
         <table>
         <tr><th>Tag</th><th>Clock Type</th></tr>
-        <tr><td>InfiniteHorizon</td><td>Stationary(FALSE)</td></tr>
-        <tr><td>Ergodic</td><td>Stationary(TRUE)</td></tr>
-        <tr><td>SubPeriods</td><td>Divided(&hellip;)</td></tr>
-        <tr><td>NormalAging</td><td>Aging(&hellip;)</td></tr>
-        <tr><td>StaticProgram</td><td>StaticP(&hellip;)</td></tr>
-        <tr><td>RandomAging</td><td>AgeBrackets(&hellip;)</td></tr>
-        <tr><td>RandomMortality</td><td>Mortality(&hellip;)</td></tr>
-        <tr><td>UncertainLongevity</td><td>Longevity(&hellip;)</td></tr>
+        <tr><td>InfiniteHorizon</td><td><a href="Variables.ox.html#Stationary">Stationary</a>(FALSE)</td></tr>
+        <tr><td>Ergodic</td><td><a href="Variables.ox.html#Stationary">Stationary</a>(TRUE)</td></tr>
+        <tr><td>SubPeriods</td><td><a href="Variables.ox.html#Divided">Divided</a>(&hellip;)</td></tr>
+        <tr><td>NormalAging</td><td><a href="Variables.ox.html#Aging">Aging</a>(&hellip;)</td></tr>
+        <tr><td>StaticProgram</td><td><a href="Variables.ox.html#StaticP">StaticP</a>(&hellip;)</td></tr>
+        <tr><td>RandomAging</td><td><a href="Variables.ox.html#AgeBrackets">AgeBrackets</a>(&hellip;)</td></tr>
+        <tr><td>RandomMortality</td><td><a href="Variables.ox.html#Mortality">Mortality</a>(&hellip;)</td></tr>
+        <tr><td>UncertainLongevity</td><td><a href="Variables.ox.html#Longevity">Longevity</a>(&hellip;)</td></tr>
         <tr><td>RegimeChange</td><td>Not Coded Yet</td></tr>
-        <tr><td>SocialExperiment</td><td>PhasedTreatment(&hellip;)</td></tr>
+        <tr><td>SocialExperiment</td><td><a href="Variables.ox.html#PhasedTreatment">PhasedTreatment</a>(&hellip;)</td></tr>
         </table>
 </td>
 <td class="elements">InfiniteHorizon, Ergodic, SubPeriods, NormalAging, StaticProgram, RandomAging, RandomMortality, UncertainLongevity, RegimeChange, SocialExperiment, UserDefined, NClockTypes</td>
@@ -874,8 +865,8 @@ Contains information on an object (variable, auxiliary outcome, etc) to be track
             <table class="enum_table">
             <tr><td valign="top">idvar</td><td>Identifier for the path (agent)</td></tr>
             <tr><td valign="top">avar</td><td><a href="Variables.ox.html#ActionVariable">ActionVariable</a></td></tr>
-            <tr><td valign="top">svar</td><td>StateVariable</td></tr>
-            <tr><td valign="top">idvar</td><td>AuxiliaryValue</td></tr>
+            <tr><td valign="top">svar</td><td><a href="Variables.ox.html#StateVariable">StateVariable</a></td></tr>
+            <tr><td valign="top">idvar</td><td><a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a></td></tr>
             <tr><td valign="top">freqvar</td><td>Frequency (weight to apply to this observation)</td></tr>
             </table>
 </td>
@@ -885,7 +876,7 @@ Contains information on an object (variable, auxiliary outcome, etc) to be track
 <td class="declaration"><a name="DPPhases"></a>DPPhases</td>
 <td class="description">Phases of DP computations.  The current phase is set by the code and time spent in each phase is tracked.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso">Flags::TimeProfile</dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#Flags___TimeProfile">TimeProfile</a></dd>
 </dl></td>
 <td class="elements">INBETWEEN, INITIALIZING, SOLVING, SIMULATING, LIKING, PREDICTING, NDPhases</td>
 </tr>
@@ -922,23 +913,23 @@ Contains information on an object (variable, auxiliary outcome, etc) to be track
 <td class="description">Points in the solution process that users can insert <em>static</em> functions or methods.
 <P/>
 <table class="enum_table" valign="top">
-<tr><td valign="top"><code>PreAuxOutcomes</code></td><tD>Called by ExogOutcomes::ExpectedOutcomes() and Outcome::AuxLikelihood()
-    as they run, which only happen if there are AuxiliaryValues added to the model.
+<tr><td valign="top"><code>PreAuxOutcomes</code></td><tD>Called by <a href="DP.ox.html#ExogOutcomes___ExpectedOutcomes">ExpectedOutcomes</a>() and <a href="Data.ox.html#Outcome___AuxLikelihood">AuxLikelihood</a>()
+    as they run, which only happen if there are <a href="Variables.ox.html#AuxiliaryValue">AuxiliaryValue</a>s added to the model.
         At this point all state variables have been synched and each aux value's <code>Realize()</code>
         or <code>Likelihood</code> method will be called.  This allows the model to compute realized values at
         a given value of <span class="expressions">\(\eta\)</span> and <span class="expressions">\(\theta\)</span> and store them temporarily.</tD></tr>
-<tr><td valign="top"><code>PreUpdate</code></td><tD>Called by EndogTrans::Transitions().  The point this occurs depends on <a href="DDPShared.ox.html#Flags___UpdateTime">UpdateTime</a></tD></tr>
+<tr><td valign="top"><code>PreUpdate</code></td><tD>Called by <a href="Bellman.ox.html#EndogTrans___Transitions">Transitions</a>().  The point this occurs depends on <a href="DDPShared.ox.html#Flags___UpdateTime">UpdateTime</a></tD></tr>
 <tr><td valign="top" colspan="2" align="middle"><em>The times below are ordered in decreasing frequency of execution.</em></tD></tr>
-<tr><td valign="top"><code>AtThetaTrans</code> </td> <tD>Called by <code>Method::Method::Run()</code> for each endogenous state &theta; before
+<tr><td valign="top"><code>AtThetaTrans</code> </td> <tD>Called by <code>Method::<a href="Methods.ox.html#Method___Run">Run</a>()</code> for each endogenous state &theta; before
 the transition is computed.</tD></tr>
-<tr><td valign="top"><code>PostSmooth</code> </td> <tD>Called by <code>GSolve::Run()</code> after <em>each</em> time the value of a state has been computed and
-Bellman::Smooth() has been called to compute choice probabilities. That is, it is called only when <a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> is TRUE.  For stationary models
+<tr><td valign="top"><code>PostSmooth</code> </td> <tD>Called by <code><a href="Methods.ox.html#GSolve___Run">Run</a>()</code> after <em>each</em> time the value of a state has been computed and
+<a href="Bellman.ox.html#Bellman___Smooth">Smooth</a>() has been called to compute choice probabilities. That is, it is called only when <a href="DDPShared.ox.html#Flags___setPstar">setPstar</a> is TRUE.  For stationary models
 this is only when convergence has been reached.  For non-stationary times it is after each value iteration.</tD></tr>
-<tr><td valign="top"><code>PostGSolve</code> </td> <tD>Called by <code>RandomSolve::RandomSolve::Run()</code> after a call to <a href="Methods.ox.html#GSolve">GSolve</a> has traversed the state space.  That is, after the value of
+<tr><td valign="top"><code>PostGSolve</code> </td> <tD>Called by <code>RandomSolve::<a href="Methods.ox.html#RandomSolve___Run">Run</a>()</code> after a call to <a href="Methods.ox.html#GSolve">GSolve</a> has traversed the state space.  That is, after the value of
 all states has been found. </tD></tr>
-<tr><td valign="top"><code>PostRESolve</code> </td><tD>Called by <code>Method::Run()</code> after all random effects have been solved. That is, after all
+<tr><td valign="top"><code>PostRESolve</code> </td><tD>Called by <code><a href="Methods.ox.html#Method___Run">Run</a>()</code> after all random effects have been solved. That is, after all
 choice probabilities relevant to observationally-equivalent problems have been computed.  At this point a mixture over choice probabilities coudl be could be computed.</tD></tr>
-<tr><td valign="top"><code>PostFESolve</code></td><tD>Called by Method::Solve() after all fixed effect groups have been solved. That is, after all problems defined by
+<tr><td valign="top"><code>PostFESolve</code></td><tD>Called by <a href="Methods.ox.html#Method___Solve">Solve</a>() after all fixed effect groups have been solved. That is, after all problems defined by
 the user's DP model have been solved.</tD></tr>
 <tr><td valign="top"><code>GroupCreate</code></td><tD>Called by the task that sets up the group space Gamma (&Gamma;) before creation
 of each separate group. The function added here should return TRUE if the group should be created and FALSE otherwise.</tD></tr>
@@ -960,15 +951,15 @@ of each separate group. The function added here should return TRUE if the group 
                     <table>
         <tr><th>Tag</th><th>Explanation</th></tr>
             <tr>CCLike<td></td><td>Everything is observed except for the additive choice-specific error &zeta;.
-                Auxiliary values cannot contribute anything extra information.  See Outcome::CCLikelihood</td></tr>
+                Auxiliary values cannot contribute anything extra information.  See <a href="Data.ox.html#Outcome___CCLikelihood">CCLikelihood</a></td></tr>
             <tr>ExogLike<td></td><td>The exogenous vector &epsilon; is also unobserved.  Under this form
-                    the likelihood of AuxiliaryValues is relevant and Outcome::AuxLikelihood() is called
+                    the likelihood of AuxiliaryValues is relevant and <a href="Data.ox.html#Outcome___AuxLikelihood">AuxLikelihood</a>() is called
                     for each observation and each value of &epsilon; </td></tr>
             <tr>PartObsLike  [default]<td></td><td>Account for (sum over) any form of unobservability in states and actions.  Currently
             this form cannot incorporate likelihood of auxiliary values.</td></tr>
             </table>
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Data.ox.html#OutcomeDataSet">OutcomeDataSet</a>, Outcome::IIDLikelihood, Outcome::PartialObservedLikelihood</dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Data.ox.html#OutcomeDataSet">OutcomeDataSet</a>, <a href="Data.ox.html#Outcome___IIDLikelihood">IIDLikelihood</a>, <a href="Data.ox.html#Outcome___PartialObservedLikelihood">PartialObservedLikelihood</a></dd>
 </dl></td>
 <td class="elements">CCLike, ExogLike, PartObsLike, LikelihoodTypes</td>
 </tr>
@@ -1061,13 +1052,13 @@ of each separate group. The function added here should return TRUE if the group 
         capture that aggregate information.</DD>
         <DD>This aggreate information about the variables in a vector include how many endogenous
         state variables there are and how many points in the space they create. This information
-        is constructed by DP::CreateSpaces() for each vector and storedin objects of the <a href="DP.ox.html#Space">Space</a> class.
+        is constructed by <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() for each vector and storedin objects of the <a href="DP.ox.html#Space">Space</a> class.
         The list of <a href="DP.ox.html#Space">Space</a> objects is itself an <code>oxarray</code> held in <code>DP::S</code> (which is
         documented only in the internal version of this documentation).</DD>
         <DD>The integer tags listed here are the internal names of the elements of both that array
         and the array <a href="DP.ox.html#DP___SubVectors">SubVectors</a> of variable objects.</DD>
-        <DD>For example, when the user's code calls DP::EndogenousStates() it adds the objects
-        sent as arguments to the list <code>DP::SubVectors[endog]</code>. Then DP::CreateSpaces()
+        <DD>For example, when the user's code calls <a href="DP.ox.html#DP___EndogenousStates">EndogenousStates</a>() it adds the objects
+        sent as arguments to the list <code>DP::SubVectors[endog]</code>. Then <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>()
         will go through that list and create information about the endogenous space &Theta;
         and store it in object <code>DP::S[endog]</code></DD>
 <P/>
@@ -1081,11 +1072,11 @@ of each separate group. The function added here should return TRUE if the group 
         <tr><td  valign="top">clock</td><td>The clock block.  In the mathematical description the
             clock is an element of &theta; to avoid yet another vector and Greek letter.  However,
             internally it is easier to separate the clock block from &theta;</td></tr>
-        <tr><td  valign="top">rgroup</td><td>The RandomEffect elements of the group vector &gamma;.
+        <tr><td  valign="top">rgroup</td><td>The <a href="Variables.ox.html#RandomEffect">RandomEffect</a> elements of the group vector &gamma;.
                 Again, to avoid extra notation, the mathematical description puts both random
                 and fixed effects into one vector, but internally they are stored on separate
                 lists.</td></tr>
-        <tr><td  valign="top">fgroup</td><td>The FixedEffect elements of &gamma;.</td></tr>
+        <tr><td  valign="top">fgroup</td><td>The <a href="Variables.ox.html#FixedEffect">FixedEffect</a> elements of &gamma;.</td></tr>
         <tr><td  valign="top">DSubVectors</td><td>The number of different vectors.</td></tr>
         <tr><td  valign="top">LeftSV</td><td>Equivalent to <code>exog</code>. This is the index
             of the leftmost true state vector. This ensures some internal loops over
@@ -1106,11 +1097,11 @@ of each separate group. The function added here should return TRUE if the group 
 <td class="description">Point in solving when updating of parameters and transitions needs to occur.
     <table class="enum_table">
     <tr><td valign="top">InCreateSpaces</td><td>Transitions do not depend on any parameters that change so they can be initialized
-        in DP::CreateSpaces() and never recalculated.</td></tr>
-    <tr><td valign="top">WhenFlagIsSet</td><td>Update transitions at the start of Method::Solve() but ONLY if the RecomputeTrans() has
+        in <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() and never recalculated.</td></tr>
+    <tr><td valign="top">WhenFlagIsSet</td><td>Update transitions at the start of <a href="Methods.ox.html#Method___Solve">Solve</a>() but ONLY if the RecomputeTrans() has
         been called. This ensures that if transitions depend on parameters that are controlled by the outside but multiple calls to solve
         will be made for the same parameter values (say while computing equilibrium prices and transitions only depend on parameters)</td></tr>
-    <tr><td valign="top">OnlyOnce</td><td>Update transitions just once on each call to Method::Solve(). This ensures that if transitions depend
+    <tr><td valign="top">OnlyOnce</td><td>Update transitions just once on each call to <a href="Methods.ox.html#Method___Solve">Solve</a>(). This ensures that if transitions depend
         on parameters that are controlled by the outside (say by an optimization algorithm) the probabilities used in solving the model will
         reflect any changes in the parameters since the last time the solution method was applied. </td></tr>
     <tr><td  valign="top">AfterFixed</td><td>Update transitions after the value of the fixed groups is set.  This will allow transitions to depend on the value of
@@ -1120,7 +1111,7 @@ of each separate group. The function added here should return TRUE if the group 
     </table>
     There is a potentially large computational cost of updating the transitions more often than is necessary.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso">DP::SetUpdateTime</dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
 </dl></td>
 <td class="elements">InCreateSpaces, WhenFlagIsSet, OnlyOnce, AfterFixed, AfterRandom, UpdateTimes</td>
 </tr>
@@ -1210,6 +1201,33 @@ parallel array of labels for the built-in clock types.
 <span class="declaration">const decl NDPlabels</span>
 <dl><dd>
 
+</dd></dl>
+
+<hr>
+<a name="ReverseState"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">ReverseState</span></h3>
+
+<span class="declaration">ReverseState ( Ind , subsp )</span>
+<dl><dd>
+Recreate a State vector from an index and offset vector.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Ind,</td>
+<td class="description" valign="baseline">integer or row vector of integers
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">subsp</td>
+<td class="description" valign="baseline"><a href="DDPShared.ox.html#SubSpaces">SubSpaces</a>, index into offset vector <a href="DDPShared.ox.html#I___OO">OO</a>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">matrix of state vectors with index Ind given subspace
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1329,7 +1347,7 @@ List of <em>actual</em> feasible action matrices (AV values),
 <dl><dd>
 Current feasible action matrix.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso">CV</dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#CV">CV</a></dd>
 </dl>
 </dd></dl>
 
@@ -1381,8 +1399,8 @@ list of feasible action matrices (CV) values.
 matrix of all action vectors, A.
             This is a copy of <a href="DDPShared.ox.html#Alpha___CList">CList</a>[0].
             As action variables are added to the model
-            using DP::Actions(), this matrix is built up.
-            DP::CreateSpaces() then calls <code>FeasibleActions()</code>
+            using <a href="DP.ox.html#DP___Actions">Actions</a>(), this matrix is built up.
+            <a href="DP.ox.html#DP___CreateSpaces">CreateSpaces</a>() then calls <code>FeasibleActions()</code>
             for each endogenous state &theta;.   Different feasible
             sets are then added to <a href="DDPShared.ox.html#Alpha___CList">CList</a>.
 
@@ -1446,7 +1464,7 @@ Integer TRUE (default) means all possible combination of fixed and random groups
             If you add a function to the <code>GroupCreate</code> Hooks then this is set FALSE.
             Your function should return TRUE if the current group oup should be created.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#Hooks">Hooks</a>, <a href="DDPShared.ox.html#HookTimes">HookTimes</a>, Hooks::Add, FixedEffect, RandomEffect</dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#Hooks">Hooks</a>, <a href="DDPShared.ox.html#HookTimes">HookTimes</a>, <a href="DDPShared.ox.html#Hooks___Add">Add</a>, <a href="Variables.ox.html#FixedEffect">FixedEffect</a>, <a href="Variables.ox.html#RandomEffect">RandomEffect</a></dd>
 </dl>
 </dd></dl>
 
@@ -1467,7 +1485,7 @@ If UpdateTime=WhenFlagIsSet then next Solve() will
 
 <span class="declaration">static decl HasBeenUpdated [public]</span>
 <dl><dd>
-EndogTrans::Transitions has been called.
+<a href="Bellman.ox.html#EndogTrans___Transitions">Transitions</a> has been called.
 
 </dd></dl>
 
@@ -1516,8 +1534,27 @@ create space to store <span class="expressions">\(P(\theta';\alpha,\theta)\)</sp
 <a name="Flags___NewPhase"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">NewPhase</span></h3>
 
+<span class="declaration">static Flags :: NewPhase ( nuphase , report )</span>
 <dl><dd>
+Cumulate time on current phase, report time, set new phase.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">nuphase</td>
+<td class="description" valign="baseline">DDPhases to start.  If INITIALIZING all runtimes are set to 0.<br/>
+                INBETWEEN [default].  Next phase is not determined at this point.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">report</td>
+<td class="description" valign="baseline">FALSE [default] silent<br/>TRUE print out time report for the ending phase
+<P/>
+This is called internally to track time spent in different stages of the program.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1596,8 +1633,20 @@ vector of time spent in each phase.
 <a name="Flags___SetPrunable"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SetPrunable</span></h3>
 
+<span class="declaration">static Flags :: SetPrunable ( clock )</span>
 <dl><dd>
+Sets <a href="DDPShared.ox.html#Flags___Prunable">Prunable</a> to TRUE if the clock setting makes automatic pruning of the state space valid.
+<P/>
+User code does not call this.
+<P/>
+<DT>Clocks that are prunable:</DT>
+    <DD><a href="Variables.ox.html#Aging">Aging</a></DD>
+    <DD><a href="Variables.ox.html#Mortality">Mortality</a></DD>
+    <DD><a href="Variables.ox.html#Longevity">Longevity</a></DD>
+    <DD><a href="Variables.ox.html#Divided">Divided</a></DD>
 
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#StateVariable___IsReachable">IsReachable</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1656,8 +1705,19 @@ base time mark.
 <a name="Flags___TimeProfile"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">TimeProfile</span></h3>
 
+<span class="declaration">static Flags :: TimeProfile ( fn )</span>
 <dl><dd>
+Report the time spent in different phases of the calculations.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">fn</td>
+<td class="description" valign="baseline"> a file pointer or an integer (print to screen)</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1668,7 +1728,7 @@ base time mark.
 <dl><dd>
 Indicators for when transit update occurs.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso">DP::SetUpdateTime</dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
 </dl>
 </dd></dl>
 
@@ -1686,24 +1746,56 @@ Indicators for when transit update occurs.
 <a name="Hooks___Add"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Add</span></h3>
 
+<span class="declaration">static Hooks :: Add ( time , proc )</span>
 <dl><dd>
+Add a static function or method to a hook.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">time</td>
+<td class="description" valign="baseline">integer tag <a href="DDPShared.ox.html#HookTimes">HookTimes</a>, point in time (where in model solution) to call the routine.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">proc</td>
+<td class="description" valign="baseline"><em>static</em> function or method to call.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example">Say hello after every Bellman iteration is complete:
+<pre>
+ sayhello() { print("hello"); }
+ Hooks::Add(PostGSolve,sayhello);
+</pre>
+</dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="DDPShared.ox.html#HookTimes">HookTimes</a>, <a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="Hooks___Do"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Do</span></h3>
 
+<span class="declaration">static Hooks :: Do ( ht )</span>
 <dl><dd>
+Call all the methods on the hook.
+This is called internally. User code should not do this.
 
-</dd></dl>
-
-<hr>
-<a name="Hooks___DoNothing"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">DoNothing</span></h3>
-
-<dl><dd>
-
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">ht</td>
+<td class="description" valign="baseline">one of the <a href="DDPShared.ox.html#HookTimes">HookTimes</a>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">vector of integer return values of hooks (currently not used)
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1728,7 +1820,9 @@ Indicators for when transit update occurs.
 <a name="Hooks___Reset"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Reset</span></h3>
 
+<span class="declaration">static Hooks :: Reset ( )</span>
 <dl><dd>
+Empty the hooks (delete first if already created).
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">I</span></h2>
@@ -1749,7 +1843,7 @@ vector of current indices into spaces.
 <span class="declaration">static decl curg [public]</span>
 <dl><dd>
 current point in group space, &gamma;..
-        Set in I::Set.
+        Set in <a href="DP.ox.html#I___Set">Set</a>.
 
 </dd></dl>
 
@@ -1760,7 +1854,7 @@ current point in group space, &gamma;..
 <span class="declaration">static decl curth [public]</span>
 <dl><dd>
 current point in state space, &theta;.
-        Set in I::Set.
+        Set in <a href="DP.ox.html#I___Set">Set</a>.
 
 </dd></dl>
 
@@ -1771,8 +1865,8 @@ current point in state space, &theta;.
 <span class="declaration">static decl CVdelta [public]</span>
 <dl><dd>
 The current value of &delta;. This is set in
-            EndogTrans::Transitions() to avoid repeated calls
-            to CV.
+            <a href="Bellman.ox.html#EndogTrans___Transitions">Transitions</a>() to avoid repeated calls
+            to <a href="Shared.ox.html#CV">CV</a>.
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___delta">delta</a></dd>
 </dl>
@@ -1832,7 +1926,9 @@ Current value of majt.
 <a name="I___NowSet"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">NowSet</span></h3>
 
+<span class="declaration">static I :: NowSet ( )</span>
 <dl><dd>
+Initialize now and later indices for Bellman iteration.
 
 </dd></dl>
 
@@ -1840,7 +1936,9 @@ Current value of majt.
 <a name="I___NowSwap"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">NowSwap</span></h3>
 
+<span class="declaration">static I :: NowSwap ( )</span>
 <dl><dd>
+Swap the now and later indices for Bellman iteration.
 
 </dd></dl>
 
@@ -1907,7 +2005,7 @@ index into dynamic random group.
 Current value of sub period s.
           This identically 0 unless the clock is Divided.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso">Divided</dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#Divided">Divided</a></dd>
 </dl>
 </dd></dl>
 
@@ -2216,7 +2314,7 @@ number of all state variables.
 FALSE means no subsampling.  Otherwise, pattern of
             subsampling of the state space.
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso">DP::SubSampleStates</dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a></dd>
 </dl>
 </dd></dl>
 
@@ -2301,14 +2399,6 @@ Scratch space for value iteration.
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">TrackObj</span></h2>
 
-<a name="TrackObj___Distribution"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Distribution</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="TrackObj___hist"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">hist</span></h3>
 
@@ -2373,14 +2463,6 @@ Position in the flat list
 </dd></dl>
 
 <hr>
-<a name="TrackObj___Reset"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Reset</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="TrackObj___sqmean"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">sqmean</span></h3>
 
@@ -2393,8 +2475,26 @@ Position in the flat list
 <a name="TrackObj___TrackObj"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">TrackObj</span></h3>
 
+<span class="declaration">TrackObj :: TrackObj ( LorC , obj , pos )</span>
 <dl><dd>
+Track an object in a prediction path.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">LorC
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">obj
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">pos</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2414,6 +2514,6 @@ Position in the flat list
 
 </dd></dl>
 <div class="footer">
-Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
 Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
 </div>

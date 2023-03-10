@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<link rel="stylesheet" type="text/css" href="oxdoc.css">
-<link rel="stylesheet" type="text/css" media="print" href="print.css">
-<script type="text/javascript" async  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js"></script><link href='http://fonts.googleapis.com/css?family=PT+Mono|Open+Sans:400italic,700italic,400,700,800,300&subset=latin,latin-ext,greek-ext,greek' rel='stylesheet' type='text/css'><link rel="icon" href="icons/favicon16.png" type="image/png">
+<link rel="stylesheet" type="text/css" href="../oxdoc.css">
+<link rel="stylesheet" type="text/css" media="print" href="../print.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML"></script>
 <title>Shared.ox - Derived Dynamic Programs</title>
 </head>
 <body>
 <div class="header">
-[ <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
+[ <img class="icon" src='../icons/glass.png' width=16px' height='16px'/> <a href="../search.htm">Search</a> | <img class="icon" src="icons/uplevel_s.png">&nbsp;<a href="..\default.html">Up Level</a> |
 <img class="icon" src="icons/project_s.png">&nbsp;<a href="default.html">Project home</a>
  | <img class="icon" src="icons/index_s.png">&nbsp;<a href="index.html">Index</a>
  | <img class="icon" src="icons/hierarchy_s.png">&nbsp;<a href="hierarchy.html">Class hierarchy</a> ]</div>
@@ -32,7 +33,7 @@ Components shared by components of <span class="n"><a href="../default.html">niq
 <a name="auto"><hr><h1>Documentation of  Items Defined in Shared.ox <a href="#"><span class="skip"><abbr title=" Back to top">&nbsp;&#8679;&nbsp;</abbr></span></a></h1></a></dd>
 </dl>
 <a name="global"></a>
-<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global variables, enumerations</span></h2>
+<h2><span class="icon"><img class="icon" src="icons/global.png">&nbsp;</span><span class="text">Global variables, functions, enumerations</span></h2>
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Variables</td></tr><tr class="even">
@@ -73,7 +74,7 @@ Components shared by components of <span class="n"><a href="../default.html">niq
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#mymomlabels">mymomlabels</a></td>
 <td class="modifiers">static const</td>
-<td class="description">labels for MyMoments  </td>
+<td class="description">labels for <a href="Shared.ox.html#MyMoments">MyMoments</a>  </td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/field_s.png">&nbsp;<a href="Shared.ox.html#SQRT_EPS">SQRT_EPS</a></td>
@@ -95,47 +96,138 @@ Components shared by components of <span class="n"><a href="../default.html">niq
 <td class="modifiers">static const</td>
 <td class="description">used in transitions.</td>
 </tr>
-<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="odd">
+<tr><td colspan="3" class="header" valign="top">Functions</td></tr><tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#AV">AV</a></td>
+<td class="modifiers"></td>
+<td class="description">ActualValue: Returns X->myAV() if it exists or <a href="Shared.ox.html#CV">CV</a>(X).</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#ColLogit">ColLogit</a></td>
+<td class="modifiers"></td>
+<td class="description">The Multinomial logit smoothing function (over columns).</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#CV">CV</a></td>
+<td class="modifiers"></td>
+<td class="description">Return the Current Value of a Quantity: access X.v, X, X() or X(arg).</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#DeltaV">DeltaV</a></td>
+<td class="modifiers"></td>
+<td class="description">Row-Difference of a matrix.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#Dimensions">Dimensions</a></td>
+<td class="modifiers"></td>
+<td class="description">Return rows() and columns() as a row vector.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#DiscreteNormal">DiscreteNormal</a></td>
+<td class="modifiers"></td>
+<td class="description">Return Nx1 vector of values corresponding to the 1/(N+1) percentiles of
+the normal distribution.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#DrawOne">DrawOne</a></td>
+<td class="modifiers"></td>
+<td class="description">Return index of a single draw from the multinomial distribution.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#Epanechnikov">Epanechnikov</a></td>
+<td class="modifiers"></td>
+<td class="description">Compute the Epanechnikov kernel matrix for a data matrix.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#FLogit">FLogit</a></td>
+<td class="modifiers"></td>
+<td class="description">The standard logistic cumulative distribution.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#GaussianKernel">GaussianKernel</a></td>
+<td class="modifiers"></td>
+<td class="description">Compute the Gausian kernel matrix for a data matrix.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#HTopen">HTopen</a></td>
+<td class="modifiers"></td>
+<td class="description"></td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#MyMoments">MyMoments</a></td>
+<td class="modifiers"></td>
+<td class="description">Print Column Moments.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#RowLogit">RowLogit</a></td>
+<td class="modifiers"></td>
+<td class="description">The Multinomial logit smoothing function (over rows).</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#SameDims">SameDims</a></td>
+<td class="modifiers"></td>
+<td class="description">Check that two objects have same rows and columns.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#SumToOne">SumToOne</a></td>
+<td class="modifiers"></td>
+<td class="description">Return the completed simplex of a vector or double.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#TypeCheck">TypeCheck</a></td>
+<td class="modifiers"></td>
+<td class="description">Check that an object is of a required class, or one of a required class.</td>
+</tr>
+<tr class="odd">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#vararray">vararray</a></td>
+<td class="modifiers"></td>
+<td class="description">Convert an array of strings into a space-separated string.</td>
+</tr>
+<tr class="even">
+<td class="declaration"><img class="icon" src="icons/function_s.png">&nbsp;<a href="Shared.ox.html#varlist">varlist</a></td>
+<td class="modifiers"></td>
+<td class="description">Parse a string for variable names; return array of strings.</td>
+</tr>
+<tr><td colspan="3" class="header" valign="top">Enumerations</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#AggregatorTypes">AggregatorTypes</a></td>
 <td class="modifiers"></td>
 <td class="description">Tags for Types of vector-valued objective Aggregation.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#ConstraintTypes">ConstraintTypes</a></td>
 <td class="modifiers"></td>
 <td class="description">Tags for Types of Constraints.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#ConvergenceResults">ConvergenceResults</a></td>
 <td class="modifiers"></td>
 <td class="description">Code for solutions to Optimization and Non-Linear System solving.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#Names_for_Integers">Names_for_Integers</a></td>
 <td class="modifiers"></td>
 <td class="description">Pseudonyms for -3, -2, &hellip;.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#NextTreatmentStates">NextTreatmentStates</a></td>
 <td class="modifiers"></td>
 <td class="description">Possible next treatment phases.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#NoiseLevels">NoiseLevels</a></td>
 <td class="modifiers"></td>
 <td class="description">Levels of output to produce while executing.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#NormalParams">NormalParams</a></td>
 <td class="modifiers"></td>
 <td class="description">Tags for parameter vectors of normal distribution.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#ParallelExecutionModes">ParallelExecutionModes</a></td>
 <td class="modifiers"></td>
 <td class="description">Modes of Execution when executing in parallel.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="declaration"><img class="icon" src="icons/enum_s.png">&nbsp;<a href="Shared.ox.html#StateTypes">StateTypes</a></td>
 <td class="modifiers"></td>
 <td class="description">Codes for <a href="Bellman.ox.html#Bellman___Type">Type</a>.</td>
@@ -149,49 +241,30 @@ Components shared by components of <span class="n"><a href="../default.html">niq
 
 <table class="method_table">
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#CGI___CheckBox">CheckBox</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#CGI___CreateForm">CreateForm</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#CGI___Finalize">Finalize</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Finalize the CGI component of the output; Ox output appears below.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#CGI___GetVar">GetVar</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Find and return the CGI key value
+</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#CGI___Initialize">Initialize</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Initialize the processing of CGI post data.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#CGI___Parse">Parse</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Parse and return the values of a HTML form.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#CGI___ParseQ">ParseQ</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#CGI___ReadForm">ReadForm</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#CGI___VolumeCtrl">VolumeCtrl</a></td>
-<td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Parse the query  </td>
 </tr>
 </table>
 
@@ -217,16 +290,6 @@ Store a point for a constrained objective.
 <td class="description">Merit value.</td>
 </tr>
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#CPoint___Copy">Copy</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#CPoint___CPoint">CPoint</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
-</tr>
-<tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#CPoint___Vec">Vec</a></td>
 <td class="modifiers"></td>
 <td class="description"></td>
@@ -234,7 +297,7 @@ Store a point for a constrained objective.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___aggregate">aggregate</a>, <a href="Shared.ox.html#Point___GCopy">GCopy</a>, <a href="Shared.ox.html#Point___Point">Point</a>, <a href="Shared.ox.html#Point___Vstore">Vstore</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___aggregate">aggregate</a>, <a href="Shared.ox.html#Point___Point">Point</a>, <a href="Shared.ox.html#Point___Vstore">Vstore</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#LinePoint">LinePoint</a>:</dt><dd><a href="Shared.ox.html#LinePoint___GetV">GetV</a>, <a href="Shared.ox.html#LinePoint___LinePoint">LinePoint</a></dd>
 </dl>
 
@@ -277,7 +340,7 @@ Discrete values: actions, states, auxiliaries.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Discrete___Discrete">Discrete</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a discrete quantity .</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Discrete___GetN">GetN</a></td>
@@ -292,7 +355,7 @@ Discrete values: actions, states, auxiliaries.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Discrete___SetActual">SetActual</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Initialize the actual values.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Discrete___Track">Track</a></td>
@@ -302,7 +365,7 @@ Discrete values: actions, states, auxiliaries.
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Discrete___Update">Update</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">The default Discrete Variable update does nothing.</td>
 </tr>
 </table>
 
@@ -344,12 +407,12 @@ A continuous discretization of a (potentially) continuous quantity.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Discretized___Approx">Approx</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Map vector of values into current nodes.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Discretized___Discretized">Discretized</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Map a continuous outcome onto a set of discrete nodes.</td>
 </tr>
 </table>
 
@@ -420,7 +483,7 @@ Equations are used in systems and constrained optimization.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Equations___Equations">Equations</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a system of equations.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Equations___norm">norm</a></td>
@@ -534,12 +597,13 @@ When using <a href="Bellman.ox.html#NnotIID">NnotIID</a> an object is created fo
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#GHK___GHK">GHK</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Set constants for GHK.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#GHK___SetC">SetC</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Update array of choice-specific Choleskie's
+</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#GHK___SetSeed">SetSeed</a></td>
@@ -549,12 +613,12 @@ When using <a href="Bellman.ox.html#NnotIID">NnotIID</a> an object is created fo
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#GHK___SimDP">SimDP</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Use GHK to simulate choice probabilities and Emaxes for a matrix of index values.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#GHK___SimProb">SimProb</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Use GHK to simulate state-contingent choice probability  when U() includes additive N(0,&Sigma;) errors.</td>
 </tr>
 </table>
 
@@ -599,12 +663,12 @@ println("E[x*x] = ", GQH::wght * sqr(GQH::nodes)  );  // / M_SQRT2PI
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#GQH___coef">coef</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Return the polynomial coefficients of H<sub>n</sub> polynomial .</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#GQH___Initialize">Initialize</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Set the nodes and weights for Gauss-Hermite Quadrature.</td>
 </tr>
 </table>
 
@@ -637,7 +701,7 @@ println("E[x*x] = ", GQL::wght * sqr(GQL::nodes) );
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#GQL___Initialize">Initialize</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Gauss-Laguerre nodes and weights.</td>
 </tr>
 </table>
 
@@ -744,22 +808,12 @@ Store a point for a mixture objective.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#MixPoint___aggregate">aggregate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#MixPoint___Copy">Copy</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#MixPoint___MixPoint">MixPoint</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">aggregate blackbox objectives into a scalar value.</td>
 </tr>
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___GCopy">GCopy</a>, <a href="Shared.ox.html#Point___Point">Point</a>, <a href="Shared.ox.html#Point___Vstore">Vstore</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___Point">Point</a>, <a href="Shared.ox.html#Point___Vstore">Vstore</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#LinePoint">LinePoint</a>:</dt><dd><a href="Shared.ox.html#LinePoint___GetV">GetV</a>, <a href="Shared.ox.html#LinePoint___LinePoint">LinePoint</a></dd>
 </dl>
 
@@ -818,12 +872,12 @@ Continuously varying quantity: the base class for parameters of an Objective.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___Decode">Decode</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Default decoding: no scaling, no constraining.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___Encode">Encode</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Default encoding: no scaling, no constraining.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___Menu">Menu</a></td>
@@ -833,7 +887,7 @@ Continuously varying quantity: the base class for parameters of an Objective.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___Parameter">Parameter</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Create a new parameter.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___ReadCGI">ReadCGI</a></td>
@@ -843,22 +897,22 @@ Continuously varying quantity: the base class for parameters of an Objective.
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___ReInitialize">ReInitialize</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Reset the parameter to its hard-coded values.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___Reset">Reset</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Reset the starting value of a parameter.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___SetDoNotVary">SetDoNotVary</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Set the value of <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Parameter___ToggleDoNotVary">ToggleDoNotVary</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">Toggle the value of <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>.</td>
 </tr>
 </table>
 
@@ -916,17 +970,7 @@ Algorithms use a point to store temporary values.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Point___aggregate">aggregate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="odd">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Point___Copy">Copy</a></td>
-<td class="modifiers">virtual</td>
-<td class="description"></td>
-</tr>
-<tr class="even">
-<td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Point___GCopy">GCopy</a></td>
-<td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">aggregate blackbox objectives into a scalar value.</td>
 </tr>
 <tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Point___Point">Point</a></td>
@@ -987,7 +1031,7 @@ Container for discrete variables (DDP) and continuous parameters (FiveO).
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Quantity___SetVolume">SetVolume</a></td>
 <td class="modifiers"></td>
-<td class="description"></td>
+<td class="description">Control variable-specifc output.</td>
 </tr>
 </table>
 
@@ -1010,7 +1054,7 @@ Store a point for a separable objective.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="odd">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#SepPoint___aggregate">aggregate</a></td>
 <td class="modifiers">virtual</td>
-<td class="description"></td>
+<td class="description">aggregate separable objectives into a scalar value.</td>
 </tr>
 <tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#SepPoint___SepPoint">SepPoint</a></td>
@@ -1020,7 +1064,7 @@ Store a point for a separable objective.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___Copy">Copy</a>, <a href="Shared.ox.html#Point___GCopy">GCopy</a>, <a href="Shared.ox.html#Point___Point">Point</a>, <a href="Shared.ox.html#Point___Vstore">Vstore</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___Point">Point</a>, <a href="Shared.ox.html#Point___Vstore">Vstore</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#LinePoint">LinePoint</a>:</dt><dd><a href="Shared.ox.html#LinePoint___GetV">GetV</a>, <a href="Shared.ox.html#LinePoint___LinePoint">LinePoint</a></dd>
 </dl>
 
@@ -1043,7 +1087,7 @@ A system point.
 </table>
 
 <dl class="inherited">
-<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___aggregate">aggregate</a>, <a href="Shared.ox.html#Point___Copy">Copy</a>, <a href="Shared.ox.html#Point___GCopy">GCopy</a>, <a href="Shared.ox.html#Point___Point">Point</a>, <a href="Shared.ox.html#Point___Vstore">Vstore</a></dd>
+<dt>Inherited methods from <a href="Shared.ox.html#Point">Point</a>:</dt><dd><a href="Shared.ox.html#Point___aggregate">aggregate</a>, <a href="Shared.ox.html#Point___Point">Point</a>, <a href="Shared.ox.html#Point___Vstore">Vstore</a></dd>
 <dt>Inherited methods from <a href="Shared.ox.html#LinePoint">LinePoint</a>:</dt><dd><a href="Shared.ox.html#LinePoint___GetV">GetV</a>, <a href="Shared.ox.html#LinePoint___LinePoint">LinePoint</a></dd>
 </dl>
 
@@ -1086,7 +1130,7 @@ Checks minimum Ox version and prints copyright info.
 <tr><td colspan="3" class="header" valign="top">Public methods</td></tr><tr class="even">
 <td class="declaration"><img class="icon" src="icons/method_s.png">&nbsp;<a href="Shared.ox.html#Version___Check">Check</a></td>
 <td class="modifiers">static</td>
-<td class="description"></td>
+<td class="description">Check versions and set timestamp, log directory.</td>
 </tr>
 </table>
 
@@ -1180,12 +1224,50 @@ Used by Constrained objectives.
         <tr><td>TERMINAL</td>   <td>4</td><td>Terminal state</td></tr>
         </table>
 
-<dl><dt class="seealso">See also:</dt><dd class="seealso">StateVariable::MakeTerminal, DP::SubSampleStates</dd>
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="Variables.ox.html#StateVariable___MakeTerminal">MakeTerminal</a>, <a href="DP.ox.html#DP___SubSampleStates">SubSampleStates</a></dd>
 </dl></td>
 <td class="elements">ORDINARY, INSUBSAMPLE, NOTSAMPLED, IGNOREEXOG, LASTT, LASTNOTSAMPLED, TERMINAL, TERMNOTSAMPLED, StateTypeCutoffs</td>
 </tr>
 </table>
 
+<a name="AV"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">AV</span></h3>
+
+<span class="declaration">AV ( X , ... )</span>
+<dl><dd>
+ActualValue: Returns X->myAV() if it exists or <a href="Shared.ox.html#CV">CV</a>(X).
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">X</td>
+<td class="description" valign="baseline">anything
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">...</td>
+<td class="description" valign="baseline">argument passed to CV()
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">X->myAV() or CV(X)
+<P/>
+<dd><pre>
+X               Returns         Notes
+<a href="Shared.ox.html#Discrete">Discrete</a>      X->myAV()       (any class with the member function defined)
+Other Object    CV(X)
+</pre></dd>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">This allows user utility to access the current actual value of a state.  This also works for <a href="Variables.ox.html#StateBlock">StateBlock</a>
+which will return the items from the Grid of points.
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso">CV StateVariable::myAV ActionVariable::myAV</dd>
+</dl>
+</dd></dl>
+
+<hr>
 <a name="BaseTag"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">BaseTag</span></h3>
 
@@ -1196,12 +1278,106 @@ Base tags for parallel messaging.
 </dd></dl>
 
 <hr>
+<a name="ColLogit"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">ColLogit</span></h3>
+
+<span class="declaration">ColLogit ( x , rho )</span>
+<dl><dd>
+The Multinomial logit smoothing function (over columns).
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">x</td>
+<td class="description" valign="baseline"> m&times;n matrix.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">rho</td>
+<td class="description" valign="baseline">double [default=1.0] smoothing factor
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns"><span class="expressions">\(\exp(\rho x)\)</span>./sumr(<span class="expressions">\(\exp(\rho x)\)</span>)
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
 <a name="curdir"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">curdir</span></h3>
 
 <span class="declaration">static const decl curdir</span>
 <dl><dd>
 
+</dd></dl>
+
+<hr>
+<a name="CV"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">CV</span></h3>
+
+<span class="declaration">CV ( X , ... )</span>
+<dl><dd>
+Return the Current Value of a Quantity: access X.v, X, X() or X(arg).
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">X</td>
+<td class="description" valign="baseline">a double, integer, static function of the form X() or X(arg), or any object with a member named v.<br/>
+an array of <a href="Shared.ox.html#CV">CV</a> compatible elements will return the horizontal concatenation value of the results as matrix.
+<P/>
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">...</td>
+<td class="description" valign="baseline">a single argument can be passed along with X().  Further arguments are ignored
+<P/>
+<dd><pre>
+X               Returns         Notes
+ActionVariable  X->myCV()       X's column of values in <span class="expressions">\(\alpha\)</span>
+Other Object    X.v             If v is a member
+array           row of CV(X)    recursively call CV() or CV(...) for all elements
+function        X() or X(...)   simply call function sending optional arguments as array
+all else        X               CV() of arithmetic objects is the value itself
+</pre></dd>
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">X.v, X, X(), X(arg)
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">This allows elements of the code to be represented several different ways.<br/>
+Typically the argument should be the matrix of feasible actions, as this is how CV() is used inside <a href="Variables.ox.html#StateVariable___Transit">Transit</a>.<br/>
+No argument is passed by <a href="Bellman.ox.html#EndogTrans___Transitions">Transitions</a>() and <a href="DP.ox.html#DP___ExogenousTransition">ExogenousTransition</a>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="DeltaV"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">DeltaV</span></h3>
+
+<span class="declaration">DeltaV ( V )</span>
+<dl><dd>
+Row-Difference of a matrix.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">V</td>
+<td class="description" valign="baseline">Nx1 x N matrix vector, N &gt; 1.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">(N-1)xM matrix, &delta; = V[i][]-V[i-1][]
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">Dimensions and type are not checked!
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1245,6 +1421,166 @@ tolerance level 3: <span class="expressions">\(10^{-2}\)</span>. .
 </dd></dl>
 
 <hr>
+<a name="Dimensions"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">Dimensions</span></h3>
+
+<span class="declaration">Dimensions ( A )</span>
+<dl><dd>
+Return rows() and columns() as a row vector.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">A</td>
+<td class="description" valign="baseline">matrix
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">rows(A)~columns(A)
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="DiscreteNormal"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">DiscreteNormal</span></h3>
+
+<span class="declaration">DiscreteNormal ( N , pars )</span>
+<dl><dd>
+Return Nx1 vector of values corresponding to the 1/(N+1) percentiles of
+the normal distribution.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline">number of points to return
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">pars</td>
+<td class="description" valign="baseline">2x1 vector or array of <a href="Shared.ox.html#NormalParams">NormalParams</a> </br>
+    Nmu mean &mu; Default=0.0<br/>
+    Nsigma standard deviation &sigma; Default=1.0</br>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">&mu; + &sigma;&Phi;<sup>-1</sup>(q), q=(1 ... N)/N+1
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="DrawOne"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">DrawOne</span></h3>
+
+<span class="declaration">DrawOne ( P )</span>
+<dl><dd>
+Return index of a single draw from the multinomial distribution.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">P</td>
+<td class="description" valign="baseline">vector of probabilities, p<sub>0</sub>, p<sub>0</sub>, &hellip; 1-&sum;p<sub>k</sub>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">index of simulated draw
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="Epanechnikov"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">Epanechnikov</span></h3>
+
+<span class="declaration">Epanechnikov ( X , h )</span>
+<dl><dd>
+Compute the Epanechnikov kernel matrix for a data matrix.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">X</td>
+<td class="description" valign="baseline">RxNd matrix of points
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">h</td>
+<td class="description" valign="baseline">bandwidth
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">NdxNd matrix
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="FLogit"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">FLogit</span></h3>
+
+<span class="declaration">FLogit ( x )</span>
+<dl><dd>
+The standard logistic cumulative distribution.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">x</td>
+<td class="description" valign="baseline"> double or vector.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">exp(x)./(1+exp(x))
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="GaussianKernel"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">GaussianKernel</span></h3>
+
+<span class="declaration">GaussianKernel ( X , inh )</span>
+<dl><dd>
+Compute the Gausian kernel matrix for a data matrix.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">X</td>
+<td class="description" valign="baseline">RxNd matrix of points
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">h</td>
+<td class="description" valign="baseline">bandwidth.  -1 [default] use Silverman<br>&gt; 0.0 value.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">NdxNd matrix
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="HTopen"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">HTopen</span></h3>
+
+<span class="declaration">HTopen ( fn )</span>
+<dl><dd>
+
+</dd></dl>
+
+<hr>
 <a name="IIDZpars"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">IIDZpars</span></h3>
 
@@ -1255,13 +1591,102 @@ IID normal parameter vector.  @NormalParams.
 </dd></dl>
 
 <hr>
+<a name="MyMoments"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">MyMoments</span></h3>
+
+<span class="declaration">MyMoments ( M , rlabels , oxf )</span>
+<dl><dd>
+Print Column Moments.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">M</td>
+<td class="description" valign="baseline"><em>matrix</em>: matrix to compute (column) moments for
+    </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">rlabels</td>
+<td class="description" valign="baseline">(optional), array of labels for variables
+    </td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">oxf</td>
+<td class="description" valign="baseline">int, print to screen (default),<br>file, printed to file
+    </td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">matrix of moments
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">See Ox <tt>moments()</tt>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
 <a name="mymomlabels"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">mymomlabels</span></h3>
 
 <span class="declaration">static const decl mymomlabels</span>
 <dl><dd>
-labels for MyMoments
+labels for <a href="Shared.ox.html#MyMoments">MyMoments</a>
 
+</dd></dl>
+
+<hr>
+<a name="RowLogit"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">RowLogit</span></h3>
+
+<span class="declaration">RowLogit ( x , rho )</span>
+<dl><dd>
+The Multinomial logit smoothing function (over rows).
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">x</td>
+<td class="description" valign="baseline"> m&times;n matrix.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">rho</td>
+<td class="description" valign="baseline">double [default=1.0] smoothing factor
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns"><span class="expressions">\(exp(\rho x)\)</span>./sumc(<span class="expressions">\(exp(\rho x)\)</span>)
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="SameDims"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">SameDims</span></h3>
+
+<span class="declaration">SameDims ( A , B )</span>
+<dl><dd>
+Check that two objects have same rows and columns.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">A</td>
+<td class="description" valign="baseline">matrix
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">B</td>
+<td class="description" valign="baseline">matrix
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">TRUE if A and B have the same dimensions
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1285,6 +1710,120 @@ Euclidean tolerance, <span class="expressions">\(10^{-12}\)</span>.
 </dd></dl>
 
 <hr>
+<a name="SumToOne"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">SumToOne</span></h3>
+
+<span class="declaration">SumToOne ( v )</span>
+<dl><dd>
+Return the completed simplex of a vector or double.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">v</td>
+<td class="description" valign="baseline"> double or column vector.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">v | (1-sumc(v))
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="TypeCheck"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">TypeCheck</span></h3>
+
+<span class="declaration">TypeCheck ( obj , cname , Fatal , msg )</span>
+<dl><dd>
+Check that an object is of a required class, or one of a required class.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">obj</td>
+<td class="description" valign="baseline">object
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">cname</td>
+<td class="description" valign="baseline">Class name</br>Array of class names
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Fatal</td>
+<td class="description" valign="baseline">TRUE [default]= end on the error<br/>FALSE , only issue warning.<br/>SILENT no message, just return outcome
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">msg</td>
+<td class="description" valign="baseline">Message to print if not SILENT and class fails to match (default message is "Class fails to match")
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">FALSE if no match<br/>1+i where i is index of first match in the array (so TRUE if first/only matches)
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="vararray"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">vararray</span></h3>
+
+<span class="declaration">vararray ( s )</span>
+<dl><dd>
+Convert an array of strings into a space-separated string.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">sa</td>
+<td class="description" valign="baseline">a string or an array of strings
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">string
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+vararray({"A","B","Joe"})   &rarr;  "A B Joe "
+vararray("A B Joe ")   &rarr;  "A B Joe "
+</pre></dd>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
+<a name="varlist"></a>
+<h3><span class="icon"><img class="icon" src="icons/function.png">&nbsp;</span><span class="text">varlist</span></h3>
+
+<span class="declaration">varlist ( s )</span>
+<dl><dd>
+Parse a string for variable names; return array of strings.
+
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">s</td>
+<td class="description" valign="baseline">string
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">a string if s has a single variable name<br>an array of variable names
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+varlist("A B   Joe")   &rarr;  {"A","B","Joe"}
+varlist("Joe") &rarr; "Joe"
+</pre></dd>
+</dd>
+</dl>
+</dd></dl>
+
+<hr>
 <a name="VZero"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">VZero</span></h3>
 
@@ -1305,26 +1844,12 @@ used in transitions.
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CGI</span></h2>
 
-<a name="CGI___CheckBox"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CheckBox</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="CGI___CreateForm"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CreateForm</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="CGI___Finalize"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Finalize</span></h3>
 
+<span class="declaration">static CGI :: Finalize ( )</span>
 <dl><dd>
+Finalize the CGI component of the output; Ox output appears below.
 
 </dd></dl>
 
@@ -1332,67 +1857,67 @@ used in transitions.
 <a name="CGI___GetVar"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">GetVar</span></h3>
 
+<span class="declaration">static CGI :: GetVar ( key )</span>
 <dl><dd>
+Find and return the CGI key value
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">key</td>
+<td class="description" valign="baseline">string, CGI post keyword
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">value of the key<br>-1 if key not valid
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="CGI___Initialize"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Initialize</span></h3>
 
+<span class="declaration">static CGI :: Initialize ( title )</span>
 <dl><dd>
+Initialize the processing of CGI post data.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">title</td>
+<td class="description" valign="baseline">string, HTML title</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="CGI___Parse"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Parse</span></h3>
 
+<span class="declaration">static CGI :: Parse ( )</span>
 <dl><dd>
+Parse and return the values of a HTML form.
 
+<dl><dt class="returns">Returns:</dt><dd class="returns">array of parallel values
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="CGI___ParseQ"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ParseQ</span></h3>
 
+<span class="declaration">static CGI :: ParseQ ( )</span>
 <dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="CGI___ReadForm"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ReadForm</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="CGI___VolumeCtrl"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">VolumeCtrl</span></h3>
-
-<dl><dd>
+Parse the query
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">CPoint</span></h2>
 
-<a name="CPoint___Copy"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Copy</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
-<a name="CPoint___CPoint"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">CPoint</span></h3>
-
-<dl><dd>
-
-</dd></dl>
-
-<hr>
 <a name="CPoint___eq"></a>
 <h3><span class="icon"><img class="icon" src="icons/field.png">&nbsp;</span><span class="text">eq</span></h3>
 
@@ -1444,14 +1969,36 @@ corresponding model vals.
 <a name="Discrete___Discrete"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Discrete</span></h3>
 
+<span class="declaration">Discrete :: Discrete ( L , N )</span>
 <dl><dd>
+Create a discrete quantity .
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline"><em>string</em> a label or name for the variable.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">N</td>
+<td class="description" valign="baseline"><em>positive integer</em>, number of values.<br>N=1 is a constant.
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Volume</td>
+<td class="description" valign="baseline">default=SILENT. <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a></td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="Discrete___GetN"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">GetN</span></h3>
 
+<span class="declaration">Discrete :: GetN ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1470,6 +2017,7 @@ Number of different values
 <a name="Discrete___PDF"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">PDF</span></h3>
 
+<span class="declaration">virtual Discrete :: PDF ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1488,8 +2036,40 @@ vector of prob. of vals.
 <a name="Discrete___SetActual"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SetActual</span></h3>
 
+<span class="declaration">virtual Discrete :: SetActual ( MaxV , Report )</span>
 <dl><dd>
+Initialize the actual values.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">MaxV</td>
+<td class="description" valign="baseline">non-zero double, default = 1.0<br>
+            N&times;1 vector, actual
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">Report</td>
+<td class="description" valign="baseline">FALSE [default], do not print out current to actual mapping<br/>TRUE, print mapping
+If a double is sent the actual vector to 0,&hellip;, MaxV.
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><dd><pre>
+ a = new ActionVariable("att",3);   // None, half-time, full-time
+ a -> SetActual();                  // AV(a) = 0  .5  1.0
+OR:
+ a -> SetActual(40);                // AV(a) = 0  20  40  (hours)
+<P/>
+ taxbrack = new StateVariable("s",5);       //lower bound on tax rate brackets
+ taxbrack -> SetActual( <0; 20000;  55000; 80000; 165000> );
+<P/>
+</pre></dd>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#Discrete___Update">Update</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1514,8 +2094,14 @@ subvector objected belongs to.
 <a name="Discrete___Update"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Update</span></h3>
 
+<span class="declaration">virtual Discrete :: Update ( )</span>
 <dl><dd>
+The default Discrete Variable update does nothing.
+Derived discrete types can define their own Updates which called when parameters of a model (may) have changed.
+This depends on <a href="DDPShared.ox.html#UpdateTimes">UpdateTimes</a>
 
+<dl><dt class="seealso">See also:</dt><dd class="seealso"><a href="DP.ox.html#DP___SetUpdateTime">SetUpdateTime</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1532,15 +2118,52 @@ range(0,N-1)
 <a name="Discretized___Approx"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Approx</span></h3>
 
+<span class="declaration">Discretized :: Approx ( x , trans )</span>
 <dl><dd>
+Map vector of values into current nodes.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">x</td>
+<td class="description" valign="baseline">column vector of values
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">trans</td>
+<td class="description" valign="baseline">TRUE, calculate f and p like output of <a href="Variables.ox.html#StateVariable___Transit">Transit</a>()
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+v = new Discretized(&lt;0;1;2;3&gt;);
+v-&gt;Approx(&lt;-1.3;1.2;2&gt;,TRUE);
+</pre>
+After execution, these value will be set:
+<pre>
+v.pts = { &lt; 0				//-1.3 is to left of first node
+            1.0 	&gt;,		// all weight on the node
+		  &lt; 1 	2			// 1.2 is between 2nd and 3rd nodes
+		    0.8 0.2 &gt;,		// 20% of the gap between nodes
+		  &lt; 2				// 2 is exactly equal to 3rd node
+		    1.0 	&gt; }
+v.f = &lt; 0  	1 	2 	3	&gt;	// 4 nodes have positive weight
+v.p = &lt; 1.0 0.0 0.0	0.0
+		0.0 0.8 0.2 1.0
+		0.0 0.0 0.0 1.0	&gt;
+</pre></dd>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="Discretized___Discretized"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Discretized</span></h3>
 
+<span class="declaration">Discretized :: Discretized ( nodes )</span>
 <dl><dd>
+Map a continuous outcome onto a set of discrete nodes.
 
 </dd></dl>
 
@@ -1589,6 +2212,7 @@ N-array of matrices, either 2x1 or 2x2.<br>
 <a name="Equality___Equality"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Equality</span></h3>
 
+<span class="declaration">Equality :: Equality ( LorNorv )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1597,6 +2221,7 @@ N-array of matrices, either 2x1 or 2x2.<br>
 <a name="Equality___print"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">print</span></h3>
 
+<span class="declaration">Equality :: print ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1605,8 +2230,19 @@ N-array of matrices, either 2x1 or 2x2.<br>
 <a name="Equations___Equations"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Equations</span></h3>
 
+<span class="declaration">Equations :: Equations ( LorN )</span>
 <dl><dd>
+Create a system of equations.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">LorN</td>
+<td class="description" valign="baseline">array of strings (labels)<br>string, a list of labels processed by <a href="Shared.ox.html#varlist">varlist</a><br>positive integer, number of equations</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1653,6 +2289,7 @@ number of equations
 <a name="Equations___norm"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">norm</span></h3>
 
+<span class="declaration">virtual Equations :: norm ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1661,6 +2298,7 @@ number of equations
 <a name="Equations___penalty"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">penalty</span></h3>
 
+<span class="declaration">virtual Equations :: penalty ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1716,8 +2354,24 @@ J-array of Choleski of M[j]Sigma M[j]'.
 <a name="GHK___GHK"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">GHK</span></h3>
 
+<span class="declaration">GHK :: GHK ( R , J )</span>
 <dl><dd>
+Set constants for GHK.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">R</td>
+<td class="description" valign="baseline">integer, number of replications
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">J</td>
+<td class="description" valign="baseline">integer, choice dimensions</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1817,14 +2471,26 @@ number of replications.
 <a name="GHK___SetC"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SetC</span></h3>
 
+<span class="declaration">GHK :: SetC ( Sigma )</span>
 <dl><dd>
+Update array of choice-specific Choleskie's
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Sigma</td>
+<td class="description" valign="baseline">J&times;J variance matrix</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="GHK___SetSeed"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SetSeed</span></h3>
 
+<span class="declaration">static GHK :: SetSeed ( newseed )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1843,8 +2509,23 @@ vector of standard deviations .
 <a name="GHK___SimDP"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SimDP</span></h3>
 
+<span class="declaration">GHK :: SimDP ( V )</span>
 <dl><dd>
+Use GHK to simulate choice probabilities and Emaxes for a matrix of index values.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">V</td>
+<td class="description" valign="baseline">J&times;1 vector of choice values
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">2x1 array of J&times;1 vector of simulated Emaxes and choice probabilities<br/>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1861,8 +2542,35 @@ J-1.
 <a name="GHK___SimProb"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SimProb</span></h3>
 
+<span class="declaration">GHK :: SimProb ( j , V )</span>
 <dl><dd>
+Use GHK to simulate state-contingent choice probability  when U() includes additive N(0,&Sigma;) errors.
+<span class="expressions">\(Ev\)</span> is this simulated (conditional) value of setting <span class="expressions">\(\alpha^\star = j\)</span>:
+<span class="equation">$$Ev_j = \int_{-\infty}^{+\infty} (V_j+z_j) \left[ \int_{-\infty}^{L_{\sim j1}}\cdots  \int_{-\infty}^{L_{\sim jJ^-}}
+f(\delta_{j} | z_j)d\delta_{j} \right] f(z_j)dz_j.$$</span>
+Here <span class="expressions">\(\delta_{j}\)</span> is the <span class="expressions">\(J-1\)</span> vector of <span class="expressions">\(z_i-z_j.\)</span>  <span class="expressions">\(L_{\sim ji} = -(V_i-V_j)\)</span> is the upper bound on the region of <span class="expressions">\(z_i\)</span>
+consistent with <span class="expressions">\(j\)</span> being better than <span class="expressions">\(i\)</span>. <span class="expressions">\(P_j\)</span> is the same expression except <span class="expressions">\((V_j+z_j)\)</span> is replaced by <span class="expressions">\(1\)</span>.
+<P/>
+Bellman routines compute
+<span class="equation">$$Emax = \sim_{j=0}^{J-1} Ev_j P_j.$$</span>
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">j</td>
+<td class="description" valign="baseline">integer, option to simulate probability for
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">V</td>
+<td class="description" valign="baseline">J&times;1 vector of choice values
+<P/>
+Cholesky matrices are updated by (internal) calls to NnotIID::SetC
+simulated probability and Ev for option j are left in vj and pj</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1899,16 +2607,58 @@ output level
 <a name="GQH___coef"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">coef</span></h3>
 
+<span class="declaration">static GQH :: coef ( n )</span>
 <dl><dd>
+Return the polynomial coefficients of H<sub>n</sub> polynomial .
+Element 0 is the coefficient on x^n in the H polynomial, element n is the constant (i.e. x^0) coefficient.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">n</td>
+<td class="description" valign="baseline">the order of the polynomial
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">Hermite polynomial coefficients, 1/2 yields probabilists Hermite polynomial
+coefficients.as a 1-by-(n+1) row vector
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
 <a name="GQH___Initialize"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Initialize</span></h3>
 
+<span class="declaration">static GQH :: Initialize ( order )</span>
 <dl><dd>
+Set the nodes and weights for Gauss-Hermite Quadrature.
+<P/>
+<var>&int; f(x)exp{-x<sup>2</sup>/2}dx &nbsp; &approx; &nbsp; &sum;<sub>m=1,&hellip;,M</sub> &omega;<sub>m</sub> f(x<sub>m</sub>).</var>
+<P/>
+This can be used to compute the expected value under the normal distribution.
+<P/>
+Let <var>z &sim; N(0,1)</var>.<br>
+Since <var>&phi;(z) = (2&pi;)<sup>-0.5</sup> exp{-x<sup>2</sup>/2},</var> then<br>
+<var>E[f(z)] &approx; (2&pi;)<sup>-0.5</sup>&sum;<sub>m=1,&hellip;,M</sub> &omega;<sub>m</sub> f(x<sub>m</sub>).</var>
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">order</td>
+<td class="description" valign="baseline">integer, M
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="example">Example:</dt><dd class="example"><pre>
+GHQ::Initialize(8);
+println("E[x*x] = ", GQH::wght * sqr(GQH::nodes)  );  // / M_SQRT2PI
+</pre></dd>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1945,8 +2695,22 @@ corresponding weights  &omega;<sub>m</sub>
 <a name="GQL___Initialize"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Initialize</span></h3>
 
+<span class="declaration">static GQL :: Initialize ( order )</span>
 <dl><dd>
+Gauss-Laguerre nodes and weights.
+<DD><pre>
+&int;_<sub>0</sub><sup>+&infin;</sup> f(x)exp(-x) &cong; &sum;<sub>m</sub> &omega;<sub>m</sub> f(x<sub>m</sub>)
+</pre></dd>
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">order</td>
+<td class="description" valign="baseline">integer, 2-6, 8, 10, 20, 32</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -1973,6 +2737,7 @@ corresponding weights  &omega;<sub>m</sub>
 <a name="InEquality___InEquality"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">InEquality</span></h3>
 
+<span class="declaration">InEquality :: InEquality ( LorNorv )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1981,6 +2746,7 @@ corresponding weights  &omega;<sub>m</sub>
 <a name="InEquality___print"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">print</span></h3>
 
+<span class="declaration">InEquality :: print ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1989,6 +2755,7 @@ corresponding weights  &omega;<sub>m</sub>
 <a name="LinePoint___Copy"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Copy</span></h3>
 
+<span class="declaration">virtual LinePoint :: Copy ( h )</span>
 <dl><dd>
 
 </dd></dl>
@@ -1997,6 +2764,7 @@ corresponding weights  &omega;<sub>m</sub>
 <a name="LinePoint___GetV"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">GetV</span></h3>
 
+<span class="declaration">virtual LinePoint :: GetV ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -2005,6 +2773,7 @@ corresponding weights  &omega;<sub>m</sub>
 <a name="LinePoint___LinePoint"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">LinePoint</span></h3>
 
+<span class="declaration">LinePoint :: LinePoint ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -2044,15 +2813,26 @@ obj value.
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">aggregate</span></h3>
 
 <dl><dd>
+aggregate blackbox objectives into a scalar value.
 
-</dd></dl>
-
-<hr>
-<a name="MixPoint___Copy"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Copy</span></h3>
-
-<dl><dd>
-
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">inV=0,</td>
+<td class="description" valign="baseline">if no argument, V data member holds individual values<br>matrix of separable values to be aggregated within columns
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">outv=0,</td>
+<td class="description" valign="baseline">if no argument, objective stored in this.v<br>address to return objective
+The matrix passed as <code>inV</code> should be <var>N&times;M</var>.
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#AggregatorTypes">AggregatorTypes</a>, Objective::SetAggregation</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2071,14 +2851,6 @@ obj value.
 <span class="declaration">decl mix [public]</span>
 <dl><dd>
 mixture elements.
-
-</dd></dl>
-
-<hr>
-<a name="MixPoint___MixPoint"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">MixPoint</span></h3>
-
-<dl><dd>
 
 </dd></dl>
 
@@ -2125,8 +2897,13 @@ free weights.
 <a name="Parameter___Decode"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Decode</span></h3>
 
+<span class="declaration">virtual Parameter :: Decode ( f )</span>
 <dl><dd>
+Default decoding: no scaling, no constraining.
 
+<dl><dt class="returns">Returns:</dt><dd class="returns">v
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2153,8 +2930,18 @@ Treat as Determined, for now.
 <a name="Parameter___Encode"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Encode</span></h3>
 
+<span class="declaration">virtual Parameter :: Encode ( )</span>
 <dl><dd>
+Default encoding: no scaling, no constraining.
+<DD><pre>
+v = start;
+scale = 1.0;
+f = v;
+</pre></dd>
 
+<dl><dt class="returns">Returns:</dt><dd class="returns">v
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2181,6 +2968,7 @@ Initial passed value.
 <a name="Parameter___Menu"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Menu</span></h3>
 
+<span class="declaration">virtual Parameter :: Menu ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -2200,8 +2988,28 @@ tolerance for too near
 <a name="Parameter___Parameter"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Parameter</span></h3>
 
+<span class="declaration">Parameter :: Parameter ( L , ival )</span>
 <dl><dd>
+Create a new parameter.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">L</td>
+<td class="description" valign="baseline">parameter label
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">ival</td>
+<td class="description" valign="baseline">initial value
+<P/>
+Typically a user would create an object of class derived from this base
+class.  This function is called by those derived classes to set
+common elements of paramters.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2216,7 +3024,18 @@ tolerance for too near
 <a name="Parameter___ReInitialize"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ReInitialize</span></h3>
 
+<span class="declaration">Parameter :: ReInitialize ( )</span>
 <dl><dd>
+Reset the parameter to its hard-coded values.
+<DD>This does this:
+<pre>
+	v = start = scale = CV(ival);
+	f = 1.0;
+    Encode();
+</pre>
+<P/>
+Typically this is called by a method of the Objective to re-initialize
+some or all of the parameters that belong to it.
 
 </dd></dl>
 
@@ -2224,8 +3043,29 @@ tolerance for too near
 <a name="Parameter___Reset"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Reset</span></h3>
 
+<span class="declaration">Parameter :: Reset ( newv , IsCode )</span>
 <dl><dd>
+Reset the starting value of a parameter.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">newv</td>
+<td class="description" valign="baseline">value to reset at
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">IsCode</td>
+<td class="description" valign="baseline">TRUE [default] newv is a free value<br/>
+  FALSE newv is structural
+</td>
+</tr>
+</table>
+</dd>
+<dt class="returns">Returns:</dt><dd class="returns">the new starting structural value
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#Parameter___ReInitialize">ReInitialize</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2242,8 +3082,19 @@ Scaling value  s.
 <a name="Parameter___SetDoNotVary"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SetDoNotVary</span></h3>
 
+<span class="declaration">virtual Parameter :: SetDoNotVary ( setting )</span>
 <dl><dd>
+Set the value of <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">setting</td>
+<td class="description" valign="baseline">TRUE or FALSE</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2260,7 +3111,9 @@ Value at start of iteration.
 <a name="Parameter___ToggleDoNotVary"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">ToggleDoNotVary</span></h3>
 
+<span class="declaration">virtual Parameter :: ToggleDoNotVary ( )</span>
 <dl><dd>
+Toggle the value of <a href="Shared.ox.html#Parameter___DoNotVary">DoNotVary</a>.
 
 </dd></dl>
 <h2><span class="icon"><img class="icon" src="icons/class.png">&nbsp;</span><span class="text">Point</span></h2>
@@ -2268,8 +3121,28 @@ Value at start of iteration.
 <a name="Point___aggregate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">aggregate</span></h3>
 
+<span class="declaration">virtual Point :: aggregate ( inV , outv )</span>
 <dl><dd>
+aggregate blackbox objectives into a scalar value.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">inV=0,</td>
+<td class="description" valign="baseline">if no argument, V data member holds individual values<br>matrix of separable values to be aggregated within columns
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">outv=0,</td>
+<td class="description" valign="baseline">if no argument, objective stored in this.v<br>address to return objective
+The matrix passed as <code>inV</code> should be <var>N&times;M</var>.
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#AggregatorTypes">AggregatorTypes</a>, Objective::SetAggregation</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2282,14 +3155,6 @@ form of aggregation of vfunc() into func().
 
 <dl><dt class="seealso">See also:</dt><dd class="seealso">Objective::SetAggregation, <a href="Shared.ox.html#AggregatorTypes">AggregatorTypes</a></dd>
 </dl>
-</dd></dl>
-
-<hr>
-<a name="Point___Copy"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Copy</span></h3>
-
-<dl><dd>
-
 </dd></dl>
 
 <hr>
@@ -2309,14 +3174,6 @@ Free vector.
 <span class="declaration">decl G [public]</span>
 <dl><dd>
 Gradient
-
-</dd></dl>
-
-<hr>
-<a name="Point___GCopy"></a>
-<h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">GCopy</span></h3>
-
-<dl><dd>
 
 </dd></dl>
 
@@ -2344,6 +3201,7 @@ Jacobian
 <a name="Point___Point"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Point</span></h3>
 
+<span class="declaration">Point :: Point ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -2362,6 +3220,7 @@ Jacobian
 <a name="Point___Vstore"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Vstore</span></h3>
 
+<span class="declaration">virtual Point :: Vstore ( inV )</span>
 <dl><dd>
 
 </dd></dl>
@@ -2410,8 +3269,28 @@ position in vector
 <a name="Quantity___SetVolume"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SetVolume</span></h3>
 
+<span class="declaration">Quantity :: SetVolume ( Volume )</span>
 <dl><dd>
+Control variable-specifc output.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">Volume</td>
+<td class="description" valign="baseline">new <a href="Shared.ox.html#NoiseLevels">NoiseLevels</a>
+<P/>
+Each quantity variable has a volume setting which is initialized to SILENT.
+<P/>
+If the new Volume is greater than the current value then a log file is opened if one is not already open.
+<P/>
+If the new Volume is SILENT and a log file is already open then the log file is closed.
+<P/>
+</td>
+</tr>
+</table>
+</dd>
+<dt class="seealso">See also:</dt><dd class="seealso"><a href="Shared.ox.html#Quantity___logf">logf</a></dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2448,8 +3327,25 @@ Volume of output.
 <a name="SepPoint___aggregate"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">aggregate</span></h3>
 
+<span class="declaration">virtual SepPoint :: aggregate ( inV , outv )</span>
 <dl><dd>
+aggregate separable objectives into a scalar value.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">inV=0,</td>
+<td class="description" valign="baseline">if no argument, V data member holds separable values<br>matrix of separable values to be aggregated within columns
+</td>
+</tr>
+<tr>
+<td class="declaration" valign="baseline">outv=0,</td>
+<td class="description" valign="baseline">if no argument, objective stored in this.v<br>address to return objective
+The matrix passed as <code>inV</code> should be <var>(K&times;NvfuncTerms)&times;M</var>.</td>
+</tr>
+</table>
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2474,6 +3370,7 @@ Volume of output.
 <a name="SepPoint___SepPoint"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SepPoint</span></h3>
 
+<span class="declaration">SepPoint :: SepPoint ( Kvar , bb )</span>
 <dl><dd>
 
 </dd></dl>
@@ -2482,6 +3379,7 @@ Volume of output.
 <a name="SysPoint___SysPoint"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">SysPoint</span></h3>
 
+<span class="declaration">SysPoint :: SysPoint ( )</span>
 <dl><dd>
 
 </dd></dl>
@@ -2490,8 +3388,23 @@ Volume of output.
 <a name="Version___Check"></a>
 <h3><span class="icon"><img class="icon" src="icons/method.png">&nbsp;</span><span class="text">Check</span></h3>
 
+<span class="declaration">static Version :: Check ( indir )</span>
 <dl><dd>
+Check versions and set timestamp, log directory.
 
+<dl><dt class="parameters">Parameters:</dt><dd class="parameters"><!-- parameter table --!>
+<table class="parameter_table">
+<tr>
+<td class="declaration" valign="baseline">logdir</td>
+<td class="description" valign="baseline">str (default=".").  A directory path or file prefix to attach to all log files.
+All log files will receive the same time stamp, which is set here.
+</td>
+</tr>
+</table>
+</dd>
+<dt class="comments">Comments:</dt><dd class="comments">Only the first call does anything.  Any subsequent calls return immediately.
+</dd>
+</dl>
 </dd></dl>
 
 <hr>
@@ -2544,6 +3457,6 @@ Current niqlow version.  @name niqlowversion
 
 </dd></dl>
 <div class="footer">
-Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1</a> &copy Copyright 2005-2014 by Y. Zwols<br>
+Generated by <a href="http://oxdoc.sourceforge.net">oxdoc 1.1-beta</a> &copy Copyright 2005-2014 by Y. Zwols<br>
 Math typesetting by <a href="http://www.mathjax.org/">Mathjax</a>
 </div>
