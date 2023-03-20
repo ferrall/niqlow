@@ -4,7 +4,7 @@
 /** Creates the interactive menu items for choosing method, table, column, and row to replicate.**/
 RustEstimates::menu() {
     targ = new ParamMenu("Rust1987 estimation",TRUE,Run);
-    targ->add( {"Disc w Month/Mileage 0/1",Zero},{"Table (NX) 0/1",Zero},{"Column (sample) 0/1/2",One},{"Row (disc. factor) 0/1",Zero});
+    targ->add( {"Disc w Month/Mileage 0/1",One},{"Table (NX) 0/1",Zero},{"Column (sample) 0/1/2",One},{"Row (disc. factor) 0/1",Zero});
     return targ;
     }
 
