@@ -17,13 +17,13 @@ struct Determined : Parameter	{
 
 
 <DT>Scale, free value and transformation</DT>
-$$\eqalign{
-s &= \cases{ v_0 & $|v_0| \gt $ NearFlat\cr
-              1  & else\cr}\cr
-f &= \cases{ 1 & $|v_0| \gt $ NearFlat\cr
-             v_0  & else\cr}\cr
-v &= sf\cr
-}$$
+$$s = \cases{ v_0 & $|v_0| \gt $ NearFlat\cr
+              1  & else\cr}$$
+              
+$$f = \cases{ 1 & $|v_0| \gt $ NearFlat\cr
+             v_0  & else\cr}$$
+             
+$$v = sf$$
 
 **/
 struct Free : Parameter {

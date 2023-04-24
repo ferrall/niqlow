@@ -36,16 +36,17 @@ RustEstimates::Run(target) {
 
     /* Second (1) stage estimates. only utility plist[Two] params vary. */
         nfxp->SetStage(1);
- 	    decl mle2=new NelderMead(nfxp);
-        mle2 -> Iterate();
+ 	decl mle2=new NelderMead(nfxp);
+	mle2->Iterate();			// Output files were produced without this line
 
     /* Third stage efficient estimates: all parameters free and unscaled so standard errors directly available */
-        nfxp->ToggleParameterConstraint();  //parameters unconstrained
-        nfxp->SetStage(Two);                //all non-calibrated parameters free
         delete mle2;
+        nfxp->SetStage(Two);                //all non-calibrated parameters free
+	EMax -> ToggleRunSafe();
         mle2 = new BHHH(nfxp);
+        nfxp->ToggleParameterConstraint();  //parameters unconstrained
         mle2.Volume = NOISY;
-        mle2 ->Iterate();
+        mle2 ->Iterate(1);
 
     // clean up objects so menu can continue
     delete mle, delete mle2, delete nfxp, delete EMax;

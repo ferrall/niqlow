@@ -627,13 +627,12 @@ return coef;
 
 /** Set the nodes and weights for Gauss-Hermite Quadrature.
 
-<var>&int; f(x)exp{-x<sup>2</sup>/2}dx &nbsp; &approx; &nbsp; &sum;<sub>m=1,&hellip;,M</sub> &omega;<sub>m</sub> f(x<sub>m</sub>).</var>
-
+$$\int f(x) e^{-x^} dx \approx \sum_{m=1}^M \omega_m f(x_m).$$
 This can be used to compute the expected value under the normal distribution.
 
-Let <var>z &sim; N(0,1)</var>.<br>
-Since <var>&phi;(z) = (2&pi;)<sup>-0.5</sup> exp{-x<sup>2</sup>/2},</var> then<br>
-<var>E[f(z)] &approx; (2&pi;)<sup>-0.5</sup>&sum;<sub>m=1,&hellip;,M</sub> &omega;<sub>m</sub> f(x<sub>m</sub>).</var>
+Let $z \sim N(0,1)$.<br>
+Since $\phi(z) = (2\pi)^{-0.5}\exp{-x^2/2}$,then<br>
+$$E[f(z)] \approx (2\pi)^{-0.5}\sum_{m=1}^M \omega_m f(x_m).$$
 
 @param order integer, M
 

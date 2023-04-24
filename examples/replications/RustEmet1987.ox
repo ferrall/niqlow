@@ -1,5 +1,5 @@
 #include "RustEmet1987.h"
-/* This file is part of niqlow. Copyright (C) 2011-2020 Christopher Ferrall */
+/* This file is part of niqlow. Copyright (C) 2011-2023 Christopher Ferrall */
 
 /** Computes the one period linear cost as 2x1 vector
 $$U = dRC+(1-d)\theta_1 x + n.$$

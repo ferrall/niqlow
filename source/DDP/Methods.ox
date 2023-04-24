@@ -203,7 +203,7 @@ Its job is to iterate over $\Theta.$
 <LI>Set the `Flags::setPstar` for whether $P^\star$ should be computed or not.</LI>
 <LI>Compute utility</LI>
 <LI>Iterate over $\theta$ applying Bellman's equation or other solution method if replaced.</LI>
-<LI>Call any functions added to the <code>PostGSolve</code> `HookTimes`<code>
+<LI>Call any functions added to the <code>PostGSolve</code> `HookTimes`
 </OL>
 **/
 GSolve::Solve(instate) {
@@ -224,7 +224,7 @@ GSolve::Solve(instate) {
 
 <OL>
 <LI>Compute ThetaUtility().</Li>
-<LI>Compute the value of actions, $v(A(\theta),\theta)</var> by calling `Bellman::ActVal`() or the
+<LI>Compute the value of actions, $v(A(\theta),\theta)$ by calling `Bellman::ActVal`() or the
 replacement for the actual method</LI>
 <LI>Call `Bellman::thetaEMax`() or replacment to store the value in the scratch space for $V(\theta)$.</LI>
 <LI>Call `GSolve::PostEmax`() or replacement to carry out post emax tasks, CCP smoothing, e.g.</LI>

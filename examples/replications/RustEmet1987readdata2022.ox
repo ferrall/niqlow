@@ -25,10 +25,10 @@ enum{group,fname,nmths,nbuses}
 Rust (1987) uses the mileage reading at replacement in the raw file to determine which month the replacement occurred.
 Original replicated used the month of replacement in the raw file.
 **/
-enum{UseMonth,UseMileage,Nruns}
+enum{UseMonth,UseMileage,UseRust,Nruns}
 
 const decl
-        /** month method.**/                    runtype = UseMileage, // UseMonth,
+        /** month method.**/                    runtype = UseRust, // UseMonth,
                                                 ext = ".ASC",
                                                 outdir = "./",
         /** max miles.**/                       mxmiles = 450000,
@@ -59,7 +59,12 @@ main () {
     println("Converting .asc Bus data files into Stata data sets used by RustEmet1987mle.ox replication code.\n"
             ,"This discretizes the mileage data and resets it according to replacements.  It generates x90 and x175.\n"
             ,"It creates a second version of each .dta file that excludes the first month for each bus which may be the estimation sample. \n");
-    print("RUNTYPE = ",runtype," meaning replacement ",runtype==UseMonth ? " MONTH " : " MILEAGE ", "in bus header used" );
+    print("RUNTYPE = ",runtype," meaning replacement ");
+    switch_single (runtype) {
+        case UseMonth :  print(" Month ... my original incorrect ");
+        case UseMileage: print(" Mileage...correct coding ");
+        case UseRust  : print(" Use Rust original ceil() code ");
+        }
 
     allbuses = {};
     foreach (curf in files) allbuses |= read(curf);
@@ -108,7 +113,7 @@ read(curf) {
                 }
 		   bus = (runtype==UseMonth)
                         ? f[prev:repm]~(zeros(repm-prev,1)|1)        // last 1 is the replacement
-                        : f[prev:mrepm]~(zeros(mrepm-prev,1)|1);     // last 1 is the replacement
+                        : f[prev:mrepm]~(zeros(mrepm-prev,1)|1);     // last 1 is the replacement. same for Rust and Mileage
            if (repm!=mrepm) 
                 println(myhead[r2mi]," First replacement months ",
                         "Milease Method:",mrepm,":",f[mrepm],
@@ -124,13 +129,13 @@ read(curf) {
                     }
 			   bus |= runtype == UseMonth
                                     ? setbounds(f[prev+1:repm] -myhead[r2mi],0,.Inf)~(zeros(repm-prev-1,1)|1)
-                                    : setbounds(f[prev+1:mrepm] -myhead[r2mi],0,.Inf)~(zeros(mrepm-prev-1,1)|1);
+                                    : setbounds(f[prev+1:mrepm] -myhead[r2mi],0,.Inf)~(zeros(mrepm-prev-1,1)|1);  // same for Mileage & Rust
                println(repm!=mrepm ? "****" : "    ",myhead[r3mi],
                              " Second replacement month ",
-                             "Milease Method:",mrepm,":",f[mrepm],
+                             "Milease & Rust Method:",mrepm,":",f[mrepm],
                              " Month Method:"," ",repm,":",f[repm]);
                bus |= runtype == UseMonth // no replacements after this
-                                    ? (repm+1<rows(f) ? setbounds(f[repm+1:]     -myhead[r3mi],0,.Inf)~0 : <> )	
+                                    ? (repm+1<rows(f) ? setbounds(f[repm+1:]     -myhead[r3mi],0,.Inf)~0 : <> )	 // THis is wrong because it uses mileage in the header not in the replacement month
                                     : setbounds(f[mrepm+1:]    -myhead[r3mi],0,.Inf)~0;	
 			   }
 		    else {  // 1 replacement, take on 0 decision for rest of the data
@@ -146,9 +151,9 @@ read(curf) {
        foreach (b in Nbins[ib]) {
             width = mxmiles / b;
             //println("    -",ib," ",b," width= ",width," maxjump ",Mxjmps[ib]*width);
-            xnew = bus[][mm];         //copy actual mileage, but note since replacement already accounted for
-	        for(k=0;k < b;++k)  //replace mileage with bin element-by-element
-		      xnew = (xnew.>=width*k) .&& (xnew.<width*(k+1)) .? k .: xnew;  //Rust 1987 code used ceil().  Could use floor
+            xnew = bus[][mm];         //copy actual mileage, but replacement already accounted for
+	        for(k=0;k < b;++k)  //replace mileage with bin element-by-element (but across all months simultaneously)
+		        xnew = (xnew.>=width*k) .&& (xnew.<width*(k+1)) .? k+(runtype==UseRust) .: xnew;  //k+1 if UseRust
             do {
                 dfx = (lag(xnew,-1) - xnew.*(1-bus[][ii]));     // if bus replaced, mileage since replacement already accounted for. 
                 stillsome = any(dfx.>Mxjmps[ib]);

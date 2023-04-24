@@ -114,7 +114,7 @@ Objective::Save(fname)	{
 	
 /** Load state of the problem.
 @param fname string, name of file<br>0 [default], use the default name, the label with spaces removed<br>-1, do nothing and return FALSE.
-@comment FinX is read in to set <code>DONOTVARY<code> for each parameter. The value of F is ignored by Load.  `Objective::Encode`() called by Load.
+@comment FinX is read in to set <code>DONOTVARY</code> for each parameter. The value of F is ignored by Load.  `Objective::Encode`() called by Load.
 @returns TRUE if parameter values were loaded from file<br> FALSE otherwise.
 @see Objective::Save, Objective::L
 **/
@@ -1122,8 +1122,9 @@ CES::CES(L,alphas,elast,A,labels) {
     NvfuncTerms = 1;
     }
 
-/** $A \left[{\sum} \alpha_i x_i^\sigma\right ]^{1/\sigma}.
-$sigma = (\eta-1)/\eta$
+/** Compute CES.
+$A \left[{\sum} \alpha_i x_i^\sigma\right ]^{1/\sigma}.$
+$sigma \equiv (\eta-1)/\eta$
 **/
 CES::vfunc() {
     xpon = CV(elast);
