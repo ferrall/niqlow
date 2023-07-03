@@ -588,7 +588,7 @@ Outcome::PartialObservedLikelihood() {
 		arows=ind[onlyacts][Ainds[q]];                    //action rows consistent with this state
 		PS = GetPstar(viinds[now][q])[arows][];         //choice probabilities of consistent actions
         ue = GetUseEps(viinds[now][q]);
-        println("%%% ",q," ",PS);
+//        println("%%% ",q," ",PS);
 		for (h = 0,totprob = 0.0;h<nh;++h) {      //loop over semi-exogenous values
 			bothrows = dosemi[h]*N::Ewidth + einds;                       //combination of consistent epsilon and eta values
 			curprob = sumr( PS[][ bothrows ].*(ue ? NxtExog[Qprob][ bothrows ]' : 1.0/nh ) )';  //combine cond. choice prob. and iid prob. over today's shocks
@@ -999,7 +999,8 @@ Outcome::AccountForUnobservables() {
 		if ( (ind[ss]==DoAll)|| any(isdotnan(state[SS[ss].left:SS[ss].right]))) {  //have to integrate over states
             AnyMissing[ss] = TRUE;
 			ind[ss] = VZero;
-			for(s=SS[ss].left;s<=SS[ss].right;++s)
+//			if (ss==tracking) println(I::OO[ss]);
+			for(s=SS[ss].left;s<=SS[ss].right;++s) {
                 if ( I::OO[ss][s] )	{  //more than one value of state s
 					if (isnan(state[s]))  // all values of s are possible
 						ind[ss] = vec(ind[ss]+reshape(I::OO[ss][s]*States[s].vals',
@@ -1007,6 +1008,8 @@ Outcome::AccountForUnobservables() {
 					else
 						ind[ss] += I::OO[ss][s]*state[s];  // add index of observed state value
 					}
+//				if (ss==tracking) println(s," ",state[s],ind[ss],States[s].vals);
+			}
 			}					
 	s = 0;
 	Ainds = <>;
@@ -1145,7 +1148,8 @@ OutcomeDataSet::LoadOxDB() {
 				cur = fparray[inf];
 			else	//fparray does not point to self
 				cur = this;     // MAYBE SHOULD BE first ???
-			cur->FPanel::Append(curid = curd[idvar],curd[freqvar]);
+			curid = curd[idvar];
+			cur->FPanel::Append(curid,curd[freqvar]);
 			++FN;
 			}
 		fpcur = cur->GetCur();
