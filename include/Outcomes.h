@@ -16,9 +16,7 @@ struct Outcome : Data {
 
 	static 	decl
 	   /** . @internal **/    AnyMissing
-#ifdef OX_PARALLEL
-                                         = < [DSubSpaces] *0> //Oxdoc does not recognize this syntax so ifdef hides it
-#endif
+                                         = < [DSubSpaces] *0>
      	,
      /** . @internal **/                Rust_Eq_4_15,
     /** . @internal **/                 pathpred,

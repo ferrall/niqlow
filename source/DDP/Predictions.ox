@@ -581,11 +581,7 @@ This routine can be called more than once, but once `PanelPrediction::Predict`()
 been called no more objects can be added to the list.
 
 **/
-PanelPrediction::Tracking(LorC,...
-    #ifdef OX_PARALLEL
-    args
-    #endif
-) {
+PanelPrediction::Tracking(LorC,...args) {
     if (EverPredicted) {
         oxwarning("DDP Warning 12.\n Do not add to tracking list after predictions made ... ignored\n");
         return;
@@ -933,11 +929,7 @@ PredictionDataSet::TrackingMatchToColumn(LorC,mom) {
             FALSE: the <code>NotInData</code> tag will be sent.
 @param ... objects or array of objects to track
 **/
-PredictionDataSet::TrackingWithLabel(InDataOrNot,...
-    #ifdef OX_PARALLEL
-    args
-    #endif
-) {
+PredictionDataSet::TrackingWithLabel(InDataOrNot,...args) {
     decl v, pparg = InDataOrNot ? UseLabel : NotInData;
     PanelPrediction::Tracking(pparg,args);
     }

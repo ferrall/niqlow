@@ -2,6 +2,6 @@
 
 main() {
     CGI::Initialize();
-    println(CGI:GetVar("Query_String"));
+    println(CGI::GetVar("Query_String"));
     CGI::Finalize();
     }

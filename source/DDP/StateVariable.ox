@@ -1316,11 +1316,7 @@ Coevolving::Transit() {
 @param L label for block
 @param ... list of `Coevolving` states to add to the block.
 **/
-StateBlock::StateBlock(L,...
-    #ifdef OX_PARALLEL
-    va
-    #endif
-    )	{
+StateBlock::StateBlock(L,...va) {
 	this.L = L;
 	N= 0;
 	Theta={};
@@ -1336,11 +1332,7 @@ StateBlock::StateBlock(L,...
 @param ... list of `Coevolving` state variables to add to the block.
 The default `StateBlock::Actual` matrix is built up from the actual vectors of variables added to the block.
 **/
-StateBlock::AddToBlock(...
-    #ifdef OX_PARALLEL
-    news
-    #endif
-    )	{
+StateBlock::AddToBlock(...news) {
 	decl i,k,nd,newrow, s, oldallv;
 	//news = {news}|va_arglist();
     foreach(s in news[i]) {   //for (i=0;i<sizeof(news);++i) {

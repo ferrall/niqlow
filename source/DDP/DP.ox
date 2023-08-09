@@ -286,38 +286,28 @@ DP::AddStates(SubV,va) 	{
 /** Add `StateVariable`s to the endogenous vector $\theta$.
 @param ... `StateVariable`s to add to $\theta$
 **/
-DP::EndogenousStates(...
-    #ifdef OX_PARALLEL
-    vs
-    #endif
-    )	{	AddStates(endog,vs); }
+DP::EndogenousStates(...vs) {
+  AddStates(endog,vs);
+}
 
 /** Add `StateVariable`s to the exogenous vector $\epsilon$.
 @param ... Exogenous `StateVariable`s to add $\epsilon$
 **/
-DP::ExogenousStates(...
-    #ifdef OX_PARALLEL
-    vs
-    #endif
-) 	{ AddStates(exog,vs); } 	
+DP::ExogenousStates(...vs) {
+  AddStates(exog,vs);
+}
 
 /** Add `StateVariable`s to the semiexogenous vector $\eta$.
 @param ... Semi-exogenous `StateVariable`s to add to $\eta$
 **/
-DP::SemiExogenousStates(...
-    #ifdef OX_PARALLEL
-    vs
-    #endif
-) 	{ AddStates(semiexog,vs); } 	
+DP::SemiExogenousStates(...vs) {
+  AddStates(semiexog,vs);
+}
 
 /** Add `TimeInvariant`s to the group vector $\gamma$.
 @param ... `TimeInvariant`s to add to $\gamma$
 **/
-DP::GroupVariables(...
-    #ifdef OX_PARALLEL
-    va
-    #endif
-)	{
+DP::GroupVariables(...va) {
 	decl cv,ccv;
     foreach(cv in va) {
     	if (isarray(cv)){
@@ -351,11 +341,7 @@ Actions(work = new ActionVariable("w",2));
 @comments
 If no action variables are added to <code>MyModel</code> then a no-choice action is added by `DP::CreateSpaces`().
 **/
-DP::Actions(...
-    #ifdef OX_PARALLEL
-    va
-    #endif
-) 	{
+DP::Actions(...va) {
 	decl a, i, j, nr, pos=S[acts].D, sL;
     for(i=0;i<sizeof(va);++i)	{
         if (isarray(va[i])) {
@@ -392,11 +378,7 @@ DP::Actions(...
 
 @see DP::Chi, StaticAux
 **/
-DP::AuxiliaryOutcomes(...
-    #ifdef OX_PARALLEL
-    va
-    #endif
-) {
+DP::AuxiliaryOutcomes(...va) {
 	if (!isarray(SubVectors)) oxrunerror("DDP Error 40. Error: can't add auxiliary before calling Initialize()",0);
 	decl pos = sizeof(Chi), i,j,s;
     foreach(s in va) {
@@ -1792,11 +1774,7 @@ CreateSpaces();
 @comments <code>MyModel</code> can also create a derived `Clock` and pass it to SetClock.
 		
 **/
-DP::SetClock(ClockOrType,...
-    #ifdef OX_PARALLEL
-    va
-    #endif
-)	{
+DP::SetClock(ClockOrType,...va) {
 	if (isclass(counter)) oxrunerror("DDP Error 46. Clock/counter state block already initialized");
 	if (isclass(ClockOrType,"Clock")) {
         counter = ClockOrType;
@@ -2142,11 +2120,7 @@ DPDebug::Initialize() {
 	}
 
 /** . @internal **/
-DPDebug::outSVTrans(...
-    #ifdef OX_PARALLEL
-    va
-    #endif
-) {
+DPDebug::outSVTrans(...va) {
 	decl rp = new SVT(va);
 	rp -> Traverse();
 	delete rp;

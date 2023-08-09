@@ -251,11 +251,7 @@ ParameterBlock::ParameterBlock(L, ...) {
 @param psi `Parameter` to add.
 @param ... more parameters
 **/
-ParameterBlock::AddToBlock(...
-    #ifdef OX_PARALLEL
-    va
-    #endif
-    )	{
+ParameterBlock::AddToBlock(...va) {
 	decl b;
 	if (pos!=UnInitialized) oxrunerror("FiveO Error 21a. Cannot add to a Block after it has been added to the Objective\n");
     foreach (b in va) {

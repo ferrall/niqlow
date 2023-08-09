@@ -908,11 +908,7 @@ OutcomeDataSet::MatchToColumn(aORs,LorC) {
             ignored.<br/>
 @param ... continues with object2, LoC2, object3, LorC3, etc.<br/>
 **/
-OutcomeDataSet::ObservedWithLabel(...
-    #ifdef OX_PARALLEL
-    va
-    #endif
-) {
+OutcomeDataSet::ObservedWithLabel(...va) {
 	decl offset,aORs,LorC,k,bv;
 	if (!Version::MPIserver && Data::Volume>SILENT && isfile(Data::logf) ) fprint(Data::logf,"\nAdded to the observed list: ");
     foreach (aORs in va) {
@@ -942,11 +938,7 @@ OutcomeDataSet::ObservedWithLabel(...
 @comments Does nothing unless variable was already sent to
 `OutcomeDataSet::ObservedWithLabel`();
 **/
-OutcomeDataSet::UnObserved(...
-    #ifdef OX_PARALLEL
-    va
-    #endif
-) {
+OutcomeDataSet::UnObserved(...va) {
 	decl offset,aORs,k;
 	for (k=0;k<sizeof(va);++k) {
 		aORs = va[k];
