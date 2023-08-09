@@ -748,11 +748,7 @@ ExPostSmoothing::SetSmoothing(Method,smparam) {
 to add any state variables to the model.</DT>
 
 **/
-OneStateModel::Initialize(UorB,Method,...
-    #ifdef OX_PARALLEL
-    args
-    #endif
-    ) {
+OneStateModel::Initialize(UorB,Method,...args) {
     if (isfunction(UorB)) {
         U = UorB;
         ExPostSmoothing::Initialize(new OneStateModel());

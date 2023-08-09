@@ -436,11 +436,7 @@ To toggle elements of a parameter block ...
 
 @see Objective::ToggleBlockElements
 **/
-Objective::ToggleParams(...
-    #ifdef OX_PARALLEL
-    va
-    #endif
-) {
+Objective::ToggleParams(...va) {
     decl v,p;
     if (!once) oxrunerror("Must call Load() or Encode() before toggling parameters");
 	foreach (v in va) {
@@ -807,11 +803,7 @@ Constrained::Jacobian() {
 array: any argument can send an array which contains only parameters and blocks	
 @see Parameter,  Objective::Psi
 **/
-Objective::Parameters(...
-    #ifdef OX_PARALLEL
-    args
-    #endif
-) {
+Objective::Parameters(...args) {
 	if (once) oxrunerror("FiveO Error 33. Cannot add parameters after calling Objective::Encode()");
  	decl a, p, b;
      if (!sizeof(args)&&(!Version::MPIserver)) oxwarning("FiveO Warning??.  Parameters called with an empty list");
@@ -1229,11 +1221,7 @@ Equilibrium::Print(orig,fn,toscreen){
 @param ... `Parameter`s and arrays of Parameters to optimize over.
 @comments  `Objective::NvfuncTerms` is set to <code>data.FN</code>, the total number of paths in the panel
 **/
-DataObjective::DataObjective (L,data,...
-    #ifdef OX_PARALLEL
-    va
-    #endif
-    )	{
+DataObjective::DataObjective (L,data,...va) {
     if ( ismember(data,"FN")!=2 || ismember(data,"EconometricObjective")!=1 )
 	       oxrunerror("data must have a FN member and a EconometricObjective method, like Panel and PanelPrediction classes");
 	BlackBox(L);
@@ -1430,11 +1418,7 @@ Separable::Separable(L,Kvar) {
 @param ... `Parameter`(s) and/or arrays of Parameters to add to the objective
 @comment On any call to <code>vfunc()</code> common parameters will have the same value for each <var>k</var>.
 **/
-Separable::Common(...
-    #ifdef OX_PARALLEL
-    va
-    #endif
- ) {
+Separable::Common(...va) {
 	decl cs = sizeof(Psi),m;
 	Objective::Parameters(va);
 	for (m=cs;m<sizeof(Psi);++m) ComInd |= Psi[m].pos;
@@ -1639,11 +1623,7 @@ A single argument, then it must be a D&times;K matrix<br>
 D arguments, then each must be a `ParameterBlock` of size K and<br>
 	Lambda[d] = va[d]    for d = 0, &hellip; D&oline;<br>
 **/
-Mixture::Mixture(L,Dvar,Kvar,MixType,...
-    #ifdef OX_PARALLEL
-    va
-    #endif
-) {
+Mixture::Mixture(L,Dvar,Kvar,MixType,...va) {
 	decl k,d, ll;
 	oxwarning("MIXTURE NOT WORKING YET.  WAIT UNTIL NEXT VERSION");
 	if (isclass(Dvar,"Discrete")) this.Dvar = Dvar;
