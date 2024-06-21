@@ -8,5 +8,5 @@ main()	{
 	alg = new BHHH(obj);
 	alg.Volume = LOUD;
 	alg -> Iterate();
-    println(obj.cur.SE');
+    println(obj.vcur.SE');
     }
